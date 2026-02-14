@@ -1976,12 +1976,6 @@
             }
             
             if (analysis.negativeItems.length > 0) {
-                html += `
-                    <div class="section">
-                        <h3>⚠️ Negative Items Detected (${analysis.negativeItems.length})</h3>
-                        <div class="checkbox-group" style="margin-top: 15px;">
-                `;
-                
                 const itemLabels = {
                     late_payment: { name: 'Late Payments', rate: '75%' },
                     collections: { name: 'Collections Account', rate: '85%' },
@@ -1995,17 +1989,19 @@
                     duplicate_account: { name: 'Duplicate Account', rate: '95%' }
                 };
                 
-                analysis.negativeItems.forEach(item => {
+                const itemsList = analysis.negativeItems.map(item => {
                     const label = itemLabels[item] || { name: item.replace('_', ' '), rate: '70%' };
-                    html += `
-                        <div class="detected-item ${item === 'duplicate_account' || item === 'hard_inquiry' ? 'high-priority' : 'medium-priority'}">
-                            <h4>🔴 ${label.name} <span style="color: #28a745;">(${label.rate} Success)</span></h4>
-                            <p>Auto-selected for dispute</p>
-                        </div>
-                    `;
-                });
+                    return `${label.name} (${label.rate})`;
+                }).join(', ');
                 
-                html += '</div></div>';
+                html += `
+                    <div class="section">
+                        <h3>⚠️ Negative Items Auto-Selected (${analysis.negativeItems.length})</h3>
+                        <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                            ✅ <strong>${itemsList}</strong> — These have been automatically selected in the form below.
+                        </p>
+                    </div>
+                `;
             }
             
             if (analysis.discrepancies.length > 0) {
