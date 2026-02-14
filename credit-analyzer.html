@@ -1655,7 +1655,13 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Find the tab button by onclick attribute
+                const tabBtn = document.querySelector(`.tab[onclick*="${tabName}"]`);
+                if (tabBtn) tabBtn.classList.add('active');
+            }
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
         
@@ -1824,8 +1830,11 @@
             // Switch to manual tab
             switchTab('manual');
             
-            // Scroll to show what was detected
-            document.getElementById('manualTab').scrollIntoView({ behavior: 'smooth' });
+            // Scroll to show the analysis results
+            const analysisDiv = document.getElementById('uploadAnalysis');
+            if (analysisDiv) {
+                analysisDiv.scrollIntoView({ behavior: 'smooth' });
+            }
         }
         
         function analyzeExtractedText(text) {
@@ -2049,8 +2058,8 @@
                 </div>
             `;
             
-            // Insert before results
-            const resultsDiv = document.getElementById('results');
+            // Insert at the beginning of manual tab
+            const manualTab = document.getElementById('manualTab');
             const analysisDiv = document.createElement('div');
             analysisDiv.id = 'uploadAnalysis';
             analysisDiv.innerHTML = html;
@@ -2061,7 +2070,8 @@
             const oldAnalysis = document.getElementById('uploadAnalysis');
             if (oldAnalysis) oldAnalysis.remove();
             
-            resultsDiv.parentNode.insertBefore(analysisDiv, resultsDiv);
+            // Insert at the beginning of manual tab content
+            manualTab.insertBefore(analysisDiv, manualTab.firstChild);
             
             // Also update results dashboard
             document.getElementById('totalDiscrepancies').textContent = analysis.negativeItems.length + analysis.discrepancies.length;
