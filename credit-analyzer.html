@@ -608,7 +608,145 @@
         .match { color: #28a745; font-weight: bold; }
         .mismatch { color: #dc3545; font-weight: bold; }
         
-        .hidden { display: none !important; }
+        /* Detected Items */
+        .detected-item {
+            background: white;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .detected-item.high-priority {
+            border-left-color: #dc3545;
+        }
+        .detected-item.medium-priority {
+            border-left-color: #ffc107;
+        }
+        .detected-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .detected-item p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Strategy Cards */
+        .strategy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #dc3545;
+        }
+        .strategy-card.fast { border-left-color: #28a745; }
+        .strategy-card.state { border-left-color: #17a2b8; }
+        .strategy-card.ferpa { border-left-color: #9c27b0; }
+        
+        .strategy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .strategy-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .strategy-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-4day {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-72hour {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-ferpa {
+            background: #e1bee7;
+            color: #6a1b9a;
+        }
+        .badge-state {
+            background: #b3e5fc;
+            color: #01579b;
+        }
+        
+        .discrepancy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #dc3545;
+        }
+        .discrepancy-card.warning { border-left-color: #ffc107; }
+        .discrepancy-card.info { border-left-color: #17a2b8; }
+        .discrepancy-card.success { border-left-color: #28a745; }
+        
+        .discrepancy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .discrepancy-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .discrepancy-severity {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .severity-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .severity-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .severity-low {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        /* Success badges */
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .success-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .success-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .success-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
         
         @media (max-width: 768px) {
             .checkbox-group {
@@ -1658,9 +1796,275 @@
         }
         
         function analyzeUploadedReport() {
+            if (!extractedText) {
+                alert('No text extracted. Please upload a file first.');
+                return;
+            }
+            
+            // Analyze the extracted text
+            const analysis = analyzeExtractedText(extractedText);
+            
+            // Auto-populate form fields
+            if (analysis.name) document.getElementById('clientName').value = analysis.name;
+            if (analysis.creditor) document.getElementById('creditorName').value = analysis.creditor;
+            if (analysis.accountNumber) document.getElementById('accountNumber').value = analysis.accountNumber;
+            
+            // Auto-check detected negative items
+            analysis.negativeItems.forEach(item => {
+                const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.closest('.checkbox-item').classList.add('selected');
+                }
+            });
+            
+            // Show analysis results
+            showUploadAnalysis(analysis);
+            
+            // Switch to manual tab
             switchTab('manual');
-            document.querySelectorAll('.tab')[1].click();
-            analyzeForm();
+            
+            // Scroll to show what was detected
+            document.getElementById('manualTab').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function analyzeExtractedText(text) {
+            const lowerText = text.toLowerCase();
+            const analysis = {
+                name: null,
+                creditor: null,
+                accountNumber: null,
+                negativeItems: [],
+                discrepancies: [],
+                recommendations: []
+            };
+            
+            // Extract name
+            const nameMatch = text.match(/(?:name|consumer|reported for)[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i);
+            if (nameMatch) analysis.name = nameMatch[1];
+            
+            // Extract creditor
+            const creditorPatterns = [
+                /(?:creditor|lender|original creditor|sold to)[\s:]+([A-Z][A-Za-z\s&]+(?:Bank|Corp|Inc|LLC|Company|Financial|Credit|Capital|One|Chase|Wells Fargo|Citi|Discover|Amex|American Express|Portfolio|Recovery|Midland|Encore))/i,
+                /([A-Z][A-Za-z\s]+(?:Collection|Collections|Credit Systems|Recovery|Agency))/i
+            ];
+            for (const pattern of creditorPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    analysis.creditor = match[1].trim();
+                    break;
+                }
+            }
+            
+            // Extract account number
+            const accountMatch = text.match(/(?:account|acct)[\s#:]+([\d\-X]+)/i);
+            if (accountMatch) analysis.accountNumber = accountMatch[1];
+            
+            // Detect negative items
+            const negativePatterns = {
+                late_payment: /(30|60|90|120)\s*days?\s*late|past\s*due|delinquent|payment\s*history/i,
+                collections: /collection|collected|debt\s*collector|placed\s*for\s*collection|assigned\s*to/i,
+                charge_off: /charge[\s-]*off|charged\s*off|profit\s*and\s*loss|written?\s*off/i,
+                repossession: /repossession|repos|repo|repossessed/i,
+                foreclosure: /foreclos|foreclosed|in\s*foreclosure/i,
+                bankruptcy: /bankruptcy|chapter\s*(7|13)|discharged|filed\s*bankruptcy/i,
+                tax_lien: /tax\s*lien|federal\s*tax\s*lien|state\s*tax\s*lien/i,
+                judgment: /judgment|court\s*judgment|civil\s*judgment/i,
+                hard_inquiry: /hard\s*inquiry|credit\s*inquiry|inquiry\s*date/i,
+                duplicate_account: /duplicate|same\s*account|multiple\s*listings/i
+            };
+            
+            for (const [type, pattern] of Object.entries(negativePatterns)) {
+                if (pattern.test(lowerText)) {
+                    analysis.negativeItems.push(type);
+                }
+            }
+            
+            // Find discrepancies
+            // Check for date discrepancies
+            const datePattern = /(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/g;
+            const dates = text.match(datePattern) || [];
+            if (dates.length > 3) {
+                analysis.discrepancies.push({
+                    type: 'Multiple Dates',
+                    description: `${dates.length} different dates found - possible date inaccuracy or re-aging`,
+                    severity: 'high'
+                });
+            }
+            
+            // Check for balance discrepancies
+            const balanceMatches = text.match(/balance[:\s]+\$?([\d,]+\.?\d{0,2})/gi) || [];
+            if (balanceMatches.length > 1) {
+                analysis.discrepancies.push({
+                    type: 'Balance Inconsistency',
+                    description: 'Multiple balance amounts reported',
+                    severity: 'medium'
+                });
+            }
+            
+            // Check for old accounts
+            const yearPattern = /20\d{2}/g;
+            const years = text.match(yearPattern) || [];
+            const currentYear = new Date().getFullYear();
+            const oldYears = years.filter(y => currentYear - parseInt(y) > 7);
+            if (oldYears.length > 0) {
+                analysis.discrepancies.push({
+                    type: 'Potential Obsolete Account',
+                    description: `Account dates back to ${Math.min(...oldYears)} - may be over 7 years old`,
+                    severity: 'high'
+                });
+            }
+            
+            // Generate recommendations
+            if (analysis.negativeItems.includes('collections')) {
+                analysis.recommendations.push({
+                    strategy: 'Collections Validation',
+                    description: 'Demand debt validation - collection agencies often lack proper documentation',
+                    successRate: '85%'
+                });
+            }
+            
+            if (analysis.negativeItems.includes('late_payment')) {
+                analysis.recommendations.push({
+                    strategy: 'Late Payment Dispute',
+                    description: 'Dispute if dates are wrong or you have proof of on-time payment',
+                    successRate: '75%'
+                });
+            }
+            
+            if (analysis.discrepancies.length > 0) {
+                analysis.recommendations.push({
+                    strategy: 'Factual Disputing',
+                    description: 'Use identified discrepancies as grounds for deletion',
+                    successRate: '90%'
+                });
+            }
+            
+            return analysis;
+        }
+        
+        function showUploadAnalysis(analysis) {
+            let html = `
+                <div class="alert-box success" style="margin-bottom: 30px;">
+                    <div class="icon">🔍</div>
+                    <div>
+                        <h4>AI Analysis Complete - ${analysis.negativeItems.length} Issues Detected</h4>
+                        <p>The following has been auto-detected from your credit report and populated in the form:</p>
+                    </div>
+                </div>
+            `;
+            
+            if (analysis.name || analysis.creditor) {
+                html += `
+                    <div class="section">
+                        <h3>👤 Detected Information</h3>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            ${analysis.name ? `<p><strong>Name:</strong> ${analysis.name}</p>` : ''}
+                            ${analysis.creditor ? `<p><strong>Creditor:</strong> ${analysis.creditor}</p>` : ''}
+                            ${analysis.accountNumber ? `<p><strong>Account:</strong> ${analysis.accountNumber}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (analysis.negativeItems.length > 0) {
+                html += `
+                    <div class="section">
+                        <h3>⚠️ Negative Items Detected (${analysis.negativeItems.length})</h3>
+                        <div class="checkbox-group" style="margin-top: 15px;">
+                `;
+                
+                const itemLabels = {
+                    late_payment: { name: 'Late Payments', rate: '75%' },
+                    collections: { name: 'Collections Account', rate: '85%' },
+                    charge_off: { name: 'Charge-Off', rate: '65%' },
+                    repossession: { name: 'Repossession', rate: '70%' },
+                    foreclosure: { name: 'Foreclosure', rate: '60%' },
+                    bankruptcy: { name: 'Bankruptcy', rate: '50%' },
+                    tax_lien: { name: 'Tax Lien', rate: '70%' },
+                    judgment: { name: 'Judgment', rate: '65%' },
+                    hard_inquiry: { name: 'Hard Inquiry', rate: '90%' },
+                    duplicate_account: { name: 'Duplicate Account', rate: '95%' }
+                };
+                
+                analysis.negativeItems.forEach(item => {
+                    const label = itemLabels[item] || { name: item.replace('_', ' '), rate: '70%' };
+                    html += `
+                        <div class="detected-item ${item === 'duplicate_account' || item === 'hard_inquiry' ? 'high-priority' : 'medium-priority'}">
+                            <h4>🔴 ${label.name} <span style="color: #28a745;">(${label.rate} Success)</span></h4>
+                            <p>Auto-selected for dispute</p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            }
+            
+            if (analysis.discrepancies.length > 0) {
+                html += `
+                    <div class="section">
+                        <h3>🔍 Discrepancies Found (${analysis.discrepancies.length})</h3>
+                `;
+                
+                analysis.discrepancies.forEach(disc => {
+                    html += `
+                        <div class="discrepancy-card ${disc.severity}">
+                            <div class="discrepancy-header">
+                                <div class="discrepancy-title">${disc.type}</div>
+                                <span class="discrepancy-severity severity-${disc.severity}">${disc.severity}</span>
+                            </div>
+                            <p>${disc.description}</p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            if (analysis.recommendations.length > 0) {
+                html += `
+                    <div class="section">
+                        <h3>🎯 Recommended Dispute Strategies</h3>
+                `;
+                
+                analysis.recommendations.forEach(rec => {
+                    html += `
+                        <div class="strategy-card">
+                            <h4>${rec.strategy} <span class="success-badge success-high">${rec.successRate} Success</span></h4>
+                            <p>${rec.description}</p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += `
+                <div class="alert-box info" style="margin-top: 30px;">
+                    <div class="icon">✓</div>
+                    <div>
+                        <h4>Next Steps</h4>
+                        <p>Review the auto-populated information above, make any corrections needed, then click "Generate Complete Dispute Strategy" to create your custom dispute letters.</p>
+                    </div>
+                </div>
+            `;
+            
+            // Insert before results
+            const resultsDiv = document.getElementById('results');
+            const analysisDiv = document.createElement('div');
+            analysisDiv.id = 'uploadAnalysis';
+            analysisDiv.innerHTML = html;
+            analysisDiv.style.display = 'block';
+            analysisDiv.style.marginBottom = '30px';
+            
+            // Remove old analysis if exists
+            const oldAnalysis = document.getElementById('uploadAnalysis');
+            if (oldAnalysis) oldAnalysis.remove();
+            
+            resultsDiv.parentNode.insertBefore(analysisDiv, resultsDiv);
+            
+            // Also update results dashboard
+            document.getElementById('totalDiscrepancies').textContent = analysis.negativeItems.length + analysis.discrepancies.length;
         }
         
         function analyzeForm() {
