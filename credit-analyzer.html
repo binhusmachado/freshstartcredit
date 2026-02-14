@@ -801,15 +801,88 @@
 
                 <!-- Tabs -->
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('upload')">📤 Upload Report</div>
+                    <div class="tab active" onclick="switchTab('phantom')">STEP 1: 👻 Phantom Bureaus</div>
+                    <div class="tab" onclick="switchTab('upload')">📤 Upload Report</div>
                     <div class="tab" onclick="switchTab('manual')">✏️ Manual Analysis</div>
                     <div class="tab" onclick="switchTab('strategies')">🎯 Fast Strategies</div>
-                    <div class="tab" onclick="switchTab('phantom')">👻 Phantom Bureaus</div>
                     <div class="tab" onclick="switchTab('tools')">🛠️ Tools</div>
                 </div>
 
+                <!-- PHANTOM BUREAUS TAB -->
+                <div id="phantomTab" class="tab-content active">
+                    <h2>👻 The 5 Phantom Bureaus</h2>
+                    
+                    <div class="alert-box danger">
+                        <div class="icon">⚠️</div>
+                        <div>
+                            <h4>CRITICAL: Freeze These First!</h4>
+                            <p>These 5 "phantom" bureaus feed data to Experian, Equifax, and TransUnion. If you don't freeze them, negative items you remove will just reappear!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="phantom-grid">
+                        <div class="phantom-card">
+                            <h4>🔍 CoreLogic</h4>
+                            <p>Housing/credit data aggregator</p>
+                            <a href="https://www.corelogic.com/privacy-center/consumer-request-form/" target="_blank">Freeze Here →</a>
+                        </div>
+                        
+                        <div class="phantom-card">
+                            <h4>📊 SageStream (LexisNexis)</h4>
+                            <p>Alternative credit scoring</p>
+                            <a href="https://consumer.risk.lexisnexis.com/consumer-information-page" target="_blank">Freeze Here →</a>
+                        </div>
+                        
+                        <div class="phantom-card">
+                            <h4>🎯 Innovis</h4>
+                            <p>Fourth major credit bureau</p>
+                            <a href="https://www.innovis.com/securityfreeze" target="_blank">Freeze Here →</a>
+                        </div>
+                        
+                        <div class="phantom-card">
+                            <h4>📋 LexisNexis</h4>
+                            <p>Public records aggregator</p>
+                            <a href="https://consumer.risk.lexisnexis.com/consumer" target="_blank">Freeze Here →</a>
+                        </div>
+                        
+                        <div class="phantom-card">
+                            <h4>💼 Microbilt</h4>
+                            <p>Subprime credit data</p>
+                            <a href="https://www.microbilt.com/consumer-assistance/" target="_blank">Freeze Here →</a>
+                        </div>
+                    </div>
+                    
+                    <div class="why-box" style="margin-top: 30px;">
+                        <h4>💡 Why Freezing Phantom Bureaus is Critical</h4>
+                        <ul>
+                            <li>Prevents removed items from re-reporting</li>
+                            <li>Stops data furnishers from selling your info</li>
+                            <li>Blocks unauthorized credit checks</li>
+                            <li>Complete credit protection (not just Big 3)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert-box success">
+                        <div class="icon">✓</div>
+                        <div>
+                            <h4>Complete Protection Checklist</h4>
+                            <p>For complete credit protection, freeze ALL 8 bureaus:</p>
+                            <ul style="margin-top: 10px;">
+                                <li>✓ Experian</li>
+                                <li>✓ Equifax</li>
+                                <li>✓ TransUnion</li>
+                                <li>✓ CoreLogic (phantom)</li>
+                                <li>✓ SageStream (phantom)</li>
+                                <li>✓ Innovis (phantom)</li>
+                                <li>✓ LexisNexis (phantom)</li>
+                                <li>✓ Microbilt (phantom)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- UPLOAD TAB -->
-                <div id="uploadTab" class="tab-content active">
+                <div id="uploadTab" class="tab-content">
                     <div class="upload-area" id="uploadArea">
                         <div class="icon">📄</div>
                         <h3>Click to Upload Credit Report</h3>
@@ -1201,79 +1274,6 @@
                                 <li>State laws often have higher penalties</li>
                                 <li>Bureaus are less prepared for state law disputes</li>
                                 <li>Shows you're serious and knowledgeable</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PHANTOM BUREAUS TAB -->
-                <div id="phantomTab" class="tab-content">
-                    <h2>👻 The 5 Phantom Bureaus</h2>
-                    
-                    <div class="alert-box danger">
-                        <div class="icon">⚠️</div>
-                        <div>
-                            <h4>CRITICAL: Freeze These First!</h4>
-                            <p>These 5 "phantom" bureaus feed data to Experian, Equifax, and TransUnion. If you don't freeze them, negative items you remove will just reappear!</p>
-                        </div>
-                    </div>
-                    
-                    <div class="phantom-grid">
-                        <div class="phantom-card">
-                            <h4>🔍 CoreLogic</h4>
-                            <p>Housing/credit data aggregator</p>
-                            <a href="https://www.corelogic.com/privacy-center/consumer-request-form/" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>📊 SageStream (LexisNexis)</h4>
-                            <p>Alternative credit scoring</p>
-                            <a href="https://consumer.risk.lexisnexis.com/consumer-information-page" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>🎯 Innovis</h4>
-                            <p>Fourth major credit bureau</p>
-                            <a href="https://www.innovis.com/securityfreeze" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>📋 LexisNexis</h4>
-                            <p>Public records aggregator</p>
-                            <a href="https://consumer.risk.lexisnexis.com/consumer" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>💼 Microbilt</h4>
-                            <p>Subprime credit data</p>
-                            <a href="https://www.microbilt.com/consumer-assistance/" target="_blank">Freeze Here →</a>
-                        </div>
-                    </div>
-                    
-                    <div class="why-box" style="margin-top: 30px;">
-                        <h4>💡 Why Freezing Phantom Bureaus is Critical</h4>
-                        <ul>
-                            <li>Prevents removed items from re-reporting</li>
-                            <li>Stops data furnishers from selling your info</li>
-                            <li>Blocks unauthorized credit checks</li>
-                            <li>Complete credit protection (not just Big 3)</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="alert-box success">
-                        <div class="icon">✓</div>
-                        <div>
-                            <h4>Complete Protection Checklist</h4>
-                            <p>For complete credit protection, freeze ALL 8 bureaus:</p>
-                            <ul style="margin-top: 10px;">
-                                <li>✓ Experian</li>
-                                <li>✓ Equifax</li>
-                                <li>✓ TransUnion</li>
-                                <li>✓ CoreLogic (phantom)</li>
-                                <li>✓ SageStream (phantom)</li>
-                                <li>✓ Innovis (phantom)</li>
-                                <li>✓ LexisNexis (phantom)</li>
-                                <li>✓ Microbilt (phantom)</li>
                             </ul>
                         </div>
                     </div>
