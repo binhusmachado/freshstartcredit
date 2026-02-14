@@ -62,14 +62,13 @@
                     </div>
 
                     <div class="intake-form-wrapper">
-                        <form id="intakeForm" class="intake-form">
-                            <div id="formSuccess" class="alert alert-success" style="display: none;">
-                                <h3>✓ Submission Received!</h3>
-                                <p>Your Client ID: <strong id="successClientId"></strong></p>
-                                <p>Check your email for confirmation and next steps.</p>
+                        <form id="intakeForm" class="intake-form" action="https://formspree.io/f/mwvnovoz" method="POST">
+                            <div id="formSuccess" class="alert alert-success" style="display: none; padding: 2rem; background: #d1fae5; border-radius: 0.75rem; margin-bottom: 2rem;">
+                                <h3 style="color: #065f46; margin-bottom: 0.5rem;">✓ Submission Received!</h3>
+                                <p style="color: #065f46; margin: 0;">Thank you! We'll contact you within 24 hours to schedule your free consultation.</p>
                             </div>
-                            <div id="formError" class="alert alert-error" style="display: none;">
-                                <p>There was an error submitting your form. Please try again or call us at (305) 747-3973.</p>
+                            <div id="formError" class="alert alert-error" style="display: none; padding: 1rem; background: #fee2e2; border-radius: 0.75rem; margin-bottom: 2rem; color: #991b1b;">
+                                <p>There was an error. Please try again or call us at (305) 747-3973.</p>
                             </div>
                             <!-- Personal Information -->
                             <div class="form-section">
@@ -263,20 +262,10 @@
                 document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
                 this.classList.add('selected');
                 this.querySelector('input').checked = true;
-                
-                const plan = this.querySelector('input').value;
-                const btn = document.getElementById('submitBtn');
-                if (plan === 'consultation') {
-                    btn.textContent = 'Submit & Pay $149 Consultation Fee';
-                } else if (plan === 'package') {
-                    btn.textContent = 'Submit & Pay $599 Package Fee';
-                } else {
-                    btn.textContent = 'Submit & Pay $75 Setup Fee';
-                }
             });
         });
 
-        // Form submission
+        // Form submission with Formspree
         document.getElementById('intakeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -285,28 +274,25 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
             
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+            const form = e.target;
+            const formData = new FormData(form);
             
             try {
-                const response = await fetch('/api/submit-intake', {
+                const response = await fetch(form.action, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
                 
-                const result = await response.json();
-                
-                if (result.success) {
-                    document.getElementById('successClientId').textContent = result.clientId;
+                if (response.ok) {
                     document.getElementById('formSuccess').style.display = 'block';
-                    document.querySelector('.intake-form > .form-section').style.display = 'none';
-                    document.querySelector('.intake-form > .form-section ~ .form-section').style.display = 'none';
-                    document.querySelector('.intake-form > .form-section ~ .form-section ~ .form-section').style.display = 'none';
-                    document.querySelector('.intake-form > .form-section ~ .form-section ~ .form-section ~ .form-section').style.display = 'none';
+                    document.querySelectorAll('.form-section').forEach(s => s.style.display = 'none');
                     submitBtn.style.display = 'none';
+                    form.reset();
                 } else {
-                    throw new Error(result.error || 'Submission failed');
+                    throw new Error('Submission failed');
                 }
             } catch (error) {
                 console.error('Form error:', error);
