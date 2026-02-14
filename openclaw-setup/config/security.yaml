@@ -1,0 +1,100 @@
+# OpenClaw Security Configuration
+# This file restricts what OpenClaw can and cannot do
+# Place this in ~/.openclaw/config/security.yaml
+
+permissions:
+  # FILE SYSTEM RESTRICTIONS
+  allowed_directories:
+    - ~/.openclaw/workspace
+    - ~/OpenClawProjects
+    - ~/Downloads/OpenClaw
+    - /tmp/openclaw
+  
+  blocked_directories:
+    - ~/Pictures
+    - ~/Photos
+    - ~/Videos
+    - ~/Movies
+    - ~/Documents/Personal
+    - ~/Library/Photos
+    - ~/Desktop/Personal
+    - ~/.ssh
+    - ~/Downloads/Personal
+  
+  # File operations require approval
+  require_approval_for:
+    delete: true
+    move: true
+    rename: true
+    chmod: true
+    write_outside_workspace: true
+  
+  # EMAIL RESTRICTIONS
+  email:
+    allow_send: true
+    allow_read: true
+    max_recipients_per_email: 10
+    require_approval_for_attachments: true
+    blocked_keywords_in_send:
+      - "delete"
+      - "password"
+      - "transfer"
+      - "payment"
+      - "bank"
+  
+  # SOCIAL MEDIA SAFEGUARDS (Anti-Ban)
+  social_media:
+    # Rate limiting to prevent bans
+    max_actions_per_hour:
+      instagram: 30
+      tiktok: 20
+      facebook: 25
+      twitter: 50
+      linkedin: 15
+    
+    # Human-like delays (in seconds)
+    min_delay_between_actions: 15
+    max_delay_between_actions: 120
+    
+    # Content moderation
+    check_content_before_post: true
+    banned_hashtags:
+      - "spam"
+      - "follow4follow"
+      - "like4like"
+      - "buyfollowers"
+    
+    # Account protection
+    pause_if_rate_limit_detected: true
+    alert_on_unusual_activity: true
+    
+  # PAYMENT PROTECTION
+  payments:
+    require_approval_above: 100
+    allowed_services:
+      - stripe
+      - paypal
+    blocked_services:
+      - bank_transfer
+      - wire_transfer
+      - crypto_exchange_withdrawal
+  
+  # API KEY PROTECTION
+  api_keys:
+    never_expose_in_logs: true
+    mask_in_display: true
+    require_password_to_view: true
+
+alerts:
+  telegram_bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
+  alert_on:
+    - file_delete_attempt
+    - large_payment_attempt
+    - api_error
+    - rate_limit_hit
+    - suspicious_activity
+
+logging:
+  log_all_actions: true
+  log_location: ~/.openclaw/logs/actions.log
+  retention_days: 30
