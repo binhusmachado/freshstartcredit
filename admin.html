@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Fresh Start Credit</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .admin-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 1.5rem 2rem;
+            margin: -2rem -2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 {
+            color: white;
+            margin: 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        .clients-table {
+            width: 100%;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .clients-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .clients-table th,
+        .clients-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .clients-table th {
+            background: var(--bg-light);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        .clients-table tr:hover {
+            background: var(--bg-light);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-consultation { background: #fef3c7; color: #92400e; }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-complete { background: #e0e7ff; color: #3730a3; }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h2 {
+            margin: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        .login-screen {
+            max-width: 400px;
+            margin: 10vh auto;
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body style="background: var(--bg-light);">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;">🔒 Admin Login</h2>
+        <div class="form-group">
+            <label>Admin Key</label>
+            <input type="password" id="adminKey" placeholder="Enter admin key">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="login()">Login</button>
+        <p id="loginError" style="color: #dc2626; margin-top: 1rem; display: none;">Invalid admin key.</p>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboard" class="hidden">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>📊 Admin Dashboard</h1>
+                <button class="btn btn-outline" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Clients</h3>
+                    <div class="number" id="statTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>New Leads</h3>
+                    <div class="number" id="statNew">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Cases</h3>
+                    <div class="number" id="statActive">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <div class="number" id="statComplete">0</div>
+                </div>
+            </div>
+
+            <div class="clients-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Client</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <input type="hidden" id="editClientId">
+            
+            <div class="form-group">
+                <label>Status</label>
+                <select id="editStatus">
+                    <option value="New Lead">New Lead</option>
+                    <option value="Consultation Scheduled">Consultation Scheduled</option>
+                    <option value="Documents Pending">Documents Pending</option>
+                    <option value="Analysis">Analysis</option>
+                    <option value="Active - Round 1">Active - Round 1</option>
+                    <option value="Active - Round 2">Active - Round 2</option>
+                    <option value="Active - Round 3">Active - Round 3</option>
+                    <option value="Complete">Complete</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="editNotes" rows="3" placeholder="Latest updates for client..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Next Steps</label>
+                <textarea id="editNextSteps" rows="2" placeholder="What client needs to do next..."></textarea>
+            </div>
+            
+            <button class="btn btn-primary btn-block" onclick="saveClient()">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        let adminKey = '';
+        let clients = [];
+
+        async function login() {
+            adminKey = document.getElementById('adminKey').value;
+            
+            // Verify by trying to fetch clients
+            try {
+                const response = await fetch(`/api/admin-clients?adminKey=${encodeURIComponent(adminKey)}`);
+                if (response.ok) {
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    loadClients();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            adminKey = '';
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('adminKey').value = '';
+        }
+
+        async function loadClients() {
+            try {
+                const response = await fetch(`/api/admin-clients?adminKey=${encodeURIComponent(adminKey)}`);
+                const data = await response.json();
+                clients = data.clients;
+                renderTable();
+                updateStats();
+            } catch (error) {
+                console.error('Failed to load clients:', error);
+                alert('Failed to load clients. Please refresh.');
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('clientsTableBody');
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td>${client.clientId}</td>
+                    <td>${client.name}</td>
+                    <td>${client.email}</td>
+                    <td>${client.phone}</td>
+                    <td>${client.plan}</td>
+                    <td><span class="status-badge status-${client.status.toLowerCase().replace(/\s+/g, '-')}">${client.status}</span></td>
+                    <td>${new Date(client.dateSubmitted).toLocaleDateString()}</td>
+                    <td><button class="btn btn-secondary btn-small" onclick="editClient('${client.clientId}')">Edit</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = clients.length;
+            document.getElementById('statNew').textContent = clients.filter(c => c.status === 'New Lead').length;
+            document.getElementById('statActive').textContent = clients.filter(c => c.status.includes('Active')).length;
+            document.getElementById('statComplete').textContent = clients.filter(c => c.status === 'Complete').length;
+        }
+
+        function editClient(clientId) {
+            const client = clients.find(c => c.clientId === clientId);
+            if (!client) return;
+
+            document.getElementById('editClientId').value = clientId;
+            document.getElementById('editStatus').value = client.status;
+            document.getElementById('editNotes').value = client.notes || '';
+            document.getElementById('editNextSteps').value = client.nextSteps || '';
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        async function saveClient() {
+            const clientId = document.getElementById('editClientId').value;
+            const status = document.getElementById('editStatus').value;
+            const notes = document.getElementById('editNotes').value;
+            const nextSteps = document.getElementById('editNextSteps').value;
+
+            try {
+                const response = await fetch('/api/update-client', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminKey, clientId, status, notes, nextSteps })
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadClients();
+                } else {
+                    alert('Failed to update client');
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                alert('Failed to update client');
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Enter key on login
+        document.getElementById('adminKey').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>

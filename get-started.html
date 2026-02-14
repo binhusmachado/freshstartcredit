@@ -63,6 +63,14 @@
 
                     <div class="intake-form-wrapper">
                         <form id="intakeForm" class="intake-form">
+                            <div id="formSuccess" class="alert alert-success" style="display: none;">
+                                <h3>✓ Submission Received!</h3>
+                                <p>Your Client ID: <strong id="successClientId"></strong></p>
+                                <p>Check your email for confirmation and next steps.</p>
+                            </div>
+                            <div id="formError" class="alert alert-error" style="display: none;">
+                                <p>There was an error submitting your form. Please try again or call us at (305) 747-3973.</p>
+                            </div>
                             <!-- Personal Information -->
                             <div class="form-section">
                                 <h3><span class="section-number">1</span>Personal Information</h3>
@@ -256,7 +264,6 @@
                 this.classList.add('selected');
                 this.querySelector('input').checked = true;
                 
-                // Update button text based on selection
                 const plan = this.querySelector('input').value;
                 const btn = document.getElementById('submitBtn');
                 if (plan === 'consultation') {
@@ -270,19 +277,43 @@
         });
 
         // Form submission
-        document.getElementById('intakeForm').addEventListener('submit', function(e) {
+        document.getElementById('intakeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
             
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
             
-            // Here you would integrate with Stripe for payment
-            // and your backend for saving the client data
-            
-            alert('Thank you! Your information has been submitted. You will receive an email confirmation shortly with next steps for your free consultation.');
-            
-            // Reset form
-            this.reset();
+            try {
+                const response = await fetch('/api/submit-intake', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('successClientId').textContent = result.clientId;
+                    document.getElementById('formSuccess').style.display = 'block';
+                    document.querySelector('.intake-form > .form-section').style.display = 'none';
+                    document.querySelector('.intake-form > .form-section ~ .form-section').style.display = 'none';
+                    document.querySelector('.intake-form > .form-section ~ .form-section ~ .form-section').style.display = 'none';
+                    document.querySelector('.intake-form > .form-section ~ .form-section ~ .form-section ~ .form-section').style.display = 'none';
+                    submitBtn.style.display = 'none';
+                } else {
+                    throw new Error(result.error || 'Submission failed');
+                }
+            } catch (error) {
+                console.error('Form error:', error);
+                document.getElementById('formError').style.display = 'block';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     </script>
 </body>

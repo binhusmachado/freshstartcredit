@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Your Status | Fresh Start Credit Solutions</title>
+    <meta name="description" content="Check the status of your credit repair case.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .status-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 3rem;
+            background: var(--bg-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+        }
+        .status-check-form {
+            margin-bottom: 2rem;
+        }
+        .status-result {
+            display: none;
+            padding: 2rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-lg);
+            margin-top: 2rem;
+        }
+        .status-result.active {
+            display: block;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-consultation { background: #fef3c7; color: #92400e; }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-complete { background: #e0e7ff; color: #3730a3; }
+        .client-info {
+            margin: 1.5rem 0;
+        }
+        .client-info p {
+            margin-bottom: 0.5rem;
+        }
+        .notes-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">Fresh Start Credit</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="get-started.html" class="btn btn-primary">Get Started</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Check Your Status</h1>
+                <p>Enter your Client ID or email to see your case status.</p>
+            </div>
+        </section>
+
+        <section class="intake-section">
+            <div class="container">
+                <div class="status-container">
+                    <div class="status-check-form">
+                        <div class="form-group">
+                            <label for="checkClientId">Client ID</label>
+                            <input type="text" id="checkClientId" placeholder="e.g., FSCABC123">
+                        </div>
+                        <p style="text-align: center; margin: 1rem 0;">— OR —</p>
+                        
+                        <div class="form-group">
+                            <label for="checkEmail">Email Address</label>
+                            <input type="email" id="checkEmail" placeholder="john@example.com">
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary btn-block" id="checkStatusBtn">
+                            Check Status
+                        </button>
+                    </div>
+
+                    <div id="statusResult" class="status-result">
+                        <h3>Case Status</h3>
+                        <div class="client-info">
+                            <p><strong>Name:</strong> <span id="resultName"></span></p>
+                            <p><strong>Client ID:</strong> <span id="resultClientId"></span></p>
+                            <p><strong>Plan:</strong> <span id="resultPlan"></span></p>
+                            <p><strong>Status:</strong> <span id="resultStatus" class="status-badge"></span></p>
+                        </div>
+                        
+                        <div class="notes-section">
+                            <p><strong>Latest Update:</strong></p>
+                            <p id="resultNotes"></p>
+                            
+                            <p style="margin-top: 1rem;"><strong>Next Steps:</strong></p>
+                            <p id="resultNextSteps"></p>
+                        </div>
+                    </div>
+
+                    <div id="statusError" style="display: none; margin-top: 1rem; padding: 1rem; background: #fee2e2; border-radius: var(--radius-md); color: #991b1b;">
+                        Client not found. Please check your Client ID or email and try again.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 1rem;">
+                <p>&copy; 2025 Fresh Start Credit Solutions. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('checkStatusBtn').addEventListener('click', async function() {
+            const clientId = document.getElementById('checkClientId').value.trim();
+            const email = document.getElementById('checkEmail').value.trim();
+            
+            if (!clientId && !email) {
+                alert('Please enter your Client ID or email address.');
+                return;
+            }
+            
+            this.textContent = 'Checking...';
+            this.disabled = true;
+            
+            try {
+                const params = clientId ? `clientId=${encodeURIComponent(clientId)}` : `email=${encodeURIComponent(email)}`;
+                const response = await fetch(`/api/check-status?${params}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('resultName').textContent = data.name;
+                    document.getElementById('resultClientId').textContent = data.clientId;
+                    document.getElementById('resultPlan').textContent = data.plan;
+                    document.getElementById('resultNotes').textContent = data.notes;
+                    document.getElementById('resultNextSteps').textContent = data.nextSteps;
+                    
+                    const statusBadge = document.getElementById('resultStatus');
+                    statusBadge.textContent = data.status;
+                    statusBadge.className = 'status-badge status-' + data.status.toLowerCase().replace(/\s+/g, '-');
+                    
+                    document.getElementById('statusResult').classList.add('active');
+                    document.getElementById('statusError').style.display = 'none';
+                } else {
+                    document.getElementById('statusResult').classList.remove('active');
+                    document.getElementById('statusError').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+                alert('Error checking status. Please try again or call us at (305) 747-3973.');
+            }
+            
+            this.textContent = 'Check Status';
+            this.disabled = false;
+        });
+    </script>
+</body>
+</html>
