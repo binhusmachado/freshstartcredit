@@ -1,89 +1,103 @@
 # Fresh Start Credit Solutions - Website
 
-Credit repair business website with automated client intake, status tracking, and admin dashboard.
+A professional credit repair business website with client intake form, status tracking, and admin dashboard.
 
 ## Live Site
 https://freshstartcredit.vercel.app
 
 ## Pages
-- **Home** (`/`) - Landing page with services
-- **Get Started** (`/get-started.html`) - Client intake form
-- **Status** (`/status.html`) - Client status checker
-- **Admin** (`/admin.html`) - Admin dashboard
-- **About, Services, Pricing, FAQ, Contact** - Info pages
+- **Home** (`/`) - Landing page with services and features
+- **Get Started** (`/get-started.html`) - Client intake form with Formspree
+- **Status** (`/status.html`) - Client status checker (manual lookup)
+- **Admin** (`/admin.html`) - Admin dashboard (manual data entry)
+- **About, Services, Pricing, FAQ, Contact** - Information pages
 
-## Phase 2 Setup Required
+## How It Works
 
-### 1. Airtable Setup
-1. Create free Airtable account: https://airtable.com
-2. Create new base called "Fresh Start Credit"
-3. Create table "Clients" with these fields:
-   - Client ID (Single line text)
-   - First Name (Single line text)
-   - Last Name (Single line text)
-   - Email (Email)
-   - Phone (Single line text)
-   - Date of Birth (Date)
-   - SSN Last 4 (Single line text)
-   - Primary Goal (Single select: mortgage, auto, refinance, credit-cards, general, other)
-   - Timeline (Single select: urgent, soon, planning, flexible)
-   - Current Score (Single line text)
-   - Situation (Long text)
-   - Selected Plan (Single select: per-deletion, package, consultation)
-   - Status (Single select: New Lead, Consultation Scheduled, Documents Pending, Analysis, Active - Round 1, Active - Round 2, Active - Round 3, Complete)
-   - Date Submitted (Date)
-   - Notes (Long text)
-   - Next Steps (Long text)
+### Client Flow:
+1. Client visits `/get-started.html`
+2. Fills out the intake form
+3. Form submits directly to Formspree
+4. You receive an email with all client details
+5. Follow up within 24 hours
 
-4. Get your API key from https://airtable.com/create/tokens
-5. Get your Base ID from https://airtable.com/api (it's in the URL or docs)
+### Admin Flow:
+1. Check fastbtimes@gmail.com for new submissions
+2. Call client to schedule consultation
+3. Track clients manually in Airtable (or any spreadsheet)
+4. Update client via email/phone on progress
 
-### 2. Resend Setup (Email)
-1. Create free Resend account: https://resend.com
-2. Verify your domain OR use resend's test domain initially
-3. Get API key from dashboard
+## Setup
 
-### 3. Vercel Environment Variables
-Add these in Vercel dashboard → Project Settings → Environment Variables:
+### 1. Formspree (Already Configured)
+The form submits to Formspree endpoint: `https://formspree.io/f/mwvnovoz`
 
-```
-AIRTABLE_API_KEY=your_airtable_api_key
-AIRTABLE_BASE_ID=your_airtable_base_id
-RESEND_API_KEY=your_resend_api_key
-ADMIN_KEY=choose_a_secret_key_for_admin_dashboard
-```
+If you need to change it:
+1. Go to https://formspree.io
+2. Create a new form
+3. Copy the endpoint URL
+4. Update `action="YOUR_NEW_ENDPOINT"` in `get-started.html`
 
-### 4. Deploy
-Push to GitHub, Vercel will auto-deploy.
+### 2. Deploy to Vercel
+1. Push code to GitHub
+2. Go to https://vercel.com/new
+3. Import your GitHub repo
+4. Deploy (no environment variables needed!)
+
+### 3. Custom Domain (Optional)
+1. In Vercel dashboard, go to Settings → Domains
+2. Add your custom domain
+3. Follow DNS instructions
 
 ## Features
 
-### Automated Workflow
-1. Client fills intake form
-2. Data saved to Airtable
-3. Confirmation email sent to client
-4. Notification email sent to admin
-5. Client gets unique Client ID
+### Intake Form Captures:
+- Personal info (name, email, phone, DOB, SSN last 4)
+- Credit goals (mortgage, auto, etc.)
+- Timeline (urgent, soon, planning, flexible)
+- Current credit score range
+- Detailed situation description
+- Selected plan (per-deletion, package, consultation)
 
-### Client Portal
-- Check case status with Client ID or email
-- View updates and next steps
-
-### Admin Dashboard
-- View all clients
+### Admin Dashboard:
+- View all clients (manual data entry)
 - Update status, notes, next steps
 - Statistics overview
+- Login protected with password
 
-## Stripe Integration (Phase 3)
-To add payment processing:
-1. Create Stripe account
-2. Add STRIPE_SECRET_KEY to environment variables
-3. Update `/api/submit-intake.js` to create payment intent
-4. Add Stripe.js to intake form
+### Client Status Page:
+- Clients can check their case status
+- View updates and next steps
+- No login required
+
+## Customization
+
+### Change Colors:
+Edit `css/style.css` - look for CSS variables at the top:
+```css
+:root {
+  --primary-dark: #0f172a;
+  --accent: #f59e0b;
+  ...
+}
+```
+
+### Change Contact Info:
+Edit these files and search/replace:
+- Phone: `(305) 747-3973`
+- Email: `fastbtimes@gmail.com`
+
+### Change Pricing:
+Edit `pricing.html` and `get-started.html`
 
 ## Testing
-Use test data:
-- Name: Test Client
-- Email: your email
-- Phone: (305) 747-3973
-- All other fields: test data
+
+Test the form:
+1. Go to `/get-started.html`
+2. Fill out with test data
+3. Submit
+4. Check fastbtimes@gmail.com for the email
+
+## Support
+
+Questions? The site is now fully functional and ready for customers!

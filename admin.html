@@ -9,350 +9,202 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         .admin-container {
-            max-width: 1400px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
         }
-        .admin-header {
-            background: var(--primary-dark);
-            color: white;
-            padding: 1.5rem 2rem;
-            margin: -2rem -2rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-header h1 {
-            color: white;
-            margin: 0;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-        }
-        .stat-card h3 {
-            font-size: 0.875rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-        .stat-card .number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-        .clients-table {
-            width: 100%;
-            background: white;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        .clients-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .clients-table th,
-        .clients-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .clients-table th {
-            background: var(--bg-light);
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-        }
-        .clients-table tr:hover {
-            background: var(--bg-light);
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius-md);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-new { background: #dbeafe; color: #1e40af; }
-        .status-consultation { background: #fef3c7; color: #92400e; }
-        .status-active { background: #d1fae5; color: #065f46; }
-        .status-complete { background: #e0e7ff; color: #3730a3; }
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
+        .admin-card {
             background: white;
             padding: 2rem;
             border-radius: var(--radius-xl);
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
         }
-        .modal-header {
+        .admin-card h2 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        .process-list {
+            list-style: none;
+            counter-reset: step;
+        }
+        .process-list li {
+            padding: 1rem 0 1rem 3rem;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .process-list li:last-child {
+            border-bottom: none;
+        }
+        .process-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--primary-dark);
+            border-radius: 50%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            justify-content: center;
+            font-weight: 700;
         }
-        .modal-header h2 {
-            margin: 0;
-        }
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-        .login-screen {
+        .login-box {
             max-width: 400px;
             margin: 10vh auto;
             background: white;
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
         }
         .hidden { display: none !important; }
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .quick-link {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+        .quick-link:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .quick-link h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .quick-link p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: inherit;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body style="background: var(--bg-light);">
     <!-- Login Screen -->
-    <div id="loginScreen" class="login-screen">
-        <h2 style="text-align: center; margin-bottom: 1.5rem;">🔒 Admin Login</h2>
-        <div class="form-group">
-            <label>Admin Key</label>
-            <input type="password" id="adminKey" placeholder="Enter admin key">
+    <div id="loginScreen" class="login-box">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <span style="font-size: 3rem;">🔒</span>
         </div>
+        <h2 style="text-align: center; margin-bottom: 0.5rem;">Admin Login</h2>
+        <p style="text-align: center; color: var(--text-light); margin-bottom: 1.5rem;">Fresh Start Credit Solutions</p>
+        
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="adminKey" placeholder="Enter admin password">
+        </div>
+        
         <button class="btn btn-primary btn-block" onclick="login()">Login</button>
-        <p id="loginError" style="color: #dc2626; margin-top: 1rem; display: none;">Invalid admin key.</p>
+        
+        <p id="loginError" style="color: #dc2626; margin-top: 1rem; text-align: center; display: none;">Incorrect password.</p>
     </div>
 
     <!-- Admin Dashboard -->
-    <div id="dashboard" class="hidden">
-        <div class="admin-container">
-            <div class="admin-header">
-                <h1>📊 Admin Dashboard</h1>
-                <button class="btn btn-outline" onclick="logout()">Logout</button>
-            </div>
+    <div id="dashboard" class="admin-container hidden">
+        <div class="admin-card">
+            <h2>👋 Welcome to Admin Dashboard</h2>
+            <p>Your credit repair business management center. Here's how to handle new clients:</p>
+        </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Clients</h3>
-                    <div class="number" id="statTotal">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>New Leads</h3>
-                    <div class="number" id="statNew">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Active Cases</h3>
-                    <div class="number" id="statActive">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Completed</h3>
-                    <div class="number" id="statComplete">0</div>
-                </div>
-            </div>
+        <div class="admin-card">
+            <h2>📋 Client Workflow</h2>
+            <ol class="process-list">
+                <li>
+                    <strong>Check Email</strong>
+                    <p>New client submissions arrive at <strong>fastbtimes@gmail.com</strong> with all their details.</p>
+                </li>
+                <li>
+                    <strong>Call Within 24 Hours</strong>
+                    <p>Call the client to schedule their free consultation. Use their phone number from the email.</p>
+                </li>
+                <li>
+                    <strong>Free Consultation</strong>
+                    <p>Review their credit reports, discuss goals, and explain your services.</p>
+                </li>
+                <li>
+                    <strong>Create Action Plan</strong>
+                    <p>Identify which items to dispute and create a customized strategy.</p>
+                </li>
+                <li>
+                    <strong>Collect Payment</strong>
+                    <p>Client pays based on selected plan ($75 per deletion, $599 package, or $149 consultation).</p>
+                </li>
+                <li>
+                    <strong>Start Disputing</strong>
+                    <p>Send dispute letters to credit bureaus. Track progress and follow up.</p>
+                </li>
+                <li>
+                    <strong>Update Client</strong>
+                    <p>Email/call client with updates every 2-4 weeks or when items are removed.</p>
+                </li>
+            </ol>
+        </div>
 
-            <div class="clients-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Plan</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientsTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+        <div class="admin-card">
+            <h2>🔗 Quick Links</h2>
+            <div class="quick-links">
+                <a href="https://gmail.com" class="quick-link" target="_blank">
+                    <h3>📧 Check Gmail</h3>
+                    <p>fastbtimes@gmail.com</p>
+                </a>
+                <a href="https://airtable.com/appOVQy00Y5PpxjtB" class="quick-link" target="_blank">
+                    <h3>📊 Airtable</h3>
+                    <p>Manage client database</p>
+                </a>
+                <a href="https://freshstartcredit.vercel.app/get-started.html" class="quick-link" target="_blank">
+                    <h3>📝 Client Form</h3>
+                    <p>View intake form</p>
+                </a>
+                <a href="https://freshstartcredit.vercel.app/status.html" class="quick-link" target="_blank">
+                    <h3>🔍 Status Page</h3>
+                    <p>Client status checker</p>
+                </a>
             </div>
         </div>
-    </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Update Client</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <input type="hidden" id="editClientId">
-            
-            <div class="form-group">
-                <label>Status</label>
-                <select id="editStatus">
-                    <option value="New Lead">New Lead</option>
-                    <option value="Consultation Scheduled">Consultation Scheduled</option>
-                    <option value="Documents Pending">Documents Pending</option>
-                    <option value="Analysis">Analysis</option>
-                    <option value="Active - Round 1">Active - Round 1</option>
-                    <option value="Active - Round 2">Active - Round 2</option>
-                    <option value="Active - Round 3">Active - Round 3</option>
-                    <option value="Complete">Complete</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Notes</label>
-                <textarea id="editNotes" rows="3" placeholder="Latest updates for client..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Next Steps</label>
-                <textarea id="editNextSteps" rows="2" placeholder="What client needs to do next..."></textarea>
-            </div>
-            
-            <button class="btn btn-primary btn-block" onclick="saveClient()">Save Changes</button>
+        <div class="admin-card">
+            <h2>📞 Contact Information</h2>
+            <p><strong>Business Phone:</strong> (305) 747-3973</p>
+            <p><strong>Business Email:</strong> fastbtimes@gmail.com</p>
+            <p><strong>Hours:</strong> Mon-Fri 9AM - 6PM EST</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
         </div>
     </div>
 
     <script>
-        let adminKey = '';
-        let clients = [];
-
-        async function login() {
-            adminKey = document.getElementById('adminKey').value;
-            
-            // Verify by trying to fetch clients
-            try {
-                const response = await fetch(`/api/admin-clients?adminKey=${encodeURIComponent(adminKey)}`);
-                if (response.ok) {
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('dashboard').classList.remove('hidden');
-                    loadClients();
-                } else {
-                    document.getElementById('loginError').style.display = 'block';
-                }
-            } catch (error) {
+        const ADMIN_PASSWORD = 'FreshStart2025!';
+        
+        function login() {
+            const input = document.getElementById('adminKey').value;
+            if (input === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('loginError').style.display = 'none';
+            } else {
                 document.getElementById('loginError').style.display = 'block';
             }
         }
-
+        
         function logout() {
-            adminKey = '';
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('adminKey').value = '';
         }
-
-        async function loadClients() {
-            try {
-                const response = await fetch(`/api/admin-clients?adminKey=${encodeURIComponent(adminKey)}`);
-                const data = await response.json();
-                clients = data.clients;
-                renderTable();
-                updateStats();
-            } catch (error) {
-                console.error('Failed to load clients:', error);
-                alert('Failed to load clients. Please refresh.');
-            }
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('clientsTableBody');
-            tbody.innerHTML = clients.map(client => `
-                <tr>
-                    <td>${client.clientId}</td>
-                    <td>${client.name}</td>
-                    <td>${client.email}</td>
-                    <td>${client.phone}</td>
-                    <td>${client.plan}</td>
-                    <td><span class="status-badge status-${client.status.toLowerCase().replace(/\s+/g, '-')}">${client.status}</span></td>
-                    <td>${new Date(client.dateSubmitted).toLocaleDateString()}</td>
-                    <td><button class="btn btn-secondary btn-small" onclick="editClient('${client.clientId}')">Edit</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function updateStats() {
-            document.getElementById('statTotal').textContent = clients.length;
-            document.getElementById('statNew').textContent = clients.filter(c => c.status === 'New Lead').length;
-            document.getElementById('statActive').textContent = clients.filter(c => c.status.includes('Active')).length;
-            document.getElementById('statComplete').textContent = clients.filter(c => c.status === 'Complete').length;
-        }
-
-        function editClient(clientId) {
-            const client = clients.find(c => c.clientId === clientId);
-            if (!client) return;
-
-            document.getElementById('editClientId').value = clientId;
-            document.getElementById('editStatus').value = client.status;
-            document.getElementById('editNotes').value = client.notes || '';
-            document.getElementById('editNextSteps').value = client.nextSteps || '';
-            
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-
-        async function saveClient() {
-            const clientId = document.getElementById('editClientId').value;
-            const status = document.getElementById('editStatus').value;
-            const notes = document.getElementById('editNotes').value;
-            const nextSteps = document.getElementById('editNextSteps').value;
-
-            try {
-                const response = await fetch('/api/update-client', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminKey, clientId, status, notes, nextSteps })
-                });
-
-                if (response.ok) {
-                    closeModal();
-                    loadClients();
-                } else {
-                    alert('Failed to update client');
-                }
-            } catch (error) {
-                console.error('Update error:', error);
-                alert('Failed to update client');
-            }
-        }
-
-        // Close modal on outside click
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        // Enter key on login
+        
         document.getElementById('adminKey').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') login();
         });

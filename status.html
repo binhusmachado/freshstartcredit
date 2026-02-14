@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Your Status | Fresh Start Credit Solutions</title>
-    <meta name="description" content="Check the status of your credit repair case.">
+    <meta name="description" content="Check the status of your credit repair case. Contact us for updates.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,42 +17,71 @@
             background: var(--bg-white);
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
+            text-align: center;
         }
-        .status-check-form {
-            margin-bottom: 2rem;
-        }
-        .status-result {
-            display: none;
-            padding: 2rem;
-            background: var(--bg-light);
-            border-radius: var(--radius-lg);
+        .contact-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-top: 2rem;
         }
-        .status-result.active {
-            display: block;
+        .contact-option {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.2s;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
+        .contact-option:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-4px);
         }
-        .status-new { background: #dbeafe; color: #1e40af; }
-        .status-consultation { background: #fef3c7; color: #92400e; }
-        .status-active { background: #d1fae5; color: #065f46; }
-        .status-complete { background: #e0e7ff; color: #3730a3; }
-        .client-info {
-            margin: 1.5rem 0;
+        .contact-option .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
         }
-        .client-info p {
+        .contact-option h3 {
             margin-bottom: 0.5rem;
         }
-        .notes-section {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
+        .contact-option p {
+            margin: 0;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+        .info-box {
+            background: linear-gradient(135deg, var(--bg-light), var(--bg-cream));
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .info-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        .timeline {
+            list-style: none;
+            padding: 0;
+        }
+        .timeline li {
+            padding: 1rem 0 1rem 2rem;
+            position: relative;
+            border-left: 3px solid var(--border-color);
+        }
+        .timeline li::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 1.25rem;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .timeline li:last-child {
+            border-left: 3px solid transparent;
         }
     </style>
 </head>
@@ -80,50 +109,68 @@
         <section class="page-header">
             <div class="container">
                 <h1>Check Your Status</h1>
-                <p>Enter your Client ID or email to see your case status.</p>
+                <p>Contact us directly for the latest updates on your case.</p>
             </div>
         </section>
 
         <section class="intake-section">
             <div class="container">
                 <div class="status-container">
-                    <div class="status-check-form">
-                        <div class="form-group">
-                            <label for="checkClientId">Client ID</label>
-                            <input type="text" id="checkClientId" placeholder="e.g., FSCABC123">
-                        </div>
-                        <p style="text-align: center; margin: 1rem 0;">— OR —</p>
-                        
-                        <div class="form-group">
-                            <label for="checkEmail">Email Address</label>
-                            <input type="email" id="checkEmail" placeholder="john@example.com">
-                        </div>
-                        
-                        <button type="button" class="btn btn-primary btn-block" id="checkStatusBtn">
-                            Check Status
-                        </button>
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📞</div>
+                    
+                    <h2>Get Your Case Update</h2>
+                    
+                    <p style="font-size: 1.125rem; color: var(--text-medium); margin-bottom: 2rem;">
+                        We provide personalized updates for every client. Reach out anytime for your current status.
+                    </p>
+
+                    <div class="contact-options">
+                        <a href="tel:3057473973" class="contact-option">
+                            <div class="icon">📱</div>
+                            <h3>Call Us</h3>
+                            <p>(305) 747-3973</p>
+                            <p>Mon-Fri 9AM-6PM</p>
+                        </a>
+
+                        <a href="mailto:fastbtimes@gmail.com" class="contact-option">
+                            <div class="icon">✉️</div>
+                            <h3>Email Us</h3>
+                            <p>fastbtimes@gmail.com</p>
+                            <p>24-48 hour response</p>
+                        </a>
                     </div>
 
-                    <div id="statusResult" class="status-result">
-                        <h3>Case Status</h3>
-                        <div class="client-info">
-                            <p><strong>Name:</strong> <span id="resultName"></span></p>
-                            <p><strong>Client ID:</strong> <span id="resultClientId"></span></p>
-                            <p><strong>Plan:</strong> <span id="resultPlan"></span></p>
-                            <p><strong>Status:</strong> <span id="resultStatus" class="status-badge"></span></p>
-                        </div>
+                    <div class="info-box">
+                        <h3>🔄 What to Expect</h3>
                         
-                        <div class="notes-section">
-                            <p><strong>Latest Update:</strong></p>
-                            <p id="resultNotes"></p>
-                            
-                            <p style="margin-top: 1rem;"><strong>Next Steps:</strong></p>
-                            <p id="resultNextSteps"></p>
-                        </div>
+                        <ul class="timeline">
+                            <li>
+                                <strong>Initial Consultation</strong>
+                                <p>We discuss your goals and review your credit reports.</p>
+                            </li>
+                            <li>
+                                <strong>Analysis & Strategy</strong>
+                                <p>We identify errors and create your custom dispute plan.</p>
+                            </li>
+                            <li>
+                                <strong>Round 1 Disputes</strong>
+                                <p>First batch of disputes sent to credit bureaus (30-45 days for response).</p>
+                            </li>
+                            <li>
+                                <strong>Follow-up Rounds</strong>
+                                <p>Additional disputes as needed based on responses.</p>
+                            </li>
+                            <li>
+                                <strong>Results & Completion</strong>
+                                <p>Negative items removed, credit score improved!</p>
+                            </li>
+                        </ul>
                     </div>
 
-                    <div id="statusError" style="display: none; margin-top: 1rem; padding: 1rem; background: #fee2e2; border-radius: var(--radius-md); color: #991b1b;">
-                        Client not found. Please check your Client ID or email and try again.
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-cream); border-radius: var(--radius-lg);">
+                        <p style="margin: 0; font-weight: 600; color: var(--primary-dark);">
+                            💡 Tip: We typically send email updates every 2-4 weeks or whenever we receive bureau responses.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -132,56 +179,10 @@
 
     <footer class="footer">
         <div class="container">
-            <div class="footer-bottom" style="border-top: none; padding-top: 1rem;">
+            <div class="footer-bottom" style="border-top: none; padding-top: 1rem; text-align: center;">
                 <p>&copy; 2025 Fresh Start Credit Solutions. All rights reserved.</p>
             </div>
         </div>
     </footer>
-
-    <script>
-        document.getElementById('checkStatusBtn').addEventListener('click', async function() {
-            const clientId = document.getElementById('checkClientId').value.trim();
-            const email = document.getElementById('checkEmail').value.trim();
-            
-            if (!clientId && !email) {
-                alert('Please enter your Client ID or email address.');
-                return;
-            }
-            
-            this.textContent = 'Checking...';
-            this.disabled = true;
-            
-            try {
-                const params = clientId ? `clientId=${encodeURIComponent(clientId)}` : `email=${encodeURIComponent(email)}`;
-                const response = await fetch(`/api/check-status?${params}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    document.getElementById('resultName').textContent = data.name;
-                    document.getElementById('resultClientId').textContent = data.clientId;
-                    document.getElementById('resultPlan').textContent = data.plan;
-                    document.getElementById('resultNotes').textContent = data.notes;
-                    document.getElementById('resultNextSteps').textContent = data.nextSteps;
-                    
-                    const statusBadge = document.getElementById('resultStatus');
-                    statusBadge.textContent = data.status;
-                    statusBadge.className = 'status-badge status-' + data.status.toLowerCase().replace(/\s+/g, '-');
-                    
-                    document.getElementById('statusResult').classList.add('active');
-                    document.getElementById('statusError').style.display = 'none';
-                } else {
-                    document.getElementById('statusResult').classList.remove('active');
-                    document.getElementById('statusError').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Status check error:', error);
-                alert('Error checking status. Please try again or call us at (305) 747-3973.');
-            }
-            
-            this.textContent = 'Check Status';
-            this.disabled = false;
-        });
-    </script>
 </body>
 </html>
