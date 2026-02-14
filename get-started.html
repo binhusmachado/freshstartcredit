@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started | Fresh Start Credit Solutions</title>
+    <meta name="description" content="Start your credit repair journey. Fill out our intake form and begin your free consultation today.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">Fresh Start Credit</span>
+                </a>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="get-started.html" class="btn btn-primary">Get Started</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Start Your Credit Repair Journey</h1>
+                <p>Fill out the form below to get your free consultation and begin the process.</p>
+            </div>
+        </section>
+
+        <section class="intake-section">
+            <div class="container">
+                <div class="intake-grid">
+                    <div class="intake-info">
+                        <h2>What Happens Next?</h2>
+                        <p>Once you submit this form:</p>
+                        <ul class="intake-benefits">
+                            <li>We review your information within 24 hours</li>
+                            <li>You receive a free consultation call</li>
+                            <li>We analyze your credit reports together</li>
+                            <li>Get a customized action plan</li>
+                            <li>Choose your payment option</li>
+                            <li>We start disputing immediately</li>
+                        </ul>
+                        <p style="margin-top: 2rem;"><strong>Questions?</strong> Call us at (305) 747-3973</p>
+                    </div>
+
+                    <div class="intake-form-wrapper">
+                        <form id="intakeForm" class="intake-form">
+                            <!-- Personal Information -->
+                            <div class="form-section">
+                                <h3><span class="section-number">1</span>Personal Information</h3>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" name="firstName" required placeholder="John">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email Address *</label>
+                                        <input type="email" id="email" name="email" required placeholder="john@example.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number *</label>
+                                        <input type="tel" id="phone" name="phone" required placeholder="(305) 747-3973">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dob">Date of Birth *</label>
+                                        <input type="date" id="dob" name="dob" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ssn">Last 4 of SSN *</label>
+                                        <input type="text" id="ssn" name="ssn" maxlength="4" required placeholder="1234">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Goals -->
+                            <div class="form-section">
+                                <h3><span class="section-number">2</span>Your Credit Goals</h3>
+                                
+                                <div class="form-group">
+                                    <label for="goal">Primary Goal *</label>
+                                    <select id="goal" name="goal" required>
+                                        <option value="">Select your primary goal...</option>
+                                        <option value="mortgage">Buy a house / Mortgage approval</option>
+                                        <option value="auto">Buy a car / Auto loan</option>
+                                        <option value="refinance">Refinance existing loan</option>
+                                        <option value="credit-cards">Get better credit cards</option>
+                                        <option value="general">Improve credit score generally</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="timeline">Target Timeline *</label>
+                                    <select id="timeline" name="timeline" required>
+                                        <option value="">When do you need results?...</option>
+                                        <option value="urgent">ASAP (1-2 months)</option>
+                                        <option value="soon">Soon (3-6 months)</option>
+                                        <option value="planning">Planning ahead (6+ months)</option>
+                                        <option value="flexible">Flexible</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="currentScore">Current Credit Score (if known)</label>
+                                    <select id="currentScore" name="currentScore">
+                                        <option value="">Select range...</option>
+                                        <option value="below500">Below 500</option>
+                                        <option value="500-550">500-550</option>
+                                        <option value="550-600">550-600</option>
+                                        <option value="600-650">600-650</option>
+                                        <option value="650-700">650-700</option>
+                                        <option value="700plus">700+</option>
+                                        <option value="unknown">I don't know</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="situation">Tell Us About Your Situation</label>
+                                    <textarea id="situation" name="situation" rows="4" placeholder="Briefly describe your credit situation, any negative items you know about, and what you'd like to achieve..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Payment Selection -->
+                            <div class="form-section">
+                                <h3><span class="section-number">3</span>Choose Your Plan</h3>
+                                
+                                <div class="payment-options">
+                                    <label class="payment-option selected">
+                                        <input type="radio" name="plan" value="per-deletion" checked>
+                                        <h4>Per Deletion</h4>
+                                        <div class="payment-price">$75</div>
+                                        <p class="payment-note">Per item removed</p>
+                                    </label>
+
+                                    <label class="payment-option">
+                                        <input type="radio" name="plan" value="package">
+                                        <h4>Package Deal</h4>
+                                        <div class="payment-price">$599</div>
+                                        <p class="payment-note">Up to 15 items</p>
+                                    </label>
+
+                                    <label class="payment-option">
+                                        <input type="radio" name="plan" value="consultation">
+                                        <h4>Consultation Only</h4>
+                                        <div class="payment-price">$149</div>
+                                        <p class="payment-note">One-time strategy</p>
+                                    </label>
+                                </div>
+
+                                <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 1rem;">
+                                    <strong>Note:</strong> This is your initial consultation fee. For Per Deletion and Package plans, you'll only be charged for actual deletions after we review your credit reports together.
+                                </p>
+                            </div>
+
+                            <!-- Terms -->
+                            <div class="form-section">
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="consent" required>
+                                        <span>I consent to being contacted about credit repair services. I understand this is not a binding agreement and I can cancel at any time. I authorize Fresh Start Credit Solutions to review my credit reports. *</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="terms" required>
+                                        <span>I agree to the Terms of Service and Privacy Policy. I understand that credit repair results vary and cannot be guaranteed. *</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-large btn-block" id="submitBtn">
+                                Submit & Pay $149 Consultation Fee
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">Fresh Start Credit</span>
+                    </a>
+                    <p>Helping you build the credit you need for the life you want.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="get-started.html">Get Started</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p>📧 fastbtimes@gmail.com</p>
+                    <p>📱 (305) 747-3973</p>
+                    <p>🕐 Mon-Fri: 9AM - 6PM EST</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Fresh Start Credit Solutions. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Payment option selection
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+                
+                // Update button text based on selection
+                const plan = this.querySelector('input').value;
+                const btn = document.getElementById('submitBtn');
+                if (plan === 'consultation') {
+                    btn.textContent = 'Submit & Pay $149 Consultation Fee';
+                } else if (plan === 'package') {
+                    btn.textContent = 'Submit & Pay $599 Package Fee';
+                } else {
+                    btn.textContent = 'Submit & Pay $75 Setup Fee';
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('intakeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Here you would integrate with Stripe for payment
+            // and your backend for saving the client data
+            
+            alert('Thank you! Your information has been submitted. You will receive an email confirmation shortly with next steps for your free consultation.');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
+</body>
+</html>
