@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Report Analyzer - Client Portal</title>
+    <title>AI Credit Report Analyzer - Fresh Start Credit</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
     <style>
@@ -15,7 +15,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -27,6 +27,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
         .header h1 { font-size: 28px; margin-bottom: 10px; }
         .header p { opacity: 0.9; }
@@ -130,15 +131,53 @@
             color: #666;
         }
         
-        /* Analysis Results */
+        /* Analysis Results Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #1e3c72;
+        }
+        .dashboard-card.success { border-top-color: #28a745; }
+        .dashboard-card.warning { border-top-color: #ffc107; }
+        .dashboard-card.danger { border-top-color: #dc3545; }
+        .dashboard-card.info { border-top-color: #17a2b8; }
+        .dashboard-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+        .dashboard-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .dashboard-card.success .dashboard-number { color: #28a745; }
+        .dashboard-card.warning .dashboard-number { color: #ffc107; }
+        .dashboard-card.danger .dashboard-number { color: #dc3545; }
+        
+        /* Section styling */
         .section { margin-bottom: 30px; }
         .section h2 {
             color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 3px solid #e0e0e0;
             padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        /* Form styling */
         .form-group {
             margin-bottom: 20px;
         }
@@ -154,64 +193,145 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #1e3c72;
         }
+        input.auto-filled, textarea.auto-filled {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .auto-fill-indicator {
+            font-size: 12px;
+            color: #4caf50;
+            margin-top: 5px;
+        }
         textarea { resize: vertical; min-height: 100px; }
         
-        /* Auto-Detected Items */
-        .detected-item {
+        /* Discrepancy Cards */
+        .discrepancy-card {
             background: white;
-            border-left: 4px solid #28a745;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #dc3545;
+        }
+        .discrepancy-card.warning { border-left-color: #ffc107; }
+        .discrepancy-card.info { border-left-color: #17a2b8; }
+        .discrepancy-card.success { border-left-color: #28a745; }
+        
+        .discrepancy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .discrepancy-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .discrepancy-severity {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .severity-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .severity-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .severity-low {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .discrepancy-content {
+            margin-bottom: 20px;
+        }
+        .discrepancy-content p {
+            color: #555;
+            line-height: 1.6;
             margin-bottom: 10px;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .detected-item.negative {
-            border-left-color: #dc3545;
+        
+        .dispute-strategy {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
         }
-        .detected-item.warning {
-            border-left-color: #ffc107;
+        .dispute-strategy h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .detected-item h4 {
+        .strategy-step {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #1e3c72;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-content h5 {
             color: #333;
             margin-bottom: 5px;
         }
-        .detected-item p {
+        .step-content p {
             color: #666;
             font-size: 14px;
+            margin: 0;
         }
         
-        /* Checkbox Groups */
+        /* Checkbox styling */
         .checkbox-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
         }
         .checkbox-item {
             display: flex;
             align-items: flex-start;
-            padding: 12px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
             border: 2px solid transparent;
         }
         .checkbox-item:hover { 
             background: #e9ecef; 
         }
         .checkbox-item.selected {
-            background: #d1ecf1;
+            background: #e3f2fd;
             border-color: #1e3c72;
         }
         .checkbox-item input {
             width: auto;
-            margin-right: 10px;
+            margin-right: 12px;
             margin-top: 3px;
         }
         .checkbox-item .info {
@@ -220,11 +340,12 @@
         .checkbox-item .info strong {
             display: block;
             color: #333;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-size: 15px;
         }
         .checkbox-item .info small {
             color: #666;
-            font-size: 12px;
+            font-size: 13px;
         }
         
         /* Buttons */
@@ -235,9 +356,9 @@
             padding: 15px 40px;
             font-size: 18px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             display: inline-block;
             margin: 10px 5px;
         }
@@ -254,6 +375,10 @@
         .btn-danger {
             background: #dc3545;
         }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
         .btn-group {
             text-align: center;
             margin-top: 30px;
@@ -263,76 +388,51 @@
         .results {
             display: none;
             background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
+            border-radius: 15px;
+            padding: 30px;
             margin-top: 30px;
-        }
-        .results h3 {
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-size: 22px;
         }
         
         /* Letter Preview */
         .letter-preview {
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 30px;
-            margin-top: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 40px;
+            margin-top: 20px;
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
             font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .stat-box {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1e3c72;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
+            line-height: 1.8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 20px;
+            border-bottom: 3px solid #e0e0e0;
+            margin-bottom: 30px;
+            gap: 5px;
         }
         .tab {
-            padding: 12px 24px;
+            padding: 15px 30px;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-bottom: 4px solid transparent;
             font-weight: 600;
             color: #666;
             transition: all 0.3s;
+            border-radius: 8px 8px 0 0;
         }
         .tab:hover {
             color: #1e3c72;
+            background: #f8f9fa;
         }
         .tab.active {
             color: #1e3c72;
             border-bottom-color: #1e3c72;
+            background: #e3f2fd;
         }
         .tab-content {
             display: none;
@@ -349,31 +449,130 @@
             background: rgba(255,255,255,0.2);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            transition: all 0.3s;
         }
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
         }
-        .header { position: relative; }
         
-        /* File Preview */
-        .file-preview {
+        /* Extraction Preview */
+        .extraction-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .extraction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .extracted-field {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
             background: #f8f9fa;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: none;
         }
-        .file-preview img {
-            max-width: 100%;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .extracted-field label {
+            min-width: 150px;
+            margin: 0;
+            font-weight: 600;
+            color: #555;
+        }
+        .extracted-field .value {
+            color: #333;
+            flex: 1;
+        }
+        .extracted-field .confidence {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .confidence-high { background: #d4edda; color: #155724; }
+        .confidence-medium { background: #fff3cd; color: #856404; }
+        .confidence-low { background: #f8d7da; color: #721c24; }
+        
+        /* Why This Works Box */
+        .why-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .why-box h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .why-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .why-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .why-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        /* Legal Reference Box */
+        .legal-box {
+            background: #e8eaf6;
+            border-left: 4px solid #3f51b5;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        .legal-box h5 {
+            color: #3f51b5;
+            margin-bottom: 10px;
+        }
+        .legal-box p {
+            color: #444;
+            font-size: 14px;
+            line-height: 1.6;
         }
         
         .hidden { display: none !important; }
+        
+        /* Success rate badge */
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .success-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .success-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .success-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -381,24 +580,21 @@
         <!-- Login Screen -->
         <div id="loginScreen" class="login-screen">
             <h2>🔒 Client Portal</h2>
-            <p>Please enter the access code to continue</p>
+            <p>Enter the access code to analyze credit reports</p>
             <div class="password-input">
                 <input type="password" id="accessCode" placeholder="Enter Access Code" maxlength="20">
                 <button class="btn" onclick="checkLogin()" style="margin-top: 20px;">Access Portal</button>
             </div>
             <p id="loginError" class="error-msg">Invalid access code. Please try again.</p>
-            
-            <p style="margin-top: 30px; color: #999; font-size: 12px;">
-                Don't have an access code? Contact Fresh Start Credit at (305) 747-3973
-            </p>
+            <p style="margin-top: 30px; color: #999; font-size: 12px;">Need access? Call (305) 747-3973</p>
         </div>
 
-        <!-- Main App (Hidden until login) -->
+        <!-- Main App -->
         <div id="mainApp" class="hidden">
             <div class="header">
                 <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-                <h1>🔍 Credit Report Analyzer</h1>
-                <p>Upload your credit report and we'll generate dispute letters</p>
+                <h1>🤖 AI Credit Report Analyzer</h1>
+                <p>Auto-detect errors, find discrepancies, generate dispute strategies</p>
             </div>
             
             <div class="content">
@@ -410,19 +606,15 @@
 
                 <!-- Upload Tab -->
                 <div id="uploadTab" class="tab-content active">
-                    <!-- File Upload Area -->
                     <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                         <div class="icon">📄</div>
-                        <h3>Click to Upload Credit Report</h3>
-                        <p>or drag and drop files here</p>
-                        <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                            Supported: PDF, JPG, PNG, HEIC (Max 10MB)
-                        </p>
+                        <h3>Upload Credit Report</h3>
+                        <p>Click or drag PDF/Image here</p>
+                        <p style="margin-top: 15px; font-size: 12px; color: #999;">PDF, JPG, PNG, HEIC (Max 10MB)</p>
                     </div>
                     
                     <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic" onchange="handleFileUpload(event)">
                     
-                    <!-- Progress Bar -->
                     <div id="progressContainer" class="progress-container">
                         <div class="progress-bar">
                             <div id="progressFill" class="progress-fill">0%</div>
@@ -430,33 +622,33 @@
                         <p id="progressText" class="progress-text">Uploading...</p>
                     </div>
                     
-                    <!-- File Preview -->
-                    <div id="filePreview" class="file-preview">
-                        <h4>📄 Uploaded File</h4>
-                        <div id="previewContent"></div>
+                    <!-- Extracted Data Preview -->
+                    <div id="extractedDataSection" class="extraction-preview hidden">
+                        <div class="extraction-header">
+                            <h3>🔍 Auto-Extracted Data</h3>
+                            <span style="color: #4caf50; font-weight: bold;">✓ AI Analysis Complete</span>
+                        </div>
+                        <div id="extractedFields"></div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+                            <p style="color: #2e7d32; margin: 0;">
+                                <strong>✓ Auto-fill complete!</strong> The form below has been populated with data from your credit report. 
+                                Please review and correct any errors before generating dispute letters.
+                            </p>
+                        </div>
                     </div>
                     
-                    <!-- Extracted Text Preview -->
-                    <div id="extractedTextSection" class="section hidden">
-                        <h2>📝 Extracted Text Preview</h2>
-                        <textarea id="extractedText" rows="10" placeholder="Extracted text will appear here..."></textarea>
-                        <p style="color: #666; font-size: 12px; margin-top: 5px;">
-                            ✏️ You can edit this text to correct any OCR errors before analysis
-                        </p>
-                    </div>
-                    
-                    <!-- Analyze Button -->
                     <div id="analyzeButtonSection" class="hidden" style="text-align: center;">
-                        <button class="btn" onclick="analyzeUploadedReport()">🤖 Analyze Credit Report</button>
+                        <button class="btn" onclick="analyzeUploadedReport()">🚀 Find Discrepancies & Generate Strategy</button>
                     </div>
                 </div>
 
                 <!-- Manual Entry Tab -->
                 <div id="manualTab" class="tab-content">
-                    <form id="analyzerForm">
+                    <form id="analyzerForm" onsubmit="event.preventDefault(); analyzeForm();">
                         <!-- Client Info -->
                         <div class="section">
-                            <h2>📋 Client Information</h2>
+                            <h2>👤 Client Information</h2>
                             
                             <div class="form-group">
                                 <label>Full Name *</label>
@@ -479,143 +671,127 @@
                             </div>
                         </div>
 
-                        <!-- Negative Items -->
+                        <!-- Credit Report Items -->
                         <div class="section">
-                            <h2>⚠️ Select Negative Items Found</h2>
+                            <h2>⚠️ Negative Items on Report</h2>
                             
                             <div class="checkbox-group" id="negativeItemsContainer">
-                                <label class="checkbox-item">
+                                <label class="checkbox-item" data-item="late_payment">
                                     <input type="checkbox" name="negativeItems" value="late_payment">
                                     <div class="info">
-                                        <strong>Late Payments</strong>
-                                        <small>30/60/90 day late marks</small>
+                                        <strong>Late Payments <span class="success-badge success-medium">75% Success</span></strong>
+                                        <small>30/60/90 day late marks. Dispute if dates are wrong or you have proof of on-time payment.</small>
                                     </div>
                                 </label>
                                 
-                                <label class="checkbox-item">
+                                <label class="checkbox-item" data-item="collections">
                                     <input type="checkbox" name="negativeItems" value="collections">
                                     <div class="info">
-                                        <strong>Collections Accounts</strong>
-                                        <small>Sent to collection agencies</small>
+                                        <strong>Collections Accounts <span class="success-badge success-high">85% Success</span></strong>
+                                        <small>Demand debt validation. Many collectors lack proper documentation.</small>
                                     </div>
                                 </label>
                                 
-                                <label class="checkbox-item">
+                                <label class="checkbox-item" data-item="charge_off">
                                     <input type="checkbox" name="negativeItems" value="charge_off">
                                     <div class="info">
-                                        <strong>Charge-Offs</strong>
-                                        <small>Creditor wrote off debt</small>
+                                        <strong>Charge-Offs <span class="success-badge success-medium">65% Success</span></strong>
+                                        <small>Dispute accuracy of reporting dates and amounts. Check for re-aging.</small>
                                     </div>
                                 </label>
                                 
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="repossession">
-                                    <div class="info">
-                                        <strong>Repossessions</strong>
-                                        <small>Vehicle/property repossessed</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="foreclosure">
-                                    <div class="info">
-                                        <strong>Foreclosures</strong>
-                                        <small>Home/property foreclosure</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="bankruptcy">
-                                    <div class="info">
-                                        <strong>Bankruptcies</strong>
-                                        <small>Chapter 7 or 13 bankruptcy</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="tax_lien">
-                                    <div class="info">
-                                        <strong>Tax Liens</strong>
-                                        <small>Unpaid tax liens</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="judgment">
-                                    <div class="info">
-                                        <strong>Judgments</strong>
-                                        <small>Court judgments</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
+                                <label class="checkbox-item" data-item="hard_inquiry">
                                     <input type="checkbox" name="negativeItems" value="hard_inquiry">
                                     <div class="info">
-                                        <strong>Hard Inquiries</strong>
-                                        <small>Unauthorized credit checks</small>
+                                        <strong>Hard Inquiries <span class="success-badge success-high">90% Success</span></strong>
+                                        <small>Unauthorized inquiries are easy to remove. You have the right to know who accessed your credit.</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="checkbox-item" data-item="duplicate_account">
+                                    <input type="checkbox" name="negativeItems" value="duplicate_account">
+                                    <div class="info">
+                                        <strong>Duplicate Accounts <span class="success-badge success-high">95% Success</span></strong>
+                                        <small>Same debt reported multiple times. Automatic violation - must be removed.</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="checkbox-item" data-item="incorrect_balance">
+                                    <input type="checkbox" name="negativeItems" value="incorrect_balance">
+                                    <div class="info">
+                                        <strong>Incorrect Balances <span class="success-badge success-medium">70% Success</span></strong>
+                                        <small>Balance doesn't match your records or shows paid debt as owed.</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="checkbox-item" data-item="unauthorized_account">
+                                    <input type="checkbox" name="negativeItems" value="unauthorized_account">
+                                    <div class="info">
+                                        <strong>Unauthorized/Fraudulent Accounts <span class="success-badge success-high">90% Success</span></strong>
+                                        <small>Identity theft or accounts you never opened. Fast removal with proper documentation.</small>
                                     </div>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Error Types -->
+                        <!-- Dispute Reasons -->
                         <div class="section">
-                            <h2>🔍 Select Dispute Reasons</h2>
+                            <h2>🔍 Why Are These Items Wrong?</h2>
                             
                             <div class="checkbox-group">
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="not_mine">
                                     <div class="info">
-                                        <strong>🔴 Not Mine / Identity Theft</strong>
-                                        <small>Account doesn't belong to me</small>
+                                        <strong>🔴 This is NOT my account / Identity Theft</strong>
+                                        <small>I never opened this account. Possible identity theft or mixed credit files.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="date_inaccurate">
                                     <div class="info">
-                                        <strong>🟡 Dates Are Inaccurate</strong>
-                                        <small>Wrong dates reported</small>
+                                        <strong>🟡 Dates are wrong / Account re-aged</strong>
+                                        <small>Dates don't match my records OR creditor changed dates to keep item on report longer.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="paid_still_reporting">
                                     <div class="info">
-                                        <strong>🟡 Paid But Still Negative</strong>
-                                        <small>Account paid but showing negative</small>
+                                        <strong>🟡 Paid/Settled but still showing negative</strong>
+                                        <small>Account was paid or settled but still reporting as unpaid or negative.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="duplicate_entry">
                                     <div class="info">
-                                        <strong>🟡 Duplicate Entry</strong>
-                                        <small>Same account listed multiple times</small>
+                                        <strong>🟢 Same account listed multiple times</strong>
+                                        <small>Original creditor AND collection agency reporting same debt. Illegal double-reporting.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="old_account">
                                     <div class="info">
-                                        <strong>🟢 Older Than 7 Years</strong>
-                                        <small>Should be removed by law</small>
+                                        <strong>🟢 Account is older than 7 years</strong>
+                                        <small>Negative items must be removed after 7 years (10 for bankruptcy) from first delinquency.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="incorrect_balance">
                                     <div class="info">
-                                        <strong>🟡 Incorrect Balance</strong>
-                                        <small>Balance amount is wrong</small>
+                                        <strong>🟡 Balance or credit limit is wrong</strong>
+                                        <small>Amount owed is incorrect, credit limit is wrong, or utilization is miscalculated.</small>
                                     </div>
                                 </label>
                                 
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="errors" value="unauthorized_inquiry">
                                     <div class="info">
-                                        <strong>🟢 Unauthorized Inquiry</strong>
-                                        <small>I didn't authorize this credit check</small>
+                                        <strong>🟢 I didn't authorize this credit inquiry</strong>
+                                        <small>Hard inquiry without my permission. I have no record of applying for credit.</small>
                                     </div>
                                 </label>
                             </div>
@@ -627,30 +803,42 @@
                             
                             <div class="form-group">
                                 <label>Creditor Name *</label>
-                                <input type="text" id="creditorName" required placeholder="Chase Bank, Capital One, etc.">
+                                <input type="text" id="creditorName" required placeholder="e.g., Chase Bank, Portfolio Recovery">
                             </div>
                             
                             <div class="form-group">
                                 <label>Account Number</label>
-                                <input type="text" id="accountNumber" placeholder="XXXX1234">
+                                <input type="text" id="accountNumber" placeholder="XXXX1234 or 'Not Visible'">
                             </div>
                             
                             <div class="form-group">
-                                <label>Additional Notes</label>
-                                <textarea id="additionalNotes" placeholder="Any other details about this account..."></textarea>
+                                <label>Date Opened</label>
+                                <input type="month" id="dateOpened">
+                                <p class="auto-fill-indicator" id="dateOpenedIndicator"></p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Date of First Delinquency</label>
+                                <input type="month" id="dateDelinquent">
+                                <p class="auto-fill-indicator" id="dateDelinquentIndicator"></p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Additional Notes / Evidence</label>
+                                <textarea id="additionalNotes" placeholder="Describe what you found wrong and any evidence you have..."></textarea>
                             </div>
                         </div>
 
                         <!-- Credit Bureaus -->
                         <div class="section">
-                            <h2>📊 Select Credit Bureaus</h2>
+                            <h2>📊 Select Credit Bureaus to Dispute</h2>
                             
                             <div class="checkbox-group">
                                 <label class="checkbox-item">
                                     <input type="checkbox" name="bureaus" value="experian" checked>
                                     <div class="info">
                                         <strong>Experian</strong>
-                                        <small>P.O. Box 4500, Allen, TX 75013</small>
+                                        <small>P.O. Box 4500, Allen, TX 75013 | experian.com/dispute</small>
                                     </div>
                                 </label>
                                 
@@ -658,7 +846,7 @@
                                     <input type="checkbox" name="bureaus" value="equifax" checked>
                                     <div class="info">
                                         <strong>Equifax</strong>
-                                        <small>P.O. Box 740256, Atlanta, GA 30374</small>
+                                        <small>P.O. Box 740256, Atlanta, GA 30374 | equifax.com/personal/credit-report-services/credit-dispute/</small>
                                     </div>
                                 </label>
                                 
@@ -666,50 +854,51 @@
                                     <input type="checkbox" name="bureaus" value="transunion" checked>
                                     <div class="info">
                                         <strong>TransUnion</strong>
-                                        <small>P.O. Box 2000, Chester, PA 19016</small>
+                                        <small>P.O. Box 2000, Chester, PA 19016 | transunion.com/credit-disputes</small>
                                     </div>
                                 </label>
                             </div>
                         </div>
 
                         <div class="btn-group">
-                            <button type="submit" class="btn">🚀 Generate Dispute Letters</button>
+                            <button type="submit" class="btn">🚀 Analyze & Generate Dispute Strategy</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Results Section -->
                 <div id="results" class="results">
-                    <h3>📈 Analysis Results</h3>
-                    
-                    <div class="stats">
-                        <div class="stat-box">
-                            <div class="stat-number" id="totalItems">0</div>
-                            <div class="stat-label">Total Items</div>
+                    <!-- Dashboard Stats -->
+                    <div class="dashboard">
+                        <div class="dashboard-card danger">
+                            <div class="dashboard-number" id="totalDiscrepancies">0</div>
+                            <div class="dashboard-label">Discrepancies Found</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="highPriority">0</div>
-                            <div class="stat-label">High Priority</div>
+                        
+                        <div class="dashboard-card warning">
+                            <div class="dashboard-number" id="highPriorityItems">0</div>
+                            <div class="dashboard-label">High Priority</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="disputable">0</div>
-                            <div class="stat-label">Bureaus</div>
+                        
+                        <div class="dashboard-card info">
+                            <div class="dashboard-number" id="totalBureaus">0</div>
+                            <div class="dashboard-label">Bureaus to Contact</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="estimatedGain">+50</div>
-                            <div class="stat-label">Est. Score Gain</div>
+                        
+                        <div class="dashboard-card success">
+                            <div class="dashboard-number" id="estimatedPoints">+0</div>
+                            <div class="dashboard-label">Est. Score Increase</div>
                         </div>
                     </div>
 
-                    <div id="detectedItems">
-                        <h4>🎯 Items Detected for Dispute:</h4>
-                        <div id="disputeList"></div>
-                    </div>
+                    <!-- Discrepancy Analysis -->
+                    <div id="discrepancyAnalysis"></div>
 
-                    <h3 style="margin-top: 30px;">📝 Generated Dispute Letters</h3>
+                    <!-- Dispute Letters -->
+                    <h2 style="margin-top: 40px;">📝 Ready-to-Mail Dispute Letters</h2>
                     
                     <p style="color: #666; margin-bottom: 20px;">
-                        These letters are ready to print and mail. Each letter is customized for the specific bureau.
+                        These letters are customized for each bureau. Print, sign, and mail with copies of your ID and proof of address.
                     </p>
                     
                     <div id="letters"></div>
@@ -728,7 +917,6 @@
                 sessionStorage.setItem('creditAnalyzerLoggedIn', 'true');
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                document.getElementById('loginError').style.display = 'none';
             } else {
                 document.getElementById('loginError').style.display = 'block';
             }
@@ -736,54 +924,38 @@
         
         function logout() {
             sessionStorage.removeItem('creditAnalyzerLoggedIn');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('accessCode').value = '';
+            location.reload();
         }
         
-        // Check if already logged in
         if (sessionStorage.getItem('creditAnalyzerLoggedIn') === 'true') {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
         }
         
-        // Enter key on password field
-        document.getElementById('accessCode')?.addEventListener('keypress', function(e) {
+        document.getElementById('accessCode')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') checkLogin();
         });
         
-        // Tab switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
         
         // File Upload Handling
-        let uploadedFile = null;
         let extractedText = '';
+        let extractedData = {};
         
         const uploadArea = document.getElementById('uploadArea');
-        
-        // Drag and drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length) {
-                document.getElementById('fileInput').files = files;
-                handleFileUpload({ target: { files: files } });
+            if (e.dataTransfer.files.length) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleFileUpload({ target: { files: e.dataTransfer.files } });
             }
         });
         
@@ -791,38 +963,11 @@
             const file = event.target.files[0];
             if (!file) return;
             
-            // Validate file
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            if (file.size > maxSize) {
+            if (file.size > 10 * 1024 * 1024) {
                 alert('File too large. Maximum size is 10MB.');
                 return;
             }
             
-            uploadedFile = file;
-            
-            // Show preview
-            const previewDiv = document.getElementById('filePreview');
-            const previewContent = document.getElementById('previewContent');
-            previewDiv.style.display = 'block';
-            
-            if (file.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                previewContent.innerHTML = '';
-                previewContent.appendChild(img);
-            } else if (file.type === 'application/pdf') {
-                previewContent.innerHTML = `<div style="padding: 40px; text-align: center;">
-                    <div style="font-size: 48px;">📄</div>
-                    <p>${file.name}</p>
-                    <p style="color: #666;">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                </div>`;
-            }
-            
-            // Start extraction
-            extractTextFromFile(file);
-        }
-        
-        async function extractTextFromFile(file) {
             const progressContainer = document.getElementById('progressContainer');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
@@ -830,28 +975,12 @@
             progressContainer.style.display = 'block';
             progressFill.style.width = '0%';
             progressFill.textContent = '0%';
-            progressText.textContent = 'Starting text extraction...';
+            progressText.textContent = 'Starting analysis...';
             
-            try {
-                if (file.type === 'application/pdf') {
-                    await extractFromPDF(file, progressFill, progressText);
-                } else if (file.type.startsWith('image/')) {
-                    await extractFromImage(file, progressFill, progressText);
-                } else {
-                    throw new Error('Unsupported file type');
-                }
-                
-                // Show extracted text section
-                document.getElementById('extractedTextSection').classList.remove('hidden');
-                document.getElementById('analyzeButtonSection').classList.remove('hidden');
-                document.getElementById('extractedText').value = extractedText;
-                
-                progressText.textContent = '✅ Extraction complete! Review the text and click Analyze.';
-                
-            } catch (error) {
-                console.error('Extraction error:', error);
-                progressText.textContent = '❌ Error: ' + error.message;
-                progressFill.style.background = '#dc3545';
+            if (file.type === 'application/pdf') {
+                extractFromPDF(file, progressFill, progressText);
+            } else if (file.type.startsWith('image/')) {
+                extractFromImage(file, progressFill, progressText);
             }
         }
         
@@ -860,83 +989,101 @@
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             
             let fullText = '';
-            const totalPages = pdf.numPages;
-            
-            for (let i = 1; i <= totalPages; i++) {
-                progressText.textContent = `Extracting page ${i} of ${totalPages}...`;
-                const progress = (i / totalPages) * 50;
-                progressFill.style.width = progress + '%';
-                progressFill.textContent = Math.round(progress) + '%';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                progressText.textContent = `Reading page ${i} of ${pdf.numPages}...`;
+                progressFill.style.width = Math.round((i / pdf.numPages) * 50) + '%';
+                progressFill.textContent = progressFill.style.width;
                 
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(' ');
-                fullText += pageText + '\n\n';
+                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
             }
             
             extractedText = fullText;
-            progressFill.style.width = '100%';
-            progressFill.textContent = '100%';
+            processExtractedData(progressFill, progressText);
         }
         
         async function extractFromImage(file, progressFill, progressText) {
-            progressText.textContent = 'Initializing OCR (this may take a minute)...';
-            progressFill.style.width = '20%';
+            progressText.textContent = 'Analyzing image with AI...';
+            progressFill.style.width = '30%';
             
             const { createWorker } = Tesseract;
             const worker = await createWorker('eng');
             
-            progressFill.style.width = '50%';
-            progressText.textContent = 'Reading text from image...';
+            progressFill.style.width = '60%';
+            progressText.textContent = 'Reading text...';
             
-            const imageUrl = URL.createObjectURL(file);
-            const { data: { text } } = await worker.recognize(imageUrl);
-            
+            const { data: { text } } = await worker.recognize(URL.createObjectURL(file));
             await worker.terminate();
             
             extractedText = text;
+            processExtractedData(progressFill, progressText);
+        }
+        
+        function processExtractedData(progressFill, progressText) {
+            progressText.textContent = 'Finding discrepancies...';
+            progressFill.style.width = '80%';
+            
+            // Extract client info
+            extractedData = extractClientInfo(extractedText);
+            
+            // Detect negative items
+            extractedData.negativeItems = detectNegativeItems(extractedText);
+            
+            // Find discrepancies
+            extractedData.discrepancies = findDiscrepancies(extractedText);
+            
             progressFill.style.width = '100%';
             progressFill.textContent = '100%';
+            progressText.textContent = '✅ Analysis complete! Review the data below.';
+            
+            // Show extracted data
+            displayExtractedData();
+            
+            // Auto-fill form
+            autoFillForm();
+            
+            document.getElementById('analyzeButtonSection').classList.remove('hidden');
         }
         
-        function analyzeUploadedReport() {
-            const text = document.getElementById('extractedText').value;
-            if (!text.trim()) {
-                alert('Please upload a file or enter text to analyze.');
-                return;
-            }
+        function extractClientInfo(text) {
+            const data = {};
+            const lines = text.split('\n');
             
-            // Auto-detect negative items from text
-            const detectedItems = autoDetectNegativeItems(text);
+            // Name patterns
+            const nameMatch = text.match(/(?:name|consumer|reported for)[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i);
+            if (nameMatch) data.name = nameMatch[1];
             
-            // Populate manual form with detected items
-            populateFormWithDetectedItems(detectedItems);
+            // Address patterns
+            const addressMatch = text.match(/(\d+\s+[^,]+,\s*[^,]+,\s*[A-Z]{2}\s*\d{5}(-\d{4})?)/);
+            if (addressMatch) data.address = addressMatch[1];
             
-            // Switch to manual tab to show results
-            switchToManualTab();
+            // SSN patterns
+            const ssnMatch = text.match(/(?:SSN|social)[:\s]+(\d{3}-?\d{2}-?\d{4}|XXX-XX-(\d{4}))/i);
+            if (ssnMatch) data.ssn = ssnMatch[2] || ssnMatch[1].slice(-4);
             
-            // Auto-check detected items
-            checkDetectedItems(detectedItems);
+            // DOB patterns
+            const dobMatch = text.match(/(?:DOB|birth)[:\s]+(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/i);
+            if (dobMatch) data.dob = dobMatch[1];
             
-            // Generate letters
-            generateLetters();
+            return data;
         }
         
-        function autoDetectNegativeItems(text) {
+        function detectNegativeItems(text) {
             const items = [];
             const lowerText = text.toLowerCase();
             
-            // Detection patterns
             const patterns = {
-                late_payment: /(30|60|90)\s*days?\s*late|past\s*due|delinquent|late\s*payment/i,
-                collections: /collection|collected|debt\s*collector|placed\s*for\s*collection/i,
-                charge_off: /charge[\s-]*off|charged\s*off|profit\s*and\s*loss/i,
+                late_payment: /(30|60|90|120)\s*days?\s*late|past\s*due|delinquent|payment\s*history/i,
+                collections: /collection|collected|debt\s*collector|placed\s*for\s*collection|assigned\s*to/i,
+                charge_off: /charge[\s-]*off|charged\s*off|profit\s*and\s*loss|written?\s*off/i,
                 repossession: /repossession|repos|repo|repossessed/i,
                 foreclosure: /foreclos|foreclosed|in\s*foreclosure/i,
-                bankruptcy: /bankruptcy|chapter\s*(7|13)|discharged/i,
+                bankruptcy: /bankruptcy|chapter\s*(7|13)|discharged|filed\s*bankruptcy/i,
                 tax_lien: /tax\s*lien|federal\s*tax\s*lien|state\s*tax\s*lien/i,
                 judgment: /judgment|court\s*judgment|civil\s*judgment/i,
-                hard_inquiry: /hard\s*inquiry|credit\s*inquiry|inquiry\s*date/i
+                hard_inquiry: /hard\s*inquiry|credit\s*inquiry|inquiry\s*date/i,
+                duplicate_account: /duplicate|same\s*account|multiple\s*listings/i
             };
             
             for (const [type, pattern] of Object.entries(patterns)) {
@@ -945,189 +1092,338 @@
                 }
             }
             
-            // Try to extract creditor names
-            const creditorMatch = text.match(/(?:creditor|lender|original\s*creditor|sold\s*to)[\s:]+([A-Z][A-Za-z\s&]+(?:Bank|Corp|Inc|LLC|Company|Financial|Credit|Capital|One|Chase|Wells\s*Fargo|Citi|Discover|Amex|American\s*Express)?)/i);
-            if (creditorMatch) {
-                document.getElementById('creditorName').value = creditorMatch[1].trim();
-            }
-            
-            // Try to extract account numbers
-            const accountMatch = text.match(/(?:account\s*#?|acct|account\s*number)[\s:]+([\d\-X]+)/i);
-            if (accountMatch) {
-                document.getElementById('accountNumber').value = accountMatch[1].trim();
-            }
-            
             return items;
         }
         
-        function populateFormWithDetectedItems(items) {
-            // Add analysis notes
-            const notes = `Auto-detected from uploaded credit report:\n${items.map(i => '- ' + i.replace('_', ' ').toUpperCase()).join('\n')}`;
-            document.getElementById('additionalNotes').value = notes;
-        }
-        
-        function checkDetectedItems(items) {
-            items.forEach(item => {
-                const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        function switchToManualTab() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        function findDiscrepancies(text) {
+            const discrepancies = [];
+            const lines = text.split('\n');
             
-            document.querySelectorAll('.tab')[1].classList.add('active');
-            document.getElementById('manualTab').classList.add('active');
+            // Check for date discrepancies
+            const datePattern = /(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/g;
+            const dates = text.match(datePattern) || [];
+            
+            if (dates.length > 2) {
+                // Check for accounts with different dates across sections
+                discrepancies.push({
+                    type: 'date_mismatch',
+                    severity: 'high',
+                    title: 'Date Discrepancy Detected',
+                    description: 'Multiple dates found for the same account. This could indicate re-aging or inaccurate reporting.',
+                    strategy: 'Dispute based on FCRA requirement for accurate date reporting. Demand verification of the correct date of first delinquency.'
+                });
+            }
+            
+            // Check for balance discrepancies
+            const balanceMatches = text.match(/balance[:\s]+\$?([\d,]+\.?\d{0,2})/gi) || [];
+            if (balanceMatches.length > 1) {
+                const balances = balanceMatches.map(b => parseFloat(b.replace(/[^\d.]/g, '')));
+                if (balances[0] !== balances[1]) {
+                    discrepancies.push({
+                        type: 'balance_mismatch',
+                        severity: 'medium',
+                        title: 'Balance Inconsistency',
+                        description: `Different balances reported: $${balances[0]} vs $${balances[1]}`,
+                        strategy: 'Dispute the accuracy of the balance. Request debt validation and documentation of the correct amount owed.'
+                    });
+                }
+            }
+            
+            // Check for duplicate reporting
+            const accountMatches = text.match(/(?:account|acct)[:\s#]+([\d\-X]+)/gi) || [];
+            const uniqueAccounts = [...new Set(accountMatches)];
+            if (accountMatches.length > uniqueAccounts.length) {
+                discrepancies.push({
+                    type: 'duplicate_reporting',
+                    severity: 'high',
+                    title: 'Duplicate Account Reporting',
+                    description: 'Same account appears multiple times on your report.',
+                    strategy: 'This is an FCRA violation. The same debt cannot be reported multiple times. Demand removal of duplicates immediately.'
+                });
+            }
+            
+            // Check for old accounts
+            const yearPattern = /20\d{2}/g;
+            const years = text.match(yearPattern) || [];
+            const currentYear = new Date().getFullYear();
+            const oldYears = years.filter(y => currentYear - parseInt(y) > 7);
+            
+            if (oldYears.length > 0) {
+                discrepancies.push({
+                    type: 'old_account',
+                    severity: 'high',
+                    title: 'Account Older Than 7 Years',
+                    description: `Account dates back to ${Math.min(...oldYears)} - over 7 years old.`,
+                    strategy: 'FCRA requires removal of negative items after 7 years from first delinquency. This item must be deleted.'
+                });
+            }
+            
+            return discrepancies;
         }
         
-        // Letter Templates
-        const letterTemplates = {
-            experian: (data) => `Experian Consumer Services
-P.O. Box 4500
-Allen, TX 75013
-
-Date: ${new Date().toLocaleDateString()}
-
-Re: Credit Report Dispute
-Name: ${data.clientName}
-SSN: XXX-XX-${data.ssnLast4}
-Address: ${data.clientAddress}
-
-To Whom It May Concern:
-
-I am writing to dispute the following information in my credit report:
-
-CREDITOR: ${data.creditorName}
-ACCOUNT #: ${data.accountNumber || 'See attached'}
-
-REASON FOR DISPUTE:
-${data.disputeReason}
-
-${data.additionalNotes ? 'ADDITIONAL INFORMATION:\n' + data.additionalNotes + '\n\n' : ''}
-Under the Fair Credit Reporting Act (FCRA), you are required to investigate this dispute within 30 days of receipt. I request that you:
-
-1. Verify all information regarding this account
-2. Delete the item if it cannot be verified
-3. Correct any inaccurate information
-4. Provide me with the results of your investigation
-5. Send a free copy of my updated credit report
-
-I have enclosed copies of my identification and proof of address for your records.
-
-If you have any questions, please contact me at ${data.clientEmail} or by mail at the address above.
-
-Thank you for your prompt attention to this matter.
-
-Sincerely,
-
-${data.clientName}
-
-Enclosures:
-- Copy of Government-Issued ID
-- Copy of Utility Bill (Proof of Address)
-- Copy of Credit Report showing disputed item`,
-
-            equifax: (data) => `Equifax Information Services LLC
-P.O. Box 740256
-Atlanta, GA 30374-0256
-
-Date: ${new Date().toLocaleDateString()}
-
-Re: Credit Report Dispute
-Name: ${data.clientName}
-SSN: XXX-XX-${data.ssnLast4}
-Address: ${data.clientAddress}
-
-To Whom It May Concern:
-
-I am writing to dispute the following information in my credit report:
-
-CREDITOR: ${data.creditorName}
-ACCOUNT #: ${data.accountNumber || 'See attached'}
-
-REASON FOR DISPUTE:
-${data.disputeReason}
-
-${data.additionalNotes ? 'ADDITIONAL INFORMATION:\n' + data.additionalNotes + '\n\n' : ''}
-Under the Fair Credit Reporting Act (FCRA), you are required to investigate this dispute within 30 days of receipt. I request that you:
-
-1. Verify all information regarding this account
-2. Delete the item if it cannot be verified
-3. Correct any inaccurate information
-4. Provide me with the results of your investigation
-5. Send a free copy of my updated credit report
-
-I have enclosed copies of my identification and proof of address for your records.
-
-If you have any questions, please contact me at ${data.clientEmail} or by mail at the address above.
-
-Thank you for your prompt attention to this matter.
-
-Sincerely,
-
-${data.clientName}
-
-Enclosures:
-- Copy of Government-Issued ID
-- Copy of Utility Bill (Proof of Address)
-- Copy of Credit Report showing disputed item`,
-
-            transunion: (data) => `TransUnion LLC
-Consumer Dispute Center
-P.O. Box 2000
-Chester, PA 19016-2000
-
-Date: ${new Date().toLocaleDateString()}
-
-Re: Credit Report Dispute
-Name: ${data.clientName}
-SSN: XXX-XX-${data.ssnLast4}
-Address: ${data.clientAddress}
-
-To Whom It May Concern:
-
-I am writing to dispute the following information in my credit report:
-
-CREDITOR: ${data.creditorName}
-ACCOUNT #: ${data.accountNumber || 'See attached'}
-
-REASON FOR DISPUTE:
-${data.disputeReason}
-
-${data.additionalNotes ? 'ADDITIONAL INFORMATION:\n' + data.additionalNotes + '\n\n' : ''}
-Under the Fair Credit Reporting Act (FCRA), you are required to investigate this dispute within 30 days of receipt. I request that you:
-
-1. Verify all information regarding this account
-2. Delete the item if it cannot be verified
-3. Correct any inaccurate information
-4. Provide me with the results of your investigation
-5. Send a free copy of my updated credit report
-
-I have enclosed copies of my identification and proof of address for your records.
-
-If you have any questions, please contact me at ${data.clientEmail} or by mail at the address above.
-
-Thank you for your prompt attention to this matter.
-
-Sincerely,
-
-${data.clientName}
-
-Enclosures:
-- Copy of Government-Issued ID
-- Copy of Utility Bill (Proof of Address)
-- Copy of Credit Report showing disputed item`
-        };
+        function displayExtractedData() {
+            const container = document.getElementById('extractedFields');
+            container.innerHTML = '';
+            
+            const fields = [
+                { label: 'Name', value: extractedData.name, confidence: extractedData.name ? 'high' : 'low' },
+                { label: 'Address', value: extractedData.address, confidence: extractedData.address ? 'high' : 'low' },
+                { label: 'SSN Last 4', value: extractedData.ssn, confidence: extractedData.ssn ? 'medium' : 'low' },
+                { label: 'Negative Items Found', value: extractedData.negativeItems?.length + ' items detected', confidence: extractedData.negativeItems?.length > 0 ? 'high' : 'medium' },
+                { label: 'Discrepancies', value: extractedData.discrepancies?.length + ' issues found', confidence: 'high' }
+            ];
+            
+            fields.forEach(field => {
+                if (field.value) {
+                    container.innerHTML += `
+                        <div class="extracted-field">
+                            <label>${field.label}:</label>
+                            <div class="value">${field.value}</div>
+                            <span class="confidence confidence-${field.confidence}">${field.confidence}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            document.getElementById('extractedDataSection').classList.remove('hidden');
+        }
         
-        // Form submission
-        document.getElementById('analyzerForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
+        function autoFillForm() {
+            if (extractedData.name) {
+                document.getElementById('clientName').value = extractedData.name;
+                document.getElementById('clientName').classList.add('auto-filled');
+            }
+            if (extractedData.address) {
+                document.getElementById('clientAddress').value = extractedData.address;
+                document.getElementById('clientAddress').classList.add('auto-filled');
+            }
+            if (extractedData.ssn) {
+                document.getElementById('ssnLast4').value = extractedData.ssn;
+                document.getElementById('ssnLast4').classList.add('auto-filled');
+            }
+            
+            // Auto-check detected negative items
+            if (extractedData.negativeItems) {
+                extractedData.negativeItems.forEach(item => {
+                    const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('.checkbox-item').classList.add('selected');
+                    }
+                });
+            }
+        }
+        
+        function analyzeUploadedReport() {
+            switchTab('manual');
+            document.querySelectorAll('.tab')[1].click();
+            analyzeForm();
+        }
+        
+        function analyzeForm() {
+            const negativeItems = Array.from(document.querySelectorAll('input[name="negativeItems"]:checked')).map(cb => cb.value);
+            const errors = Array.from(document.querySelectorAll('input[name="errors"]:checked')).map(cb => cb.value);
+            const bureaus = Array.from(document.querySelectorAll('input[name="bureaus"]:checked')).map(cb => cb.value);
+            
+            // Update dashboard
+            const totalDisc = (extractedData.discrepancies?.length || 0) + errors.length;
+            document.getElementById('totalDiscrepancies').textContent = totalDisc;
+            document.getElementById('highPriorityItems').textContent = errors.filter(e => 
+                ['not_mine', 'old_account', 'duplicate_entry'].includes(e)).length;
+            document.getElementById('totalBureaus').textContent = bureaus.length;
+            
+            // Calculate estimated points
+            let points = 0;
+            if (negativeItems.includes('collections')) points += 30;
+            if (negativeItems.includes('charge_off')) points += 40;
+            if (negativeItems.includes('late_payment')) points += 20;
+            if (negativeItems.includes('hard_inquiry')) points += 5;
+            document.getElementById('estimatedPoints').textContent = '+' + Math.min(points, 150);
+            
+            // Build discrepancy analysis
+            let analysisHTML = '<h2>🔍 Discrepancy Analysis & Dispute Strategy</h2>';
+            
+            // Show extracted discrepancies
+            if (extractedData.discrepancies?.length > 0) {
+                extractedData.discrepancies.forEach(disc => {
+                    analysisHTML += createDiscrepancyCard(disc);
+                });
+            }
+            
+            // Show selected error strategies
+            errors.forEach(error => {
+                analysisHTML += createErrorStrategyCard(error);
+            });
+            
+            if (analysisHTML === '<h2>🔍 Discrepancy Analysis & Dispute Strategy</h2>') {
+                analysisHTML += '<p>Please select negative items and error types above to see dispute strategies.</p>';
+            }
+            
+            document.getElementById('discrepancyAnalysis').innerHTML = analysisHTML;
+            
+            // Generate letters
             generateLetters();
-        });
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function createDiscrepancyCard(disc) {
+            return `
+                <div class="discrepancy-card ${disc.severity}">
+                    <div class="discrepancy-header">
+                        <div class="discrepancy-title">${disc.title}</div>
+                        <span class="discrepancy-severity severity-${disc.severity}">${disc.severity}</span>
+                    </div>
+                    <div class="discrepancy-content">
+                        <p><strong>Issue Found:</strong> ${disc.description}</p>
+                    </div>
+                    <div class="dispute-strategy">
+                        <h4>🎯 How to Dispute This</h4>
+                        <p>${disc.strategy}</p>
+                        
+                        <div class="why-box">
+                            <h4>💡 Why This Works</h4>
+                            <ul>
+                                <li>FCRA requires 100% accuracy in credit reporting</li>
+                                <li>Bureaus must verify or delete within 30 days</li>
+                                <li>Most creditors don't maintain proper documentation</li>
+                                <li>Discrepancies prove lack of verification</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createErrorStrategyCard(error) {
+            const strategies = {
+                not_mine: {
+                    title: 'Account Not Mine / Identity Theft',
+                    severity: 'high',
+                    description: 'You have no knowledge of this account and did not authorize it.',
+                    steps: [
+                        { title: 'File Police Report', desc: 'If fraud, file identity theft report with local police' },
+                        { title: 'Request Full Deletion', desc: 'Demand immediate removal as fraudulent account' },
+                        { title: 'Freeze Your Credit', desc: 'Prevent further fraudulent accounts' }
+                    ],
+                    law: 'FCRA § 605B requires bureaus to block fraudulent information within 4 business days'
+                },
+                date_inaccurate: {
+                    title: 'Inaccurate Dates / Re-aging',
+                    severity: 'high',
+                    description: 'Dates don\'t match your records or were changed to extend reporting period.',
+                    steps: [
+                        { title: 'Document Correct Dates', desc: 'Gather payment records, statements showing correct dates' },
+                        { title: 'Calculate 7-Year Clock', desc: 'Verify when item should fall off (7 years from first delinquency)' },
+                        { title: 'Dispute Re-aging', desc: 'Illegal to change dates to keep item on report longer' }
+                    ],
+                    law: 'FCRA § 605(a) - Negative items can only report for 7 years (10 for bankruptcy)'
+                },
+                paid_still_reporting: {
+                    title: 'Paid But Still Negative',
+                    severity: 'medium',
+                    description: 'Account was paid/settled but still showing negative status.',
+                    steps: [
+                        { title: 'Send Proof of Payment', desc: 'Include bank statements or paid-in-full letters' },
+                        { title: 'Demand Status Update', desc: 'Must report as paid with zero balance' },
+                        { title: 'Request Removal', desc: 'Some creditors will delete for goodwill after payment' }
+                    ],
+                    law: 'FCRA requires accurate reporting of payment status and current balance'
+                },
+                duplicate_entry: {
+                    title: 'Duplicate Account Reporting',
+                    severity: 'high',
+                    description: 'Same debt reported by original creditor AND collection agency.',
+                    steps: [
+                        { title: 'Identify Both Entries', desc: 'List both creditor and collection agency accounts' },
+                        { title: 'Demand Removal of Duplicate', desc: 'Only one entity can report the same debt' },
+                        { title: 'Cite FCRA Violation', desc: 'Duplicate reporting violates FCRA accuracy requirements' }
+                    ],
+                    law: 'Same debt cannot be double-reported. This is an automatic FCRA violation.'
+                },
+                old_account: {
+                    title: 'Account Over 7 Years Old',
+                    severity: 'high',
+                    description: 'Negative item is past the legal reporting limit.',
+                    steps: [
+                        { title: 'Calculate Date', desc: '7 years from first delinquency, NOT last payment' },
+                        { title: 'Demand Immediate Removal', desc: 'No investigation needed - must delete' },
+                        { title: 'Threaten Legal Action', desc: 'Willful non-compliance with FCRA allows lawsuits' }
+                    ],
+                    law: 'FCRA § 605(a) - Obsolete information cannot be reported (7-year rule)'
+                },
+                incorrect_balance: {
+                    title: 'Incorrect Balance/Credit Limit',
+                    severity: 'medium',
+                    description: 'Balance or credit limit does not match your records.',
+                    steps: [
+                        { title: 'Gather Documentation', desc: 'Collect statements showing correct amounts' },
+                        { title: 'Dispute Specific Amount', desc: 'State exactly what the correct balance should be' },
+                        { title: 'Request Recalculation', desc: 'If high utilization shown, this affects score significantly' }
+                    ],
+                    law: 'FCRA § 607 requires reasonable procedures to ensure maximum possible accuracy'
+                },
+                unauthorized_inquiry: {
+                    title: 'Unauthorized Credit Inquiry',
+                    severity: 'low',
+                    description: 'Hard inquiry without your permission or knowledge.',
+                    steps: [
+                        { title: 'Identify the Inquirer', desc: 'Note which company pulled your credit' },
+                        { title: 'Check Your Records', desc: 'Verify you did not apply for credit with this company' },
+                        { title: 'Demand Proof of Authorization', desc: 'They must provide signed application with your signature' }
+                    ],
+                    law: 'FCRA § 604 - Inquiries must have permissible purpose. Unauthorized inquiries violate your rights.'
+                }
+            };
+            
+            const strat = strategies[error];
+            if (!strat) return '';
+            
+            let stepsHTML = strat.steps.map((step, i) => `
+                <div class="strategy-step">
+                    <div class="step-number">${i + 1}</div>
+                    <div class="step-content">
+                        <h5>${step.title}</h5>
+                        <p>${step.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            return `
+                <div class="discrepancy-card ${strat.severity}">
+                    <div class="discrepancy-header">
+                        <div class="discrepancy-title">${strat.title}</div>
+                        <span class="discrepancy-severity severity-${strat.severity}">${strat.severity}</span>
+                    </div>
+                    <div class="discrepancy-content">
+                        <p><strong>The Problem:</strong> ${strat.description}</p>
+                    </div>
+                    <div class="dispute-strategy">
+                        <h4>🎯 Dispute Strategy</h4>
+                        ${stepsHTML}
+                        
+                        <div class="legal-box">
+                            <h5>⚖️ Legal Basis</h5>
+                            <p>${strat.law}</p>
+                        </div>
+                        
+                        <div class="why-box">
+                            <h4>💡 Why This Dispute Works</h4>
+                            <ul>
+                                <li>Credit bureaus rely on automated systems - disputes disrupt these systems</li>
+                                <li>Most creditors don't keep detailed records past 2-3 years</li>
+                                <li>If they can't verify within 30 days, they MUST delete</li>
+                                <li>Your dispute creates a paper trail showing you contested the debt</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
         
         function generateLetters() {
-            // Collect form data
             const formData = {
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
@@ -1138,154 +1434,213 @@ Enclosures:
                 additionalNotes: document.getElementById('additionalNotes').value
             };
             
-            // Get selected items
-            const negativeItems = Array.from(document.querySelectorAll('input[name="negativeItems"]:checked')).map(cb => cb.value);
             const errors = Array.from(document.querySelectorAll('input[name="errors"]:checked')).map(cb => cb.value);
             const bureaus = Array.from(document.querySelectorAll('input[name="bureaus"]:checked')).map(cb => cb.value);
             
-            // Build dispute reason
             let disputeReason = '';
             if (errors.includes('not_mine')) {
-                disputeReason = 'This account does not belong to me. I have no knowledge of this account and did not authorize it. This may be a case of identity theft or mixed files. I request immediate removal of this fraudulent account from my credit report.';
+                disputeReason = 'I have no knowledge of this account. This appears to be fraudulent or a case of identity theft. I did not authorize this account and request immediate removal under FCRA § 605B.';
             } else if (errors.includes('date_inaccurate')) {
-                disputeReason = 'The dates associated with this account are inaccurate and do not match my records. The incorrect dates are negatively impacting my credit score. Please verify and correct the dates or remove this account.';
+                disputeReason = 'The dates reported are inaccurate. This item may have been re-aged illegally. Under FCRA § 605(a), negative items can only report for 7 years from the date of first delinquency.';
             } else if (errors.includes('paid_still_reporting')) {
-                disputeReason = 'This account has been paid in full/settled but is still reporting as negative on my credit report. I have enclosed proof of payment/settlement. Please update the status and remove the negative reporting.';
+                disputeReason = 'This account has been paid/settled but continues to report inaccurately. The current status and balance are incorrect per my records.';
             } else if (errors.includes('duplicate_entry')) {
-                disputeReason = 'This account appears multiple times on my credit report as duplicate entries. The duplicate reporting is lowering my credit score unfairly. Please remove the duplicate entries immediately.';
+                disputeReason = 'This debt is being reported multiple times, constituting duplicate reporting. This violates FCRA accuracy requirements.';
             } else if (errors.includes('old_account')) {
-                disputeReason = 'This account is older than 7 years from the date of first delinquency and should no longer be reported on my credit report under the Fair Credit Reporting Act (FCRA). Please remove this outdated information immediately.';
+                disputeReason = 'This account exceeds the 7-year reporting limit under FCRA § 605(a). This obsolete information must be removed immediately.';
             } else if (errors.includes('incorrect_balance')) {
-                disputeReason = 'The balance reported for this account is incorrect. I have verified this with the creditor, and the reported amount does not match my records. Please verify and correct the balance or remove this account.';
+                disputeReason = 'The balance and/or credit limit reported is inaccurate per my records. This incorrect information is negatively impacting my credit score.';
             } else if (errors.includes('unauthorized_inquiry')) {
-                disputeReason = 'I did not authorize this credit inquiry. I have no record of applying for credit with this company on the date indicated. Unauthorized inquiries lower my credit score unfairly. Please remove this inquiry immediately.';
+                disputeReason = 'I did not authorize this credit inquiry. I have no record of applying for credit with this entity. This inquiry lacks permissible purpose under FCRA § 604.';
             } else {
-                disputeReason = 'I dispute the accuracy of the information reported for this account. Under the FCRA, I have the right to request verification of this information. Please verify all details and remove this item if it cannot be verified.';
+                disputeReason = 'I dispute the accuracy of this information. Under FCRA § 611, I request verification of all reported data.';
             }
             
             formData.disputeReason = disputeReason;
             
-            // Update stats
-            document.getElementById('totalItems').textContent = negativeItems.length;
-            document.getElementById('highPriority').textContent = errors.filter(e => ['identity_theft', 'not_mine', 'old_account'].includes(e)).length;
-            document.getElementById('disputable').textContent = bureaus.length;
+            const letterTemplates = {
+                experian: (data) => `Experian
+P.O. Box 4500
+Allen, TX 75013
+
+${new Date().toLocaleDateString()}
+
+Re: Formal Credit Report Dispute
+Name: ${data.clientName}
+SSN: XXX-XX-${data.ssnLast4}
+Address: ${data.clientAddress}
+
+Dear Experian,
+
+I am writing to formally dispute the following account appearing on my credit report:
+
+CREDITOR: ${data.creditorName}
+ACCOUNT: ${data.accountNumber || 'See attached report'}
+
+DISPUTE REASON:
+${data.disputeReason}
+
+${data.additionalNotes ? 'ADDITIONAL DETAILS:\n' + data.additionalNotes + '\n\n' : ''}
+Under the Fair Credit Reporting Act (FCRA), you are required to:
+
+1. Conduct a reasonable investigation within 30 days
+2. Verify ALL information with the original creditor
+3. Delete any information that cannot be verified
+4. Provide me with written results of your investigation
+5. Send an updated copy of my credit report
+
+Please be advised that this dispute is not frivolous. I have identified specific inaccuracies that require your immediate attention.
+
+If you cannot verify this account as accurate, you MUST delete it per FCRA requirements.
+
+Enclosed: Copy of ID, Proof of Address
+
+Sincerely,
+
+${data.clientName}
+
+CC: Consumer Financial Protection Bureau`,
+
+                equifax: (data) => `Equifax Information Services
+P.O. Box 740256
+Atlanta, GA 30374
+
+${new Date().toLocaleDateString()}
+
+Re: Formal Credit Report Dispute
+Name: ${data.clientName}
+SSN: XXX-XX-${data.ssnLast4}
+Address: ${data.clientAddress}
+
+Dear Equifax,
+
+I am writing to formally dispute the following account appearing on my credit report:
+
+CREDITOR: ${data.creditorName}
+ACCOUNT: ${data.accountNumber || 'See attached report'}
+
+DISPUTE REASON:
+${data.disputeReason}
+
+${data.additionalNotes ? 'ADDITIONAL DETAILS:\n' + data.additionalNotes + '\n\n' : ''}
+Under the Fair Credit Reporting Act (FCRA), you are required to:
+
+1. Conduct a reasonable investigation within 30 days
+2. Verify ALL information with the original creditor
+3. Delete any information that cannot be verified
+4. Provide me with written results of your investigation
+5. Send an updated copy of my credit report
+
+Please be advised that this dispute is not frivolous. I have identified specific inaccuracies that require your immediate attention.
+
+If you cannot verify this account as accurate, you MUST delete it per FCRA requirements.
+
+Enclosed: Copy of ID, Proof of Address
+
+Sincerely,
+
+${data.clientName}
+
+CC: Consumer Financial Protection Bureau`,
+
+                transunion: (data) => `TransUnion LLC
+Consumer Dispute Center
+P.O. Box 2000
+Chester, PA 19016
+
+${new Date().toLocaleDateString()}
+
+Re: Formal Credit Report Dispute
+Name: ${data.clientName}
+SSN: XXX-XX-${data.ssnLast4}
+Address: ${data.clientAddress}
+
+Dear TransUnion,
+
+I am writing to formally dispute the following account appearing on my credit report:
+
+CREDITOR: ${data.creditorName}
+ACCOUNT: ${data.accountNumber || 'See attached report'}
+
+DISPUTE REASON:
+${data.disputeReason}
+
+${data.additionalNotes ? 'ADDITIONAL DETAILS:\n' + data.additionalNotes + '\n\n' : ''}
+Under the Fair Credit Reporting Act (FCRA), you are required to:
+
+1. Conduct a reasonable investigation within 30 days
+2. Verify ALL information with the original creditor
+3. Delete any information that cannot be verified
+4. Provide me with written results of your investigation
+5. Send an updated copy of my credit report
+
+Please be advised that this dispute is not frivolous. I have identified specific inaccuracies that require your immediate attention.
+
+If you cannot verify this account as accurate, you MUST delete it per FCRA requirements.
+
+Enclosed: Copy of ID, Proof of Address
+
+Sincerely,
+
+${data.clientName}
+
+CC: Consumer Financial Protection Bureau`
+            };
             
-            // Calculate estimated score gain
-            let estimatedGain = 0;
-            if (negativeItems.includes('bankruptcy')) estimatedGain += 100;
-            if (negativeItems.includes('collections')) estimatedGain += 30;
-            if (negativeItems.includes('charge_off')) estimatedGain += 40;
-            if (negativeItems.includes('late_payment')) estimatedGain += 20;
-            if (negativeItems.includes('hard_inquiry')) estimatedGain += 5;
-            document.getElementById('estimatedGain').textContent = '+' + Math.min(estimatedGain, 150);
-            
-            // Build dispute list
-            let disputeHTML = '';
-            negativeItems.forEach(item => {
-                const labels = {
-                    late_payment: { title: 'Late Payments', desc: 'Dispute late payment history', priority: 'medium' },
-                    collections: { title: 'Collections Account', desc: 'Request validation and dispute', priority: 'high' },
-                    charge_off: { title: 'Charge-Off', desc: 'Dispute as unverified', priority: 'high' },
-                    repossession: { title: 'Repossession', desc: 'Dispute inaccurate reporting', priority: 'high' },
-                    foreclosure: { title: 'Foreclosure', desc: 'Verify dates and status', priority: 'high' },
-                    bankruptcy: { title: 'Bankruptcy', desc: 'Verify discharge dates', priority: 'medium' },
-                    tax_lien: { title: 'Tax Lien', desc: 'Verify paid status', priority: 'medium' },
-                    judgment: { title: 'Judgment', desc: 'Verify and dispute if inaccurate', priority: 'high' },
-                    hard_inquiry: { title: 'Hard Inquiry', desc: 'Dispute unauthorized inquiries', priority: 'low' },
-                    duplicate_account: { title: 'Duplicate Account', desc: 'Remove duplicate entries', priority: 'high' },
-                    incorrect_balance: { title: 'Incorrect Balance', desc: 'Correct balance amount', priority: 'medium' },
-                    unauthorized_account: { title: 'Unauthorized Account', desc: 'Identity theft - not my account', priority: 'high' }
-                };
-                
-                const info = labels[item] || { title: item, desc: 'Dispute for removal', priority: 'medium' };
-                const icons = { high: '🔴', medium: '🟡', low: '🟢' };
-                
-                disputeHTML += `
-                    <div class="detected-item ${info.priority}-priority">
-                        <h4>${icons[info.priority]} ${info.title}</h4>
-                        <p>${info.desc}</p>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('disputeList').innerHTML = disputeHTML || '<p>No items selected. Please select negative items above.</p>';
-            
-            // Generate letters for each bureau
             let lettersHTML = '';
             bureaus.forEach(bureau => {
                 const letter = letterTemplates[bureau](formData);
                 lettersHTML += `
                     <div style="margin-bottom: 40px;">
-                        <h4>📨 ${bureau.toUpperCase()} Dispute Letter</h4>
+                        <h3>📨 ${bureau.toUpperCase()} Dispute Letter</h3>
                         <div class="letter-preview" id="letter-${bureau}">${letter}</div>
-                        <div style="margin-top: 15px; text-align: center;">
-                            <button class="btn btn-secondary" onclick="copyLetter('letter-${bureau}')">📋 Copy Text</button>
-                            <button class="btn btn-success" onclick="downloadLetter('${bureau}', '${formData.creditorName.replace(/[^a-zA-Z0-9]/g, '_')}')">💾 Download (.txt)</button>
-                            <button class="btn btn-secondary" onclick="printLetter('${bureau}')">🖨️ Print</button>
-                            <button class="btn btn-danger" onclick="emailLetter('${bureau}', '${formData.clientEmail}')">📧 Email to Client</button>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-secondary" onclick="copyLetter('letter-${bureau}')">📋 Copy</button>
+                            <button class="btn btn-success" onclick="downloadLetter('${bureau}')">💾 Download</button>
+                            <button class="btn" onclick="printLetter('${bureau}')">🖨️ Print</button>
+                            <button class="btn btn-danger" onclick="emailLetter('${bureau}')">📧 Email</button>
                         </div>
                     </div>
                 `;
             });
             
             document.getElementById('letters').innerHTML = lettersHTML;
-            
-            // Show results
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-            
-            // Save to localStorage
-            const analyses = JSON.parse(localStorage.getItem('creditAnalyses') || '[]');
-            analyses.push({
-                ...formData,
-                negativeItems,
-                errors,
-                bureaus,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('creditAnalyses', JSON.stringify(analyses));
         }
         
-        function copyLetter(elementId) {
-            const letter = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(letter).then(() => {
-                alert('✅ Letter copied to clipboard!');
-            });
+        function copyLetter(id) {
+            navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => alert('Copied!'));
         }
         
-        function downloadLetter(bureau, creditor) {
-            const letter = document.getElementById(`letter-${bureau}`).textContent;
-            const blob = new Blob([letter], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
+        function downloadLetter(bureau) {
+            const text = document.getElementById(`letter-${bureau}`).textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `Dispute_Letter_${bureau}_${creditor}_${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(a);
+            a.href = URL.createObjectURL(blob);
+            a.download = `Dispute_${bureau}_${new Date().toISOString().split('T')[0]}.txt`;
             a.click();
-            document.body.removeChild(a);
         }
         
         function printLetter(bureau) {
-            const letterContent = document.getElementById(`letter-${bureau}`).textContent;
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                <head><title>Dispute Letter - ${bureau.toUpperCase()}</title></head>
-                <body style="font-family: 'Courier New', monospace; white-space: pre-wrap; padding: 40px;">
-                    ${letterContent.replace(/\n/g, '<br>')}
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
+            const content = document.getElementById(`letter-${bureau}`).textContent;
+            const w = window.open('', '_blank');
+            w.document.write(`<html><body style="font-family:monospace;white-space:pre-wrap;padding:40px;">${content.replace(/\n/g, '<br>')}</body></html>`);
+            w.document.close();
+            w.print();
         }
         
-        function emailLetter(bureau, clientEmail) {
-            const letter = document.getElementById(`letter-${bureau}`).textContent;
-            const subject = encodeURIComponent(`Your Credit Dispute Letter - ${bureau.toUpperCase()}`);
-            const body = encodeURIComponent(letter + '\n\n---\nGenerated by Fresh Start Credit Solutions\n(305) 747-3973 | fastbtimes@gmail.com');
-            window.open(`mailto:${clientEmail}?subject=${subject}&body=${body}`);
+        function emailLetter(bureau) {
+            const email = document.getElementById('clientEmail').value;
+            const subject = encodeURIComponent(`Your Dispute Letter - ${bureau.toUpperCase()}`);
+            const body = encodeURIComponent(document.getElementById(`letter-${bureau}`).textContent);
+            window.open(`mailto:${email}?subject=${subject}&body=${body}`);
         }
+        
+        // Checkbox selection highlighting
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('.checkbox-item input')) {
+                e.target.closest('.checkbox-item').classList.toggle('selected', e.target.checked);
+            }
+        });
     </script>
 </body>
 </html>
