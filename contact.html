@@ -93,7 +93,7 @@
                         <h2>Schedule Your Free Consultation</h2>
                         <p>Fill out the form below and we'll get back to you to schedule your free, no-obligation consultation.</p>
                         
-                        <form class="contact-form" action="#" method="POST">
+                        <form class="contact-form" id="contactForm" action="#" method="POST">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="firstName">First Name *</label>
@@ -230,5 +230,30 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const goal = document.getElementById('goal').value;
+            const timeline = document.getElementById('timeline').value;
+            const message = document.getElementById('message').value;
+            
+            const subject = 'Free Consultation Request - ' + firstName + ' ' + lastName;
+            const body = 'Name: ' + firstName + ' ' + lastName + '%0D%0A' +
+                        'Email: ' + email + '%0D%0A' +
+                        'Phone: ' + phone + '%0D%0A' +
+                        'Goal: ' + goal + '%0D%0A' +
+                        'Timeline: ' + timeline + '%0D%0A' +
+                        'Message: ' + (message || 'No additional message');
+            
+            window.location.href = 'mailto:fastbtimes@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + body;
+            
+            alert('Thank you! Your email client should open with your consultation request. If it doesn\'t open automatically, you can email us directly at fastbtimes@gmail.com or call (305) 747-3973.');
+        });
+    </script>
 </body>
 </html>
