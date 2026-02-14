@@ -302,18 +302,50 @@
                     'Submitted: ' + new Date().toLocaleString()
                 );
                 
-                // Open email client
-                window.location.href = 'mailto:fastbtimes@gmail.com?subject=' + subject + '&body=' + body;
+                // Save to localStorage first
+                const submissions = JSON.parse(localStorage.getItem('formSubmissions') || '[]');
+                const submissionData = {...data, clientId, timestamp: new Date().toISOString()};
+                submissions.push(submissionData);
+                localStorage.setItem('formSubmissions', JSON.stringify(submissions));
+                
+                // Auto-reply to customer
+                const customerSubject = encodeURIComponent('Fresh Start Credit - We Received Your Request');
+                const customerBody = encodeURIComponent(
+                    'Hi ' + data.firstName + ',\n\n' +
+                    'Thank you for reaching out to Fresh Start Credit!\n\n' +
+                    'We have received your consultation request and will contact you within 24 hours at ' + data.phone + '.\n\n' +
+                    'HERE\'S WHAT TO EXPECT:\n' +
+                    '✅ Free 15-minute consultation\n' +
+                    '✅ Personalized credit analysis\n' +
+                    '✅ Clear action plan with pricing\n' +
+                    '✅ No pressure, just real help\n\n' +
+                    'YOUR SELECTED PLAN: ' + data.plan + '\n\n' +
+                    'OUR SERVICES:\n' +
+                    '• $75 per deletion (pay after results)\n' +
+                    '• $599 full package deal\n' +
+                    '• Money-back guarantee\n\n' +
+                    'If you have any questions before we call, reply to this email or reach us at:\n' +
+                    '📞 (305) 747-3973\n' +
+                    '📧 fastbtimes@gmail.com\n\n' +
+                    'Talk soon!\n\n' +
+                    'Best regards,\n' +
+                    'Fresh Start Credit Team\n\n' +
+                    '---\n' +
+                    'Client ID: ' + clientId
+                );
+                
+                // Send auto-reply to customer first
+                window.location.href = 'mailto:' + data.email + '?subject=' + customerSubject + '&body=' + customerBody;
+                
+                // Small delay then open email to you (owner)
+                setTimeout(() => {
+                    window.open('mailto:fastbtimes@gmail.com?subject=' + subject + '&body=' + body, '_blank');
+                }, 1000);
                 
                 // Show success
                 document.getElementById('formSuccess').style.display = 'block';
                 document.querySelectorAll('.form-section').forEach(s => s.style.display = 'none');
                 submitBtn.style.display = 'none';
-                
-                // Also save to localStorage as backup
-                const submissions = JSON.parse(localStorage.getItem('formSubmissions') || '[]');
-                submissions.push({...data, clientId, timestamp: new Date().toISOString()});
-                localStorage.setItem('formSubmissions', JSON.stringify(submissions));
                 
             } catch (error) {
                 console.error('Form error:', error);
