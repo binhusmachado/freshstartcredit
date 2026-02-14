@@ -1745,6 +1745,21 @@
             if (analysis.creditor) document.getElementById('creditorName').value = analysis.creditor;
             if (analysis.accountNumber) document.getElementById('accountNumber').value = analysis.accountNumber;
             
+            // Auto-fill dates
+            if (analysis.dateOpened) {
+                const [m, d, y] = analysis.dateOpened.split('/');
+                document.getElementById('dateOpened').value = `${y}-${m}-${d}`;
+            }
+            if (analysis.dateDelinquent) {
+                const [m, d, y] = analysis.dateDelinquent.split('/');
+                document.getElementById('dateDelinquent').value = `${y}-${m}-${d}`;
+            }
+            
+            // Auto-fill additional notes with found errors
+            if (analysis.additionalNotes) {
+                document.getElementById('additionalNotes').value = analysis.additionalNotes;
+            }
+            
             // Auto-check ALL detected negative items
             analysis.negativeItems.forEach(item => {
                 const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
@@ -1824,33 +1839,122 @@
                 name: null,
                 creditor: null,
                 accountNumber: null,
+                dateOpened: null,
+                dateDelinquent: null,
                 negativeItems: [],
                 discrepancies: [],
-                recommendations: []
+                recommendations: [],
+                additionalNotes: ''
             };
             
-            // Extract name
-            const nameMatch = text.match(/(?:name|consumer|reported for)[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i);
-            if (nameMatch) analysis.name = nameMatch[1];
-            
-            // Extract creditor
-            const creditorPatterns = [
-                /(?:creditor|lender|original creditor|sold to)[\s:]+([A-Z][A-Za-z\s&]+(?:Bank|Corp|Inc|LLC|Company|Financial|Credit|Capital|One|Chase|Wells Fargo|Citi|Discover|Amex|American Express|Portfolio|Recovery|Midland|Encore))/i,
-                /([A-Z][A-Za-z\s]+(?:Collection|Collections|Credit Systems|Recovery|Agency))/i
+            // Extract name - try multiple patterns
+            const namePatterns = [
+                /(?:name|consumer|reported for)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+                /(?:consumer name|name of consumer)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+                /([A-Z][a-z]+\s+[A-Z][a-z]+)\s+(?:credit report|report number)/i
             ];
-            for (const pattern of creditorPatterns) {
+            for (const pattern of namePatterns) {
                 const match = text.match(pattern);
                 if (match) {
+                    analysis.name = match[1].trim();
+                    break;
+                }
+            }
+            
+            // Extract creditor - look for known creditors and collection agencies
+            const creditorKeywords = [
+                'Bank', 'Credit Union', 'Capital One', 'Chase', 'Wells Fargo', 'Citi', 'Discover', 
+                'American Express', 'Amex', 'Portfolio Recovery', 'Midland', 'Encore', 'Synchrony',
+                'Comenity', 'LVNV', 'Resurgent', 'Convergent', 'ERC', 'Allied', 'IC Systems',
+                'Enhanced Recovery', 'Penn Credit', 'Transworld', 'Radius', 'AFNI', 'Cavalry',
+                'Unifund', 'Arrowhead', 'Bureaus', 'Centennial', 'First Savings', 'Credit One',
+                'Merrick', 'Indigo', 'Ollo', 'Avant', 'Lending Club', 'Prosper', 'Upstart',
+                'SoFi', 'Marcus', 'Ally', 'Discover Bank', 'Barclays', 'USAA', 'Navy Federal',
+                'PenFed', 'Bank of America', 'BofA', 'Wells', 'Fargo', 'TD Bank', 'PNC',
+                'Regions', 'SunTrust', 'Truist', 'Fifth Third', 'Huntington', 'KeyBank',
+                'Citizens', 'Santander', 'BB&T', 'M&T', 'Zions', 'Comerica', 'First Republic',
+                'Silicon Valley', 'Signature', 'SVB', 'First Citizens', 'UMB', 'Associated',
+                'BMO', 'Scotiabank', 'CIBC', 'RBC', 'TD Canada', 'HSBC', 'FifthThird'
+            ];
+            
+            // Look for creditor in the text
+            for (const keyword of creditorKeywords) {
+                const pattern = new RegExp(`(${keyword}[^\\n]{0,30})`, 'i');
+                const match = text.match(pattern);
+                if (match && match[1].length < 50) {
                     analysis.creditor = match[1].trim();
                     break;
                 }
             }
             
-            // Extract account number
-            const accountMatch = text.match(/(?:account|acct)[\s#:]+([\d\-X]+)/i);
-            if (accountMatch) analysis.accountNumber = accountMatch[1];
+            // If no creditor found, try generic patterns
+            if (!analysis.creditor) {
+                const creditorPatterns = [
+                    /(?:creditor|lender|original creditor|sold to)[\s:]+([A-Z][A-Za-z\s&]+(?:Bank|Corp|Inc|LLC|Company|Financial|Credit))/i,
+                    /([A-Z][A-Za-z\s]+(?:Collection|Collections|Credit Systems|Recovery|Agency|Financial))/i,
+                    /account[^\n]*with\s+([A-Z][A-Za-z\s&]+)/i
+                ];
+                for (const pattern of creditorPatterns) {
+                    const match = text.match(pattern);
+                    if (match && match[1].length < 40) {
+                        analysis.creditor = match[1].trim();
+                        break;
+                    }
+                }
+            }
             
-            // Detect negative items
+            // Extract account number - look for various formats
+            const accountPatterns = [
+                /(?:account|acct)[\s#:]+([\d\-Xx]+)/i,
+                /account\s*(?:number|#)?[\s:]+([\d\-\sXx]+)/i,
+                /account[\s:]+([\d]{6,})/,
+                /(?:account|acct)[\.\s#:]+(\d[\d\s\-Xx]*\d)/i
+            ];
+            for (const pattern of accountPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    const acct = match[1].trim().replace(/\s+/g, '');
+                    if (acct.length >= 4) {
+                        analysis.accountNumber = acct;
+                        break;
+                    }
+                }
+            }
+            
+            // Extract ALL dates and categorize them
+            const datePattern = /(\d{2}\/(\d{2})\/(\d{4}))/g;
+            const dates = [];
+            let match;
+            while ((match = datePattern.exec(text)) !== null) {
+                dates.push({
+                    full: match[1],
+                    month: match[2],
+                    year: match[4],
+                    position: match.index
+                });
+            }
+            
+            // Look for "Date Opened" or "Opened" pattern
+            const openedPattern = /(?:date opened|opened|date of opening)[\s:]+(\d{2}\/\d{2}\/\d{4})/i;
+            const openedMatch = text.match(openedPattern);
+            if (openedMatch) {
+                analysis.dateOpened = openedMatch[1];
+            } else if (dates.length > 0) {
+                // Use the earliest date as Date Opened
+                analysis.dateOpened = dates[0].full;
+            }
+            
+            // Look for "Date of First Delinquency" or "First Delinquent" pattern
+            const delinquentPattern = /(?:date of first delinquency|first delinquent|first missed|first late)[\s:]+(\d{2}\/\d{2}\/\d{4})/i;
+            const delinquentMatch = text.match(delinquentPattern);
+            if (delinquentMatch) {
+                analysis.dateDelinquent = delinquentMatch[1];
+            } else if (dates.length > 1) {
+                // Use a later date as Date of First Delinquency
+                analysis.dateDelinquent = dates[dates.length - 1].full;
+            }
+            
+            // Detect negative items with more detail
             const negativePatterns = {
                 late_payment: /(30|60|90|120)\s*days?\s*late|past\s*due|delinquent|payment\s*history/i,
                 collections: /collection|collected|debt\s*collector|placed\s*for\s*collection|assigned\s*to/i,
@@ -1864,46 +1968,96 @@
                 duplicate_account: /duplicate|same\s*account|multiple\s*listings/i
             };
             
+            const foundIssues = [];
             for (const [type, pattern] of Object.entries(negativePatterns)) {
                 if (pattern.test(lowerText)) {
                     analysis.negativeItems.push(type);
+                    // Get specific details for each type
+                    if (type === 'late_payment') {
+                        const lateMatch = text.match(/(30|60|90|120)\s*days?\s*late/i);
+                        if (lateMatch) foundIssues.push(`${lateMatch[1]} days late payment`);
+                    } else if (type === 'collections') {
+                        foundIssues.push('Account in collections');
+                    } else if (type === 'charge_off') {
+                        foundIssues.push('Account charged off');
+                    } else if (type === 'repossession') {
+                        foundIssues.push('Vehicle/property repossession');
+                    } else if (type === 'foreclosure') {
+                        foundIssues.push('Foreclosure reported');
+                    } else if (type === 'bankruptcy') {
+                        foundIssues.push('Bankruptcy filing');
+                    } else if (type === 'tax_lien') {
+                        foundIssues.push('Tax lien reported');
+                    } else if (type === 'judgment') {
+                        foundIssues.push('Court judgment');
+                    } else if (type === 'hard_inquiry') {
+                        foundIssues.push('Unauthorized hard inquiry');
+                    }
                 }
             }
             
+            // Build Additional Notes with all findings
+            const notes = [];
+            if (foundIssues.length > 0) {
+                notes.push(`Issues found on this account:`);
+                foundIssues.forEach(issue => notes.push(`- ${issue}`));
+            }
+            
             // Find discrepancies
+            // Check for balance discrepancies
+            const balanceMatches = text.match(/balance[:\s]+\$?([\d,]+\.?\d{0,2})/gi) || [];
+            const uniqueBalances = [...new Set(balanceMatches)];
+            if (uniqueBalances.length > 1) {
+                analysis.discrepancies.push({
+                    type: 'Balance Inconsistency',
+                    description: `Multiple balance amounts reported: ${uniqueBalances.join(', ')}`,
+                    severity: 'high'
+                });
+                notes.push(`- Balance inconsistency: Different amounts reported`);
+            }
+            
+            // Check for old accounts
+            const currentYear = new Date().getFullYear();
+            if (analysis.dateOpened) {
+                const yearMatch = analysis.dateOpened.match(/\/(\d{4})$/);
+                if (yearMatch) {
+                    const year = parseInt(yearMatch[1]);
+                    if (currentYear - year > 7) {
+                        analysis.discrepancies.push({
+                            type: 'Potential Obsolete Account',
+                            description: `Account opened in ${year} - may be over 7 years old and should be removed`,
+                            severity: 'high'
+                        });
+                        notes.push(`- Account may be obsolete (opened ${year}, over 7 years ago)`);
+                    }
+                }
+            }
+            
             // Check for date discrepancies
-            const datePattern = /(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/g;
-            const dates = text.match(datePattern) || [];
             if (dates.length > 3) {
                 analysis.discrepancies.push({
                     type: 'Multiple Dates',
                     description: `${dates.length} different dates found - possible date inaccuracy or re-aging`,
                     severity: 'high'
                 });
+                notes.push(`- Multiple dates found: ${dates.map(d => d.full).join(', ')}`);
             }
             
-            // Check for balance discrepancies
-            const balanceMatches = text.match(/balance[:\s]+\$?([\d,]+\.?\d{0,2})/gi) || [];
-            if (balanceMatches.length > 1) {
-                analysis.discrepancies.push({
-                    type: 'Balance Inconsistency',
-                    description: 'Multiple balance amounts reported',
-                    severity: 'medium'
-                });
+            // Look for status codes
+            const statusPattern = /status[:\s]+([A-Za-z\s\-]+)/i;
+            const statusMatch = text.match(statusPattern);
+            if (statusMatch) {
+                notes.push(`- Account status: ${statusMatch[1].trim()}`);
             }
             
-            // Check for old accounts
-            const yearPattern = /20\d{2}/g;
-            const years = text.match(yearPattern) || [];
-            const currentYear = new Date().getFullYear();
-            const oldYears = years.filter(y => currentYear - parseInt(y) > 7);
-            if (oldYears.length > 0) {
-                analysis.discrepancies.push({
-                    type: 'Potential Obsolete Account',
-                    description: `Account dates back to ${Math.min(...oldYears)} - may be over 7 years old`,
-                    severity: 'high'
-                });
+            // Look for high balance
+            const highBalancePattern = /(?:high balance|highest balance|credit limit)[:\s]+\$?([\d,]+)/i;
+            const highBalanceMatch = text.match(highBalancePattern);
+            if (highBalanceMatch) {
+                notes.push(`- High balance/limit: $${highBalanceMatch[1]}`);
             }
+            
+            analysis.additionalNotes = notes.join('\n');
             
             // Generate recommendations
             if (analysis.negativeItems.includes('collections')) {
@@ -1944,14 +2098,28 @@
                 </div>
             `;
             
-            if (analysis.name || analysis.creditor) {
+            if (analysis.name || analysis.creditor || analysis.accountNumber) {
                 html += `
                     <div class="section">
-                        <h3>👤 Detected Information</h3>
+                        <h3>🏢 Account Information Detected</h3>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                            ${analysis.name ? `<p><strong>Name:</strong> ${analysis.name}</p>` : ''}
-                            ${analysis.creditor ? `<p><strong>Creditor:</strong> ${analysis.creditor}</p>` : ''}
-                            ${analysis.accountNumber ? `<p><strong>Account:</strong> ${analysis.accountNumber}</p>` : ''}
+                            ${analysis.name ? `<p><strong>Consumer Name:</strong> ${analysis.name}</p>` : ''}
+                            ${analysis.creditor ? `<p><strong>Creditor Name:</strong> ${analysis.creditor}</p>` : ''}
+                            ${analysis.accountNumber ? `<p><strong>Account Number:</strong> ${analysis.accountNumber}</p>` : ''}
+                            ${analysis.dateOpened ? `<p><strong>Date Opened:</strong> ${analysis.dateOpened}</p>` : ''}
+                            ${analysis.dateDelinquent ? `<p><strong>Date of First Delinquency:</strong> ${analysis.dateDelinquent}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show errors/discrepancies found in Additional Notes
+            if (analysis.additionalNotes) {
+                html += `
+                    <div class="section">
+                        <h3>🔍 Errors Found on Account</h3>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <pre style="margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 14px;">${analysis.additionalNotes}</pre>
                         </div>
                     </div>
                 `;
