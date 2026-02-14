@@ -666,20 +666,25 @@
 
                 <!-- UPLOAD TAB -->
                 <div id="uploadTab" class="tab-content active">
-                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-area" id="uploadArea">
                         <div class="icon">📄</div>
-                        <h3>Upload Credit Report</h3>
-                        <p>Click or drag PDF/Image here</p>
+                        <h3>Click to Upload Credit Report</h3>
+                        <p>or drag and drop files here</p>
                         <p style="margin-top: 15px; font-size: 12px; color: #999;">PDF, JPG, PNG, HEIC (Max 10MB)</p>
                     </div>
                     
-                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic" onchange="handleFileUpload(event)">
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp,.gif" style="display: none;">
+                    
+                    <div id="uploadStatus" style="text-align: center; margin: 20px 0; color: #666; display: none;">
+                        <p>📁 Selected: <span id="selectedFileName"></span></p>
+                        <button class="btn" onclick="processSelectedFile()" style="margin-top: 10px;">🚀 Process This File</button>
+                    </div>
                     
                     <div id="progressContainer" class="progress-container">
                         <div class="progress-bar">
                             <div id="progressFill" class="progress-fill">0%</div>
                         </div>
-                        <p id="progressText" class="progress-text">Uploading...</p>
+                        <p id="progressText" class="progress-text">Starting analysis...</p>
                     </div>
                     
                     <div id="analyzeButtonSection" class="hidden" style="text-align: center;">
@@ -1220,30 +1225,60 @@
             indicator.textContent = stateLaws[state] || '';
         }
         
-        // File Upload
+        // File Upload - FIXED VERSION
+        let selectedFile = null;
         let extractedText = '';
         
+        // Upload area click handler
+        document.getElementById('uploadArea').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('fileInput').click();
+        });
+        
+        // File input change handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                selectedFile = e.target.files[0];
+                document.getElementById('selectedFileName').textContent = selectedFile.name;
+                document.getElementById('uploadStatus').style.display = 'block';
+            }
+        });
+        
+        // Drag and drop handlers
         const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragover', (e) => { 
+            e.preventDefault(); 
+            uploadArea.classList.add('dragover'); 
+        });
         uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                document.getElementById('fileInput').files = e.dataTransfer.files;
-                handleFileUpload({ target: { files: e.dataTransfer.files } });
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                selectedFile = e.dataTransfer.files[0];
+                document.getElementById('selectedFileName').textContent = selectedFile.name;
+                document.getElementById('uploadStatus').style.display = 'block';
             }
         });
         
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        function processSelectedFile() {
+            if (!selectedFile) {
+                alert('Please select a file first.');
+                return;
+            }
             
+            handleFileUpload(selectedFile);
+        }
+        
+        function handleFileUpload(file) {
             if (file.size > 10 * 1024 * 1024) {
                 alert('File too large. Maximum size is 10MB.');
                 return;
             }
             
+            // Hide upload status, show progress
+            document.getElementById('uploadStatus').style.display = 'none';
             const progressContainer = document.getElementById('progressContainer');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
@@ -1252,10 +1287,23 @@
             progressFill.style.width = '0%';
             progressText.textContent = 'Starting analysis...';
             
-            if (file.type === 'application/pdf') {
+            // Detect file type and process
+            const fileType = file.type;
+            const fileName = file.name.toLowerCase();
+            
+            if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
                 extractFromPDF(file, progressFill, progressText);
-            } else if (file.type.startsWith('image/')) {
+            } else if (fileType.startsWith('image/') || 
+                       fileName.endsWith('.jpg') || 
+                       fileName.endsWith('.jpeg') || 
+                       fileName.endsWith('.png') || 
+                       fileName.endsWith('.heic') ||
+                       fileName.endsWith('.webp') ||
+                       fileName.endsWith('.gif')) {
                 extractFromImage(file, progressFill, progressText);
+            } else {
+                alert('Unsupported file type. Please upload PDF or image files.');
+                progressContainer.style.display = 'none';
             }
         }
         
