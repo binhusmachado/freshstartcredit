@@ -662,6 +662,7 @@
                     <div class="tab" onclick="switchTab('manual')">✏️ Manual Analysis</div>
                     <div class="tab" onclick="switchTab('strategies')">🎯 Fast Strategies</div>
                     <div class="tab" onclick="switchTab('phantom')">👻 Phantom Bureaus</div>
+                    <div class="tab" onclick="switchTab('tools')">🛠️ Tools</div>
                 </div>
 
                 <!-- UPLOAD TAB -->
@@ -1135,6 +1136,316 @@
                     </div>
                 </div>
 
+                <!-- TOOLS TAB -->
+                <div id="toolsTab" class="tab-content">
+                    <h2>🛠️ Credit Repair Tools & Calculators</h2>
+                    
+                    <!-- Stop Paying Collections Warning -->
+                    <div class="alert-box danger" style="margin-bottom: 30px;">
+                        <div class="icon">🛑</div>
+                        <div>
+                            <h4>STOP! Don't Pay Collections - Dispute Instead!</h4>
+                            <p><strong>Paying collections does NOT improve your credit score.</strong> A $5 collection hurts the same as a $5,000 collection. Even with $0 balance, the derogatory mark stays for 7 years. <strong>Dispute instead - 90% success rate by mail.</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Tool 1: BBB Complaint Generator -->
+                    <div class="section">
+                        <h2>⚡ 24-Hour BBB Complaint Generator</h2>
+                        
+                        <div class="alert-box info">
+                            <div class="icon">💡</div>
+                            <div>
+                                <h4>Fast Collection Removal Strategy</h4>
+                                <p>File a BBB complaint against the collection agency, then dispute with the credit bureau using the same language. Results in 24-72 hours!</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Collection Agency Name</label>
+                            <input type="text" id="bbbCollectionAgency" placeholder="e.g., Portfolio Recovery Associates">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Original Creditor Name</label>
+                            <input type="text" id="bbbOriginalCreditor" placeholder="e.g., Chase Bank, Medical Center">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Account Number</label>
+                            <input type="text" id="bbbAccountNumber" placeholder="XXXX1234">
+                        </div>
+
+                        <button class="btn" onclick="generateBBBComplaint()">Generate BBB Complaint</button>
+                        
+                        <div id="bbbOutput" style="margin-top: 20px; display: none;">
+                            <h4>Your BBB Complaint Text:</h4>
+                            <textarea id="bbbComplaintText" rows="8" style="width: 100%; font-family: monospace;" readonly></textarea>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary" onclick="copyBBBComplaint()">📋 Copy</button>
+                                <a href="https://www.bbb.org/file-a-complaint" target="_blank" class="btn" style="text-decoration: none;">Go to BBB →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tool 2: FDCPA Fee Validator -->
+                    <div class="section">
+                        <h2>⚖️ FDCPA Collection Fee Validator</h2>
+                        
+                        <div class="alert-box warning">
+                            <div class="icon">⚠️</div>
+                            <div>
+                                <h4>Illegal Fees = Invalidated Debt</h4>
+                                <p>If a collection agency charges more than your state's legal limit, the ENTIRE debt may be invalid. Check your state limits below.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Your State</label>
+                                <select id="feeState" onchange="updateFeeLimit()">
+                                    <option value="">Select state...</option>
+                                    <option value="AL">Alabama (20%)</option>
+                                    <option value="AK">Alaska (No limit)</option>
+                                    <option value="AZ">Arizona (No limit)</option>
+                                    <option value="AR">Arkansas (25%)</option>
+                                    <option value="CA">California (No limit, but must be reasonable)</option>
+                                    <option value="CO">Colorado (No limit)</option>
+                                    <option value="CT">Connecticut (No limit)</option>
+                                    <option value="DE">Delaware (No limit)</option>
+                                    <option value="FL" selected>Florida (No limit, but contract governs)</option>
+                                    <option value="GA">Georgia (No limit)</option>
+                                    <option value="HI">Hawaii (No limit)</option>
+                                    <option value="ID">Idaho (No limit)</option>
+                                    <option value="IL">Illinois (No limit)</option>
+                                    <option value="IN">Indiana (25%)</option>
+                                    <option value="IA">Iowa (No limit)</option>
+                                    <option value="KS">Kansas (No limit)</option>
+                                    <option value="KY">Kentucky (No limit)</option>
+                                    <option value="LA">Louisiana (25%)</option>
+                                    <option value="ME">Maine (No limit)</option>
+                                    <option value="MD">Maryland (15%)</option>
+                                    <option value="MA">Massachusetts (No limit)</option>
+                                    <option value="MI">Michigan (No limit)</option>
+                                    <option value="MN">Minnesota (No limit)</option>
+                                    <option value="MS">Mississippi (No limit)</option>
+                                    <option value="MO">Missouri (No limit)</option>
+                                    <option value="MT">Montana (No limit)</option>
+                                    <option value="NE">Nebraska (No limit)</option>
+                                    <option value="NV">Nevada (No limit)</option>
+                                    <option value="NH">New Hampshire (No limit)</option>
+                                    <option value="NJ">New Jersey (No limit)</option>
+                                    <option value="NM">New Mexico (No limit)</option>
+                                    <option value="NY">New York (No limit)</option>
+                                    <option value="NC">North Carolina (No limit)</option>
+                                    <option value="ND">North Dakota (No limit)</option>
+                                    <option value="OH">Ohio (No limit)</option>
+                                    <option value="OK">Oklahoma (No limit)</option>
+                                    <option value="OR">Oregon (No limit)</option>
+                                    <option value="PA">Pennsylvania (No limit)</option>
+                                    <option value="RI">Rhode Island (No limit)</option>
+                                    <option value="SC">South Carolina (No limit)</option>
+                                    <option value="SD">South Dakota (No limit)</option>
+                                    <option value="TN">Tennessee (No limit)</option>
+                                    <option value="TX">Texas (No limit)</option>
+                                    <option value="UT">Utah (No limit)</option>
+                                    <option value="VT">Vermont (No limit)</option>
+                                    <option value="VA">Virginia (No limit)</option>
+                                    <option value="WA">Washington (No limit)</option>
+                                    <option value="WV">West Virginia (No limit)</option>
+                                    <option value="WI">Wisconsin (No limit)</option>
+                                    <option value="WY">Wyoming (No limit)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Original Debt Amount ($)</label>
+                                <input type="number" id="originalDebtAmount" placeholder="1000" oninput="calculateFeeLimit()">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Collection Fee Charged ($)</label>
+                                <input type="number" id="collectionFeeCharged" placeholder="300" oninput="calculateFeeLimit()">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Legal Fee Limit in Your State</label>
+                                <input type="text" id="legalFeeLimit" readonly style="background: #f8f9fa; font-weight: bold;">
+                            </div>
+                        </div>
+                        
+                        <div id="feeValidationResult" style="margin-top: 20px; display: none;">
+                            <!-- Result will show here -->
+                        </div>
+                    </div>
+
+                    <!-- Tool 3: Credit Utilization Calculator -->
+                    <div class="section">
+                        <h2>📊 Credit Utilization Calculator (30% of Score!)</h2>
+                        
+                        <div class="alert-box info">
+                            <div class="icon">💡</div>
+                            <div>
+                                <h4>Why This Matters</h4>
+                                <p>Credit utilization makes up <strong>30% of your credit score</strong>. Keeping it under 10% can boost your score significantly. Maxed out cards dramatically lower your score.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Total Credit Card Balances ($)</label>
+                                <input type="number" id="totalBalances" placeholder="2500" oninput="calculateUtilization()">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Total Credit Limits ($)</label>
+                                <input type="number" id="totalLimits" placeholder="10000" oninput="calculateUtilization()">
+                            </div>
+                        </div>
+                        
+                        <div id="utilizationResult" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; display: none;">
+                            <!-- Result will show here -->
+                        </div>
+                        
+                        <div class="why-box" style="margin-top: 20px;">
+                            <h4>🎯 AZEO Method (All Zero Except One)</h4>
+                            <p>For maximum score boost:</p>
+                            <ul>
+                                <li>Pay all credit cards to $0 balance</li>
+                                <li>Leave ONE card with 1-9% utilization</li>
+                                <li>Pay before statement date posts</li>
+                                <li>Can boost score 20-50 points!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tool 4: 7-Year Timeline Checker -->
+                    <div class="section">
+                        <h2>📅 7-Year Rule Timeline Checker</h2>
+                        
+                        <div class="alert-box warning">
+                            <div class="icon">⚠️</div>
+                            <div>
+                                <h4>Automatic Deletion Required</h4>
+                                <p>Negative items MUST be removed after 7 years from the date of first delinquency (10 years for bankruptcy). Check if your items are obsolete.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Date of First Delinquency</label>
+                            <input type="date" id="delinquencyDate" onchange="calculateTimeline()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Is this a bankruptcy?</label>
+                            <select id="isBankruptcy" onchange="calculateTimeline()">
+                                <option value="no">No (7-year rule)</option>
+                                <option value="yes">Yes (10-year rule)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="timelineResult" style="margin-top: 20px; display: none;">
+                            <!-- Result will show here -->
+                        </div>
+                    </div>
+
+                    <!-- Tool 5: Free Credit Report Links -->
+                    <div class="section">
+                        <h2>📄 Free Credit Report Sources (Never Pay!)</h2>
+                        
+                        <div class="phantom-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="phantom-card" style="text-align: left;">
+                                <h4>🆓 AnnualCreditReport.com</h4>
+                                <p>Free weekly reports from all 3 bureaus</p>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Official government-mandated site. No credit card required.</p>
+                                <a href="https://www.annualcreditreport.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Reports →</a>
+                            </div>
+                            
+                            <div class="phantom-card" style="text-align: left;">
+                                <h4>📊 Credit Sesame</h4>
+                                <p>Free credit monitoring & alerts</p>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free VantageScore, monitoring, and $50k identity theft insurance.</p>
+                                <a href="https://www.creditsesame.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Sign Up Free →</a>
+                            </div>
+                            
+                            <div class="phantom-card" style="text-align: left;">
+                                <h4>💳 Credit Karma</h4>
+                                <p>Free TransUnion & Equifax reports</p>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free scores, reports, and dispute filing directly through the app.</p>
+                                <a href="https://www.creditkarma.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Free Access →</a>
+                            </div>
+                            
+                            <div class="phantom-card" style="text-align: left;">
+                                <h4>🎯 Experian Free Account</h4>
+                                <p>Free FICO Score 8 & Experian report</p>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free FICO score updated monthly, Experian credit report, and alerts.</p>
+                                <a href="https://www.experian.com/free-credit-report" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Free FICO →</a>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-box danger" style="margin-top: 20px;">
+                            <div class="icon">🚫</div>
+                            <div>
+                                <h4>Never Pay for Credit Reports!</h4>
+                                <p>You are legally entitled to free credit reports. Any site asking for payment is unnecessary. Use the free resources above.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tool 6: Soft Pull Credit Cards -->
+                    <div class="section">
+                        <h2>💳 Soft Pull Credit Cards (No Hard Inquiry!)</h2>
+                        
+                        <div class="alert-box success">
+                            <div class="icon">✓</div>
+                            <div>
+                                <h4>Build Credit Without Hard Inquiries</h4>
+                                <p>These cards use "soft pulls" that don't affect your credit score. Perfect for building or rebuilding credit.</p>
+                            </div>
+                        </div>
+
+                        <div class="phantom-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                            <div class="phantom-card" style="text-align: left; border-left: 4px solid #28a745;">
+                                <h4>🛒 Walmart OnePay Mastercard</h4>
+                                <p><strong>Soft Pull Approval</strong></p>
+                                <ul style="font-size: 13px; color: #555; margin: 10px 0; padding-left: 20px;">
+                                    <li>5% cashback at Walmart (with Plus)</li>
+                                    <li>3% cashback without Plus</li>
+                                    <li>1.5% on everything else</li>
+                                    <li>Easy approval for lower scores</li>
+                                </ul>
+                                <a href="https://www.walmart.com/cp/walmart-credit-card/632402" target="_blank" class="btn btn-success" style="margin-top: 10px; display: inline-block; padding: 10px 20px; font-size: 14px;">Apply Now →</a>
+                            </div>
+                            
+                            <div class="phantom-card" style="text-align: left; border-left: 4px solid #17a2b8;">
+                                <h4>🏦 Navy Federal Pledge Loan</h4>
+                                <p><strong>Credit Union Secured Loan</strong></p>
+                                <ul style="font-size: 13px; color: #555; margin: 10px 0; padding-left: 20px;">
+                                    <li>Builds payment history</li>
+                                    <li>24-60 month terms</li>
+                                    <li>Pay 90% early, autopay rest</li>
+                                    <li>Builds credit union relationship</li>
+                                </ul>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Requires Navy Federal membership</p>
+                            </div>
+                            
+                            <div class="phantom-card" style="text-align: left; border-left: 4px solid #ffc107;">
+                                <h4>🏠 BoomPay Rent Reporting</h4>
+                                <p><strong>$5/Month - Reports to All 3 Bureaus</strong></p>
+                                <ul style="font-size: 13px; color: #555; margin: 10px 0; padding-left: 20px;">
+                                    <li>Reports 24 months BACKWARDS</li>
+                                    <li>Reports to Experian, Equifax, TransUnion</li>
+                                    <li>Never reports late payments</li>
+                                    <li>Works with Zelle, Venmo, Cash App</li>
+                                </ul>
+                                <a href="https://www.boompay.com" target="_blank" class="btn btn-warning" style="margin-top: 10px; display: inline-block; padding: 10px 20px; font-size: 14px; color: #333;">Start Reporting →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- RESULTS SECTION -->
                 <div id="results" class="results">
                     <!-- Dashboard -->
@@ -1604,6 +1915,272 @@ CC: Consumer Financial Protection Bureau (CFPB)`;
                 e.target.closest('.checkbox-item').classList.toggle('selected', e.target.checked);
             }
         });
+        
+        // ==========================================
+        // NEW TOOLS & CALCULATORS FUNCTIONS
+        // ==========================================
+        
+        // BBB Complaint Generator
+        function generateBBBComplaint() {
+            const agency = document.getElementById('bbbCollectionAgency').value;
+            const creditor = document.getElementById('bbbOriginalCreditor').value;
+            const account = document.getElementById('bbbAccountNumber').value;
+            
+            if (!agency || !creditor) {
+                alert('Please enter both the collection agency and original creditor names.');
+                return;
+            }
+            
+            const complaint = `I'm not liable for this debt with ${creditor}. 
+
+I do not have a contract with ${agency} stating that I'll pay them or owe them any money. 
+
+They did not provide me with the original contract as requested.
+
+${account ? `Account Number: ${account}` : ''}
+
+This collection is falsely reported on my credit report. I demand this account be removed from my credit report immediately.`;
+            
+            document.getElementById('bbbComplaintText').value = complaint;
+            document.getElementById('bbbOutput').style.display = 'block';
+            document.getElementById('bbbOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function copyBBBComplaint() {
+            const text = document.getElementById('bbbComplaintText');
+            text.select();
+            document.execCommand('copy');
+            alert('BBB complaint copied! Now go to BBB.org and paste it.');
+        }
+        
+        // FDCPA Fee Validator
+        const stateFeeLimits = {
+            'AL': { limit: 20, type: 'percent' },
+            'AK': { limit: null, type: 'none' },
+            'AZ': { limit: null, type: 'none' },
+            'AR': { limit: 25, type: 'percent' },
+            'CA': { limit: null, type: 'reasonable' },
+            'CO': { limit: null, type: 'none' },
+            'CT': { limit: null, type: 'none' },
+            'DE': { limit: null, type: 'none' },
+            'FL': { limit: null, type: 'contract' },
+            'GA': { limit: null, type: 'none' },
+            'HI': { limit: null, type: 'none' },
+            'ID': { limit: null, type: 'none' },
+            'IL': { limit: null, type: 'none' },
+            'IN': { limit: 25, type: 'percent' },
+            'IA': { limit: null, type: 'none' },
+            'KS': { limit: null, type: 'none' },
+            'KY': { limit: null, type: 'none' },
+            'LA': { limit: 25, type: 'percent' },
+            'ME': { limit: null, type: 'none' },
+            'MD': { limit: 15, type: 'percent' },
+            'MA': { limit: null, type: 'none' },
+            'MI': { limit: null, type: 'none' },
+            'MN': { limit: null, type: 'none' },
+            'MS': { limit: null, type: 'none' },
+            'MO': { limit: null, type: 'none' },
+            'MT': { limit: null, type: 'none' },
+            'NE': { limit: null, type: 'none' },
+            'NV': { limit: null, type: 'none' },
+            'NH': { limit: null, type: 'none' },
+            'NJ': { limit: null, type: 'none' },
+            'NM': { limit: null, type: 'none' },
+            'NY': { limit: null, type: 'none' },
+            'NC': { limit: null, type: 'none' },
+            'ND': { limit: null, type: 'none' },
+            'OH': { limit: null, type: 'none' },
+            'OK': { limit: null, type: 'none' },
+            'OR': { limit: null, type: 'none' },
+            'PA': { limit: null, type: 'none' },
+            'RI': { limit: null, type: 'none' },
+            'SC': { limit: null, type: 'none' },
+            'SD': { limit: null, type: 'none' },
+            'TN': { limit: null, type: 'none' },
+            'TX': { limit: null, type: 'none' },
+            'UT': { limit: null, type: 'none' },
+            'VT': { limit: null, type: 'none' },
+            'VA': { limit: null, type: 'none' },
+            'WA': { limit: null, type: 'none' },
+            'WV': { limit: null, type: 'none' },
+            'WI': { limit: null, type: 'none' },
+            'WY': { limit: null, type: 'none' }
+        };
+        
+        function updateFeeLimit() {
+            const state = document.getElementById('feeState').value;
+            const limitInfo = stateFeeLimits[state];
+            
+            if (!limitInfo) {
+                document.getElementById('legalFeeLimit').value = 'Select a state';
+                return;
+            }
+            
+            if (limitInfo.type === 'none') {
+                document.getElementById('legalFeeLimit').value = 'No statutory limit (must be reasonable)';
+            } else if (limitInfo.type === 'percent') {
+                document.getElementById('legalFeeLimit').value = `${limitInfo.limit}% of original debt`;
+            } else if (limitInfo.type === 'contract') {
+                document.getElementById('legalFeeLimit').value = ' Governed by original contract';
+            } else if (limitInfo.type === 'reasonable') {
+                document.getElementById('legalFeeLimit').value = 'Must be reasonable (case by case)';
+            }
+            
+            calculateFeeLimit();
+        }
+        
+        function calculateFeeLimit() {
+            const state = document.getElementById('feeState').value;
+            const originalDebt = parseFloat(document.getElementById('originalDebtAmount').value) || 0;
+            const feeCharged = parseFloat(document.getElementById('collectionFeeCharged').value) || 0;
+            
+            if (!state || !originalDebt || !feeCharged) {
+                document.getElementById('feeValidationResult').style.display = 'none';
+                return;
+            }
+            
+            const limitInfo = stateFeeLimits[state];
+            let isValid = true;
+            let message = '';
+            let legalLimit = 0;
+            
+            if (limitInfo.type === 'percent') {
+                legalLimit = (originalDebt * limitInfo.limit) / 100;
+                isValid = feeCharged <= legalLimit;
+                
+                if (!isValid) {
+                    message = `⚠️ ILLEGAL FEE! Your state limits collection fees to ${limitInfo.limit}% ($${legalLimit.toFixed(2)}). 
+                    
+They charged $${feeCharged.toFixed(2)}, which is $${(feeCharged - legalLimit).toFixed(2)} OVER the legal limit.
+
+💡 This INVALIDATES the entire debt under FDCPA!`;
+                } else {
+                    message = `✅ Fee is LEGAL. They charged $${feeCharged.toFixed(2)}, which is within the ${limitInfo.limit}% limit ($${legalLimit.toFixed(2)}).`;
+                }
+            } else if (limitInfo.type === 'none' || limitInfo.type === 'reasonable') {
+                const percentCharged = ((feeCharged / originalDebt) * 100).toFixed(1);
+                message = `ℹ️ Your state has no specific limit, but fees must be "reasonable." 
+
+They charged ${percentCharged}% ($${feeCharged.toFixed(2)}).
+
+If this seems excessive, you can dispute it as unreasonable under FDCPA.`;
+            }
+            
+            const resultDiv = document.getElementById('feeValidationResult');
+            resultDiv.innerHTML = `<div class="alert-box ${isValid ? 'info' : 'danger'}" style="margin-top: 0;"><div class="icon">${isValid ? 'ℹ️' : '⚠️'}</div><div><h4>${isValid ? 'Fee Status' : 'ILLEGAL FEE DETECTED!'}</h4><p style="white-space: pre-line;">${message}</p></div></div>`;
+            resultDiv.style.display = 'block';
+        }
+        
+        // Credit Utilization Calculator
+        function calculateUtilization() {
+            const balances = parseFloat(document.getElementById('totalBalances').value) || 0;
+            const limits = parseFloat(document.getElementById('totalLimits').value) || 0;
+            
+            if (!balances || !limits) {
+                document.getElementById('utilizationResult').style.display = 'none';
+                return;
+            }
+            
+            const utilization = (balances / limits) * 100;
+            let status = '';
+            let color = '';
+            let recommendation = '';
+            
+            if (utilization === 0) {
+                status = 'EXCELLENT (0%)';
+                color = '#28a745';
+                recommendation = 'Perfect! You\'re using the AZEO method or have no debt.';
+            } else if (utilization <= 10) {
+                status = 'EXCELLENT (' + utilization.toFixed(1) + '%)';
+                color = '#28a745';
+                recommendation = 'Great job! Under 10% is ideal for maximum score.';
+            } else if (utilization <= 30) {
+                status = 'GOOD (' + utilization.toFixed(1) + '%)';
+                color = '#ffc107';
+                recommendation = 'Under 30% is good, but under 10% is better for your score.';
+            } else if (utilization <= 50) {
+                status = 'FAIR (' + utilization.toFixed(1) + '%)';
+                color = '#fd7e14';
+                recommendation = 'This is hurting your score. Pay down to under 30% ASAP.';
+            } else {
+                status = 'POOR (' + utilization.toFixed(1) + '%)';
+                color = '#dc3545';
+                recommendation = 'MAXED OUT! This is dramatically lowering your score. Pay down immediately!';
+            }
+            
+            const target10 = limits * 0.10;
+            const target30 = limits * 0.30;
+            
+            document.getElementById('utilizationResult').innerHTML = `
+                <h3 style="color: ${color}; margin-bottom: 15px;">📊 ${status}</h3>
+                <p><strong>${recommendation}</strong></p>
+                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                    <p><strong>To get under 10%:</strong> Pay down to $${target10.toFixed(0)} (need to pay $${(balances - target10).toFixed(0)} more)</p>
+                    <p style="margin-top: 10px;"><strong>To get under 30%:</strong> Pay down to $${target30.toFixed(0)} (need to pay $${(balances - target30).toFixed(0)} more)</p>
+                </div>
+            `;
+            document.getElementById('utilizationResult').style.display = 'block';
+        }
+        
+        // 7-Year Timeline Checker
+        function calculateTimeline() {
+            const dateInput = document.getElementById('delinquencyDate').value;
+            const isBankruptcy = document.getElementById('isBankruptcy').value === 'yes';
+            
+            if (!dateInput) {
+                document.getElementById('timelineResult').style.display = 'none';
+                return;
+            }
+            
+            const delinquencyDate = new Date(dateInput);
+            const now = new Date();
+            const yearsToAdd = isBankruptcy ? 10 : 7;
+            const removalDate = new Date(delinquencyDate);
+            removalDate.setFullYear(removalDate.getFullYear() + yearsToAdd);
+            
+            const daysUntilRemoval = Math.ceil((removalDate - now) / (1000 * 60 * 60 * 24));
+            const yearsRemaining = (daysUntilRemoval / 365).toFixed(1);
+            
+            let message = '';
+            let alertClass = '';
+            
+            if (daysUntilRemoval <= 0) {
+                message = `✅ OVERDUE FOR REMOVAL! This item should have been removed ${Math.abs(daysUntilRemoval)} days ago. 
+
+🚨 DEMAND IMMEDIATE REMOVAL - cite FCRA § 605(a) - obsolete information cannot be reported.`;
+                alertClass = 'success';
+            } else if (daysUntilRemoval <= 90) {
+                message = `⏰ REMOVAL COMING SOON! This item will be removed in ${daysUntilRemoval} days (${yearsRemaining} years). 
+
+📅 Removal Date: ${removalDate.toLocaleDateString()}
+
+💡 You can dispute now as "nearing obsolete status" or wait for automatic removal.`;
+                alertClass = 'warning';
+            } else if (daysUntilRemoval <= 365) {
+                message = `📅 Less than 1 year remaining. Will be removed on ${removalDate.toLocaleDateString()}.
+
+⏳ ${daysUntilRemoval} days left. You can dispute now or wait.`;
+                alertClass = 'info';
+            } else {
+                message = `📅 Still has time remaining. Will be removed on ${removalDate.toLocaleDateString()}.
+
+⏳ ${yearsRemaining} years remaining (${daysUntilRemoval} days).
+
+💡 If there are any inaccuracies, dispute now. Otherwise, wait for automatic removal.`;
+                alertClass = 'info';
+            }
+            
+            document.getElementById('timelineResult').innerHTML = `
+                <div class="alert-box ${alertClass}">
+                    <div class="icon">${daysUntilRemoval <= 0 ? '✅' : '⏰'}</div>
+                    <div>
+                        <h4>${isBankruptcy ? '10-Year Rule' : '7-Year Rule'} Status</h4>
+                        <p style="white-space: pre-line;">${message}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('timelineResult').style.display = 'block';
+        }
     </script>
 </body>
 </html>
