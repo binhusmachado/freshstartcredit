@@ -1,5 +1,5 @@
 // API endpoint for client intake form submission
-// Saves to Airtable and sends confirmation emails
+// Saves to Airtable and sends confirmation emails via Gmail
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -74,60 +74,57 @@ export default async function handler(req, res) {
       // Continue even if Airtable fails - we have the data
     }
 
-    // Send confirmation email to client
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Fresh Start Credit <hello@freshstartcredit.vercel.app>',
-        to: email,
-        subject: 'Your Fresh Start Credit Consultation is Confirmed',
-        html: `
-          <h2>Thank you, ${firstName}!</h2>
-          <p>We've received your consultation request. Here's what happens next:</p>
-          <ol>
-            <li>We'll review your information within 24 hours</li>
-            <li>You'll receive a call from us at ${phone} to schedule your consultation</li>
-            <li>We'll analyze your credit reports together</li>
-            <li>You'll get a customized action plan</li>
-          </ol>
-          <p><strong>Your Client ID:</strong> ${clientId}</p>
-          <p>Save this ID - you'll need it to check your status.</p>
-          <p>Questions? Reply to this email or call us at (305) 747-3973</p>
-          <br>
-          <p>- Fresh Start Credit Solutions Team</p>
-        `
-      })
+    // Send emails via Gmail SMTP
+    const nodemailer = await import('nodemailer');
+    
+    const transporter = nodemailer.default.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
     });
 
-    // Send notification to admin
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Fresh Start Credit System <system@freshstartcredit.vercel.app>',
-        to: 'fastbtimes@gmail.com',
-        subject: `New Client Lead: ${firstName} ${lastName}`,
-        html: `
-          <h2>New Client Submission</h2>
-          <p><strong>Client ID:</strong> ${clientId}</p>
-          <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Goal:</strong> ${goal}</p>
-          <p><strong>Timeline:</strong> ${timeline}</p>
-          <p><strong>Selected Plan:</strong> ${plan}</p>
-          <p><strong>Situation:</strong> ${situation || 'N/A'}</p>
-          <br>
-          <p><a href="https://freshstartcredit.vercel.app/admin.html">View in Admin Dashboard</a></p>
-        `
-      })
+    // Client confirmation email
+    await transporter.sendMail({
+      from: `"Fresh Start Credit" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: 'Your Fresh Start Credit Consultation is Confirmed',
+      html: `
+        <h2>Thank you, ${firstName}!</h2>
+        <p>We've received your consultation request. Here's what happens next:</p>
+        <ol>
+          <li>We'll review your information within 24 hours</li>
+          <li>You'll receive a call from us at ${phone} to schedule your consultation</li>
+          <li>We'll analyze your credit reports together</li>
+          <li>You'll get a customized action plan</li>
+        </ol>
+        <p><strong>Your Client ID:</strong> ${clientId}</p>
+        <p>Save this ID - you'll need it to check your status at https://freshstartcredit.vercel.app/status.html</p>
+        <p>Questions? Reply to this email or call us at (305) 747-3973</p>
+        <br>
+        <p>- Fresh Start Credit Solutions Team</p>
+      `
+    });
+
+    // Admin notification email
+    await transporter.sendMail({
+      from: `"Fresh Start Credit System" <${process.env.GMAIL_USER}>`,
+      to: 'fastbtimes@gmail.com',
+      subject: `New Client Lead: ${firstName} ${lastName}`,
+      html: `
+        <h2>New Client Submission</h2>
+        <p><strong>Client ID:</strong> ${clientId}</p>
+        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Goal:</strong> ${goal}</p>
+        <p><strong>Timeline:</strong> ${timeline}</p>
+        <p><strong>Selected Plan:</strong> ${plan}</p>
+        <p><strong>Situation:</strong> ${situation || 'N/A'}</p>
+        <br>
+        <p><a href="https://freshstartcredit.vercel.app/admin.html">View in Admin Dashboard</a></p>
+      `
     });
 
     return res.status(200).json({
