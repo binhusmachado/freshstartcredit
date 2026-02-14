@@ -1,0 +1,25 @@
+#!/bin/bash
+# Create Airtable token with proper permissions
+# Run this after getting new token from Airtable
+
+echo "Follow these steps EXACTLY:"
+echo ""
+echo "1. Go to: https://airtable.com/create/tokens"
+echo ""
+echo "2. Click 'Create new token'"
+echo ""
+echo "3. Name: Fresh Start Credit API"
+echo ""
+echo "4. Scopes - CHECK THESE BOXES:"
+echo "   ☑️ data.records:read"
+echo "   ☑️ data.records:write"
+echo "   ☑️ schema.bases:read"
+echo ""
+echo "5. Access - Click '+ Add a base'"
+echo "   Select: Fresh Start Credit Client Tracker"
+echo ""
+echo "6. Click 'Create token'"
+echo ""
+echo "7. COPY THE TOKEN (starts with 'pat')"
+echo ""
+echo "8. Send me the token - I'll update everything"
