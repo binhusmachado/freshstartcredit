@@ -64,8 +64,17 @@
                     <div class="intake-form-wrapper">
                         <form id="intakeForm" class="intake-form">
                             <div id="formSuccess" class="alert alert-success" style="display: none; padding: 2rem; background: #d1fae5; border-radius: 0.75rem; margin-bottom: 2rem;">
-                                <h3 style="color: #065f46; margin-bottom: 0.5rem;">✓ Submission Received!</h3>
-                                <p style="color: #065f46; margin: 0;">Thank you! We'll contact you within 24 hours to schedule your free consultation.</p>
+                                <h3 style="color: #065f46; margin-bottom: 0.5rem;">✓ Thank You! Your Request Was Sent</h3>
+                                <p style="color: #065f46; margin: 0 0 1rem 0;">We've received your information and will call you within 24 hours.</p>
+                                <hr style="border: none; border-top: 1px solid #a7f3d0; margin: 1rem 0;">
+                                <p style="color: #065f46; margin: 0; font-size: 0.9rem;">
+                                    <strong>What to Expect:</strong><br>
+                                    ✅ Free 15-minute consultation<br>
+                                    ✅ Personalized credit analysis<br>
+                                    ✅ Clear action plan with pricing<br>
+                                    ✅ No pressure, just real help<br><br>
+                                    <strong>Questions?</strong> Call us at (305) 747-3973
+                                </p>
                             </div>
                             <div id="formError" class="alert alert-error" style="display: none; padding: 1rem; background: #fee2e2; border-radius: 0.75rem; margin-bottom: 2rem; color: #991b1b;">
                                 <p>There was an error. Please try again or call us at (305) 747-3973.</p>
@@ -334,13 +343,8 @@
                     'Client ID: ' + clientId
                 );
                 
-                // Send auto-reply to customer first
-                window.location.href = 'mailto:' + data.email + '?subject=' + customerSubject + '&body=' + customerBody;
-                
-                // Small delay then open email to you (owner)
-                setTimeout(() => {
-                    window.open('mailto:fastbtimes@gmail.com?subject=' + subject + '&body=' + body, '_blank');
-                }, 1000);
+                // Open notification email to owner only (single window)
+                window.location.href = 'mailto:fastbtimes@gmail.com?subject=' + subject + '&body=' + body;
                 
                 // Show success
                 document.getElementById('formSuccess').style.display = 'block';
