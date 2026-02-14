@@ -1745,7 +1745,7 @@
             if (analysis.creditor) document.getElementById('creditorName').value = analysis.creditor;
             if (analysis.accountNumber) document.getElementById('accountNumber').value = analysis.accountNumber;
             
-            // Auto-check detected negative items
+            // Auto-check ALL detected negative items
             analysis.negativeItems.forEach(item => {
                 const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
                 if (checkbox) {
@@ -1754,16 +1754,67 @@
                 }
             });
             
-            // Show analysis results
-            showUploadAnalysis(analysis);
+            // Auto-check all 3 bureaus by default
+            ['experian', 'equifax', 'transunion'].forEach(bureau => {
+                const checkbox = document.querySelector(`input[name="bureaus"][value="${bureau}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.closest('.checkbox-item').classList.add('selected');
+                }
+            });
+            
+            // Auto-check "Factual Disputing" strategy by default
+            const factualDispute = document.querySelector('input[name="disputeStrategy"][value="factual"]');
+            if (factualDispute) factualDispute.checked = true;
+            
+            // Check for date opened and date delinquent from extracted text
+            const dateMatches = extractedText.match(/(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/g);
+            if (dateMatches && dateMatches.length >= 1) {
+                // Try to convert MM/DD/YYYY to YYYY-MM-DD for input type="date"
+                const convertDate = (dateStr) => {
+                    if (dateStr.includes('/')) {
+                        const [m, d, y] = dateStr.split('/');
+                        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                    }
+                    return dateStr;
+                };
+                
+                if (dateMatches[0]) document.getElementById('dateOpened').value = convertDate(dateMatches[0]);
+                if (dateMatches[1]) document.getElementById('dateDelinquent').value = convertDate(dateMatches[1]);
+            }
+            
+            // Build missing info list
+            const missingInfo = [];
+            if (!document.getElementById('clientName').value) missingInfo.push('Full Name');
+            if (!document.getElementById('clientEmail').value) missingInfo.push('Email Address');
+            if (!document.getElementById('clientAddress').value) missingInfo.push('Mailing Address');
+            if (!document.getElementById('ssnLast4').value) missingInfo.push('SSN Last 4 Digits');
+            if (!document.getElementById('creditorName').value) missingInfo.push('Creditor Name');
+            if (!document.getElementById('accountNumber').value) missingInfo.push('Account Number');
+            
+            // Show analysis results with missing info warning
+            showUploadAnalysis(analysis, missingInfo);
             
             // Switch to manual tab
             switchTab('manual');
             
-            // Scroll to show the analysis results
-            const analysisDiv = document.getElementById('uploadAnalysis');
-            if (analysisDiv) {
-                analysisDiv.scrollIntoView({ behavior: 'smooth' });
+            // If we have the minimum required info, auto-generate letters
+            const hasMinimumInfo = document.getElementById('clientName').value && 
+                                   document.getElementById('creditorName').value &&
+                                   analysis.negativeItems.length > 0;
+            
+            if (hasMinimumInfo && missingInfo.length <= 2) {
+                // Small delay to let the UI update first
+                setTimeout(() => {
+                    analyzeForm();
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            } else {
+                // Scroll to show the analysis results
+                const analysisDiv = document.getElementById('uploadAnalysis');
+                if (analysisDiv) {
+                    analysisDiv.scrollIntoView({ behavior: 'smooth' });
+                }
             }
         }
         
@@ -1882,7 +1933,7 @@
             return analysis;
         }
         
-        function showUploadAnalysis(analysis) {
+        function showUploadAnalysis(analysis, missingInfo = []) {
             let html = `
                 <div class="alert-box success" style="margin-bottom: 30px;">
                     <div class="icon">🔍</div>
@@ -1901,6 +1952,24 @@
                             ${analysis.name ? `<p><strong>Name:</strong> ${analysis.name}</p>` : ''}
                             ${analysis.creditor ? `<p><strong>Creditor:</strong> ${analysis.creditor}</p>` : ''}
                             ${analysis.accountNumber ? `<p><strong>Account:</strong> ${analysis.accountNumber}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show missing required information
+            if (missingInfo.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="alert-box warning">
+                            <div class="icon">⚠️</div>
+                            <div>
+                                <h4>⚠️ Missing Required Information (${missingInfo.length})</h4>
+                                <p>Please fill in the following required fields for your dispute letters:</p>
+                                <ul style="margin-top: 10px; font-weight: bold;">
+                                    ${missingInfo.map(item => `<li>❌ ${item}</li>`).join('')}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1979,11 +2048,11 @@
             }
             
             html += `
-                <div class="alert-box info" style="margin-top: 30px;">
-                    <div class="icon">✓</div>
+                <div class="alert-box ${missingInfo.length === 0 ? 'success' : 'warning'}" style="margin-top: 30px;">
+                    <div class="icon">${missingInfo.length === 0 ? '✅' : '⚠️'}</div>
                     <div>
-                        <h4>Next Steps</h4>
-                        <p>Review the auto-populated information above, make any corrections needed, then click "Generate Complete Dispute Strategy" to create your custom dispute letters.</p>
+                        <h4>${missingInfo.length === 0 ? '✅ Ready to Generate Dispute Letters!' : 'Next Steps'}</h4>
+                        <p>${missingInfo.length === 0 ? 'All required information has been detected. Your dispute letters are ready below!' : 'Please fill in the missing required fields above, then click "Generate Complete Dispute Strategy" to create your custom dispute letters.'}</p>
                     </div>
                 </div>
             `;
