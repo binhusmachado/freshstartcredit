@@ -312,6 +312,7 @@
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab('upload')">📤 Upload Report</button>
                     <button class="tab" onclick="switchTab('manual')">✏️ Manual Entry</button>
+                    <button class="tab" onclick="switchTab('client')">👤 My Info</button>
                     <button class="tab" onclick="switchTab('strategies')">🎯 Strategies</button>
                     <button class="tab" onclick="switchTab('phantom')">👻 Phantom Bureaus</button>
                     <button class="tab" onclick="switchTab('letters')">📝 My Letters</button>
@@ -477,6 +478,59 @@
                             <li>Innovis (above)</li>
                             <li>LexisNexis (above)</li>
                         </ul>
+                    </div>
+                </div>
+
+                <!-- Client Info Tab -->
+                <div id="clientTab" class="tab-content">
+                    <h3>👤 Your Information</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Enter your details once and they will be included in all dispute letters automatically.</p>
+                    
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="clientFullName" placeholder="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Street Address *</label>
+                        <input type="text" id="clientAddress" placeholder="123 Main Street">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>City *</label>
+                            <input type="text" id="clientCity" placeholder="Miami">
+                        </div>
+                        <div class="form-group">
+                            <label>State *</label>
+                            <input type="text" id="clientState" placeholder="FL" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP *</label>
+                            <input type="text" id="clientZip" placeholder="33101" maxlength="10">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Phone *</label>
+                            <input type="tel" id="clientPhone" placeholder="(305) 555-1234">
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="clientEmail" placeholder="john@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>SSN Last 4 Digits *</label>
+                        <input type="text" id="clientSSN" placeholder="1234" maxlength="4">
+                    </div>
+                    
+                    <button class="btn btn-accent" onclick="saveClientInfo()">Save My Information</button>
+                    
+                    <div id="clientInfoSaved" class="alert alert-info hidden" style="margin-top: 20px;">
+                        ✅ Your information has been saved and will be included in all dispute letters.
                     </div>
                 </div>
 
@@ -652,16 +706,58 @@
 
         // Generate Dispute Letter
         function generateLetter(item) {
+            // Get client info
+            let clientInfo = {
+                fullName: '[YOUR NAME]',
+                address: '[YOUR STREET ADDRESS]',
+                city: '[CITY]',
+                state: '[STATE]',
+                zip: '[ZIP]',
+                phone: '[PHONE]',
+                email: '[EMAIL]',
+                ssn: '[SSN LAST 4]'
+            };
+
+            const savedInfo = sessionStorage.getItem('clientInfo');
+            if (savedInfo) {
+                clientInfo = JSON.parse(savedInfo);
+            }
+
             const date = new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
             });
 
-            const letter = `
-[Your Name]
-[Your Address]
-[City, State ZIP]
+            // Build specific dispute reason based on item details
+            let specificReason = item.reason || '';
+            if (!specificReason) {
+                specificReason = `I am disputing this ${item.type} account with ${item.creditor}. `;
+                
+                if (item.type === 'Late Payment') {
+                    specificReason += `I dispute the reported late payment(s) as I have records showing payments were made on time. `;
+                    specificReason += `The reported delinquency is inaccurate and damaging my credit score.`;
+                } else if (item.type === 'Collection') {
+                    specificReason += `I do not recognize this collection account and request validation of the debt. `;
+                    specificReason += `If this debt is valid, I request proof of assignment from the original creditor.`;
+                } else if (item.type === 'Charge-Off') {
+                    specificReason += `I dispute the accuracy of this charge-off. `;
+                    specificReason += `I request verification of the date of first delinquency and the accuracy of the reported balance.`;
+                } else if (item.type === 'Hard Inquiry') {
+                    specificReason += `I did not authorize this credit inquiry. `;
+                    specificReason += `Please provide documentation showing my written authorization for this inquiry.`;
+                } else {
+                    specificReason += `This account contains inaccurate information. `;
+                    specificReason += `I request that you verify all details with the original creditor and remove this item if it cannot be verified.`;
+                }
+            }
+
+            const letter = `${clientInfo.fullName}
+${clientInfo.address}
+${clientInfo.city}, ${clientInfo.state} ${clientInfo.zip}
+Phone: ${clientInfo.phone}
+Email: ${clientInfo.email}
+SSN: XXX-XX-${clientInfo.ssn}
 
 ${date}
 
@@ -669,39 +765,60 @@ Experian
 P.O. Box 4500
 Allen, TX 75013
 
-RE: Dispute of Inaccurate Information
-Account: ${item.creditor} ${item.accountNumber ? '(' + item.accountNumber + ')' : ''}
+RE: Formal Dispute of Inaccurate Information - FCRA § 611
+Account: ${item.creditor}${item.accountNumber ? ' - Account #' + item.accountNumber : ''}
 
 To Whom It May Concern:
 
-I am writing to dispute the following information in my credit report. I have identified inaccuracies that require investigation and correction under the Fair Credit Reporting Act (FCRA).
+I am writing to formally dispute inaccurate information appearing on my credit report. Under the Fair Credit Reporting Act (FCRA) § 611(a)(1)(A), you are required to conduct a reasonable investigation of this dispute within thirty (30) days of receipt.
+
+CONSUMER INFORMATION:
+Name: ${clientInfo.fullName}
+Address: ${clientInfo.address}, ${clientInfo.city}, ${clientInfo.state} ${clientInfo.zip}
+SSN: XXX-XX-${clientInfo.ssn}
 
 ITEM DISPUTED:
-- Creditor: ${item.creditor}
+- Creditor/Furnisher: ${item.creditor}
 - Account Type: ${item.type}
+- Account Number: ${item.accountNumber || 'Not Provided'}
 - Date Opened: ${item.dateOpened || 'Unknown'}
-${item.dateDelinquent ? '- Date of First Delinquency: ' + item.dateDelinquent : ''}
+${item.dateDelinquent ? '- Date of First Delinquency: ' + item.dateDelinquent + '\n' : ''}- Current Status: Reported as Negative/Adverse
 
-REASON FOR DISPUTE:
-${item.reason || 'This account contains inaccurate information and/or I do not recognize this account as belonging to me. I request that you verify this information with the original creditor and remove it if it cannot be verified.'}
+SPECIFIC REASON FOR DISPUTE:
+${specificReason}
 
-Under FCRA § 611(a)(1)(A), you are required to conduct a reasonable investigation of this dispute within 30 days of receipt. Please provide me with the results of your investigation and any documentation supporting the continued reporting of this item.
+REQUEST FOR INVESTIGATION:
+I request that you conduct a complete investigation of this disputed item pursuant to 15 U.S.C. § 1681i(a)(1)(A). Specifically, I request that you:
 
-If you cannot verify this information, you must delete it from my credit report pursuant to FCRA § 611(a)(1)(B).
+1. Contact the furnisher (${item.creditor}) to verify the accuracy of this account
+2. Provide me with the results of your investigation within 30 days
+3. Forward all documentation supporting the continued reporting of this item
+4. If the furnisher cannot verify this information, delete it from my credit report per FCRA § 611(a)(1)(B)
 
-I request that you send me written confirmation of the deletion or correction of this item within 5 business days of completing your investigation.
+REMOVAL REQUEST:
+If you cannot verify this information as accurate, complete, and verifiable, you are required by law to delete it from my credit report immediately. Pursuant to FCRA § 607(a), you must follow reasonable procedures to assure maximum possible accuracy of consumer reports.
+
+I further request written confirmation of the deletion or correction of this item within 5 business days of completing your investigation.
+
+AUTHORIZATION:
+I authorize you to contact the creditor/furnisher listed above regarding this dispute. This is not a request for my credit file, but rather a formal dispute of specific information contained therein.
 
 Thank you for your prompt attention to this matter.
 
-Sincerely,
+Respectfully submitted,
 
-[Your Signature]
-[Your Printed Name]
+
+_________________________________
+${clientInfo.fullName}
+Date: ${date}
 
 Enclosures:
-- Copy of Driver's License
-- Copy of Social Security Card
-- Copy of Utility Bill
+- Copy of Government-Issued Photo ID
+- Copy of Social Security Card (showing last 4 digits: ${clientInfo.ssn})
+- Copy of Recent Utility Bill (proving current address)
+- ${item.type === 'Late Payment' || item.type === 'Collection' || item.type === 'Charge-Off' ? '- Any supporting documentation showing payment records or evidence of inaccuracy\n' : ''}
+
+CC: Consumer Financial Protection Bureau (if unresolved)
             `.trim();
 
             generatedLetters.push({
@@ -749,6 +866,53 @@ Enclosures:
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // Client Info Functions
+        function saveClientInfo() {
+            const clientInfo = {
+                fullName: document.getElementById('clientFullName').value,
+                address: document.getElementById('clientAddress').value,
+                city: document.getElementById('clientCity').value,
+                state: document.getElementById('clientState').value,
+                zip: document.getElementById('clientZip').value,
+                phone: document.getElementById('clientPhone').value,
+                email: document.getElementById('clientEmail').value,
+                ssn: document.getElementById('clientSSN').value
+            };
+
+            // Validate required fields
+            if (!clientInfo.fullName || !clientInfo.address || !clientInfo.city || !clientInfo.state || !clientInfo.zip) {
+                alert('Please fill in all required fields (marked with *).');
+                return;
+            }
+
+            sessionStorage.setItem('clientInfo', JSON.stringify(clientInfo));
+            document.getElementById('clientInfoSaved').classList.remove('hidden');
+        }
+
+        function loadClientInfo() {
+            const saved = sessionStorage.getItem('clientInfo');
+            if (saved) {
+                const clientInfo = JSON.parse(saved);
+                document.getElementById('clientFullName').value = clientInfo.fullName || '';
+                document.getElementById('clientAddress').value = clientInfo.address || '';
+                document.getElementById('clientCity').value = clientInfo.city || '';
+                document.getElementById('clientState').value = clientInfo.state || '';
+                document.getElementById('clientZip').value = clientInfo.zip || '';
+                document.getElementById('clientPhone').value = clientInfo.phone || '';
+                document.getElementById('clientEmail').value = clientInfo.email || '';
+                document.getElementById('clientSSN').value = clientInfo.ssn || '';
+                
+                if (clientInfo.fullName) {
+                    document.getElementById('clientInfoSaved').classList.remove('hidden');
+                }
+            }
+        }
+
+        // Load client info on page load
+        if (sessionStorage.getItem('analyzerLoggedIn') === 'true') {
+            loadClientInfo();
         }
     </script>
 </body>
