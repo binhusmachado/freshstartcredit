@@ -1920,10 +1920,13 @@
                 negativeItems: [],
                 discrepancies: [],
                 recommendations: [],
-                additionalNotes: ''
+                additionalNotes: '',
+                disputeReason: ''
             };
             
-            // Extract name - try multiple patterns
+            console.log('Starting credit report analysis...');
+            
+            // ========== EXTRACT NAME ==========
             const namePatterns = [
                 /(?:name|consumer|reported for)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
                 /(?:consumer name|name of consumer)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
@@ -1933,228 +1936,325 @@
                 const match = text.match(pattern);
                 if (match) {
                     analysis.name = match[1].trim();
+                    console.log('Found name:', analysis.name);
                     break;
                 }
             }
             
-            // Extract creditor - IMPROVED with comprehensive detection
-            const creditorKeywords = [
-                'Bank of America', 'Chase', 'Wells Fargo', 'Citi', 'Discover', 
-                'American Express', 'Amex', 'Capital One', 'Credit One', 'Merrick Bank',
-                'Portfolio Recovery Associates', 'Portfolio Recovery', 'Midland Credit',
-                'Encore Capital', 'Synchrony Bank', 'Comenity Bank', 'LVNV Funding',
-                'Resurgent Capital', 'Convergent Outsourcing', 'ERC', 'Enhanced Recovery',
-                'Allied Collection', 'IC Systems', 'Transworld Systems', 'Radius Global',
-                'AFNI', 'Cavalry Portfolio', 'Unifund CCR', 'Arrowhead Capital',
-                'Centennial Bank', 'First Savings', 'Ollo', 'Avant', 'Lending Club',
-                'Prosper', 'Upstart', 'SoFi', 'Marcus', 'Ally Bank', 'Barclays',
-                'USAA', 'Navy Federal', 'PenFed', 'BofA', 'TD Bank', 'PNC',
-                'Regions Bank', 'SunTrust', 'Truist', 'Fifth Third', 'Huntington',
-                'KeyBank', 'Citizens Bank', 'Santander', 'BB&T', 'M&T Bank',
-                'Zions Bank', 'Comerica', 'First Republic', 'Silicon Valley Bank',
-                'Signature Bank', 'First Citizens', 'UMB Bank', 'Associated Bank',
-                'BMO Harris', 'Scotiabank', 'CIBC', 'RBC', 'HSBC', 'Contact'
-            ];
+            // ========== EXTRACT CREDITOR - COMPREHENSIVE ==========
+            // Strategy 1: Look for "Contact:" field (most reliable)
+            const contactPattern = /contact[\s:]+([A-Z][A-Za-z\s\&]+?)(?:\n|$|phone|address|status)/i;
+            const contactMatch = text.match(contactPattern);
+            if (contactMatch && contactMatch[1].trim().length > 2 && contactMatch[1].trim().length < 50) {
+                analysis.creditor = contactMatch[1].trim();
+                console.log('Found creditor from Contact field:', analysis.creditor);
+            }
             
-            // First try specific creditor names (longer matches first)
-            const sortedKeywords = creditorKeywords.sort((a, b) => b.length - a.length);
-            for (const keyword of sortedKeywords) {
-                const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\]/g, '\$&');
-                const pattern = new RegExp(`\b(${escapedKeyword})\b`, 'i');
-                const match = text.match(pattern);
-                if (match) {
-                    analysis.creditor = match[1].trim();
-                    break;
+            // Strategy 2: Look for creditor/lender labels
+            if (!analysis.creditor) {
+                const creditorLabelPattern = /(?:creditor|lender|original creditor|current creditor)[\s:;]+([A-Z][A-Za-z\s\&]+?)(?:\s*$|\s+(?:account|date|status|phone|#))/i;
+                const labelMatch = text.match(creditorLabelPattern);
+                if (labelMatch && labelMatch[1].trim().length > 2 && labelMatch[1].trim().length < 50) {
+                    analysis.creditor = labelMatch[1].trim();
+                    console.log('Found creditor from label:', analysis.creditor);
                 }
             }
             
-            // If no creditor found, try line-by-line analysis
+            // Strategy 3: Known creditor keywords
+            if (!analysis.creditor) {
+                const creditorKeywords = [
+                    'Bank of America', 'Chase Bank', 'JPMorgan Chase', 'Wells Fargo', 'Citibank', 'Citi', 
+                    'Discover', 'American Express', 'Amex', 'Capital One', 'Credit One Bank', 'Merrick Bank',
+                    'Portfolio Recovery Associates', 'Portfolio Recovery', 'Midland Credit Management', 
+                    'Midland Funding', 'Encore Capital Group', 'Synchrony Bank', 'Comenity Bank', 
+                    'LVNV Funding', 'Resurgent Capital Services', 'Convergent Outsourcing', 
+                    'Enhanced Recovery Company', 'ERC', 'Allied Interstate', 'IC System', 
+                    'Transworld Systems', 'Radius Global Solutions', 'AFNI', 'Cavalry Portfolio Services',
+                    'Unifund CCR Partners', 'Arrowhead Capital', 'Centennial Bank', 'First Savings',
+                    'Ollo Card', 'Avant', 'Lending Club', 'Prosper', 'Upstart', 'SoFi', 'Marcus by Goldman Sachs',
+                    'Ally Bank', 'Barclays', 'USAA', 'Navy Federal Credit Union', 'PenFed',
+                    'TD Bank', 'PNC Bank', 'Regions Bank', 'Truist', 'Fifth Third Bank', 
+                    'Huntington Bank', 'KeyBank', 'Citizens Bank', 'Santander', 'BMO Harris',
+                    'HSBC', 'Contact'
+                ];
+                
+                // Sort by length (longest first) to avoid partial matches
+                creditorKeywords.sort((a, b) => b.length - a.length);
+                
+                for (const keyword of creditorKeywords) {
+                    // Use word boundary matching
+                    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const pattern = new RegExp(`\\b${escaped}\\b`, 'i');
+                    if (pattern.test(text)) {
+                        analysis.creditor = keyword;
+                        console.log('Found creditor by keyword:', analysis.creditor);
+                        break;
+                    }
+                }
+            }
+            
+            // Strategy 4: Line-by-line search for collection agencies and banks
             if (!analysis.creditor) {
                 const lines = text.split('\n');
                 for (const line of lines) {
-                    const creditorLabelMatch = line.match(/(?:creditor|lender|original creditor|current creditor|contact)[\s:;]+([A-Z][A-Za-z\s&]+?)(?:\s*$|\s+(?:account|date|status|phone))/i);
-                    if (creditorLabelMatch && creditorLabelMatch[1].length > 2 && creditorLabelMatch[1].length < 50) {
-                        analysis.creditor = creditorLabelMatch[1].trim();
+                    // Collection agencies
+                    const collMatch = line.match(/([A-Z][A-Za-z\s]+(?:Collection|Collections|Recovery|Receivables|Credit Services))(?:\s|$)/i);
+                    if (collMatch && collMatch[1].length > 5 && collMatch[1].length < 40 && !collMatch[1].match(/^(Account|Status|Date)$/i)) {
+                        analysis.creditor = collMatch[1].trim();
+                        console.log('Found creditor as collection agency:', analysis.creditor);
                         break;
                     }
                     
-                    const collectionMatch = line.match(/([A-Z][A-Za-z\s]+(?:Collection|Collections|Recovery|Credit Systems|Financial Services))(?:\s|$)/i);
-                    if (collectionMatch && collectionMatch[1].length > 5 && collectionMatch[1].length < 40) {
-                        analysis.creditor = collectionMatch[1].trim();
-                        break;
-                    }
-                    
-                    const bankMatch = line.match(/(?:account|acct).*?(?:with|from|by|name)[\s:]+([A-Z][A-Za-z\s&]+?)(?:\s*-|\s*Account|\s*#|\s*$|\s*Date)/i);
-                    if (bankMatch && bankMatch[1].length > 2 && bankMatch[1].length < 40) {
+                    // Banks with "Bank" in name
+                    const bankMatch = line.match(/([A-Z][A-Za-z\s]+Bank(?:\s+(?:of|the|NA|N\.A\.)?(?:\s+[A-Za-z]+)?))(?:\s|$|\n)/i);
+                    if (bankMatch && bankMatch[1].length > 5 && bankMatch[1].length < 40) {
                         analysis.creditor = bankMatch[1].trim();
+                        console.log('Found creditor as bank:', analysis.creditor);
                         break;
                     }
                     
-                    const contactMatch = line.match(/contact[\s:]+([A-Z][A-Za-z\s&]+)/i);
-                    if (contactMatch && contactMatch[1].length > 2 && contactMatch[1].length < 40) {
-                        analysis.creditor = contactMatch[1].trim();
+                    // Credit unions
+                    const cuMatch = line.match(/([A-Z][A-Za-z\s]+Credit Union)(?:\s|$)/i);
+                    if (cuMatch && cuMatch[1].length > 5 && cuMatch[1].length < 40) {
+                        analysis.creditor = cuMatch[1].trim();
+                        console.log('Found creditor as credit union:', analysis.creditor);
                         break;
                     }
                 }
             }
             
-            // Extract account number - look for various formats
-            const accountPatterns = [
-                /(?:account|acct)[\s#:]+([\d\-Xx]+)/i,
-                /account\s*(?:number|#)?[\s:]+([\d\-\sXx]+)/i,
-                /account[\s:]+([\d]{6,})/,
-                /(?:account|acct)[\.\s#:]+(\d[\d\s\-Xx]*\d)/i
+            // ========== EXTRACT ACCOUNT NUMBER ==========
+            const acctPatterns = [
+                /(?:account|acct)[\s#:]+([\d\-]{4,20})/i,
+                /(?:account|acct)[\s#:]+([\d\-Xx]{4,20})/i,
+                /#\s*([\d\-]{6,})/,
+                /account[^\n]{0,30}([\d]{6,10})/
             ];
-            for (const pattern of accountPatterns) {
+            for (const pattern of acctPatterns) {
                 const match = text.match(pattern);
                 if (match) {
                     const acct = match[1].trim().replace(/\s+/g, '');
-                    if (acct.length >= 4) {
+                    if (acct.length >= 4 && acct.length <= 20) {
                         analysis.accountNumber = acct;
+                        console.log('Found account number:', analysis.accountNumber);
                         break;
                     }
                 }
             }
             
-            // Extract ALL dates and categorize them
-            const datePattern = /(\d{2}\/(\d{2})\/(\d{4}))/g;
-            const dates = [];
-            let match;
-            while ((match = datePattern.exec(text)) !== null) {
-                dates.push({
-                    full: match[1],
-                    month: match[2],
-                    year: match[4],
-                    position: match.index
+            // ========== EXTRACT DATES ==========
+            const dateMatches = [];
+            
+            // MM/DD/YYYY format
+            const mdyPattern = /(\d{1,2})\/(\d{1,2})\/(\d{4})/g;
+            let mdyMatch;
+            while ((mdyMatch = mdyPattern.exec(text)) !== null) {
+                dateMatches.push({
+                    full: `${mdyMatch[1].padStart(2,'0')}/${mdyMatch[2].padStart(2,'0')}/${mdyMatch[3]}`,
+                    month: parseInt(mdyMatch[1]),
+                    day: parseInt(mdyMatch[2]),
+                    year: parseInt(mdyMatch[3]),
+                    type: 'mdy'
                 });
             }
             
-            // Look for "Date Opened" or "Opened" pattern
-            const openedPattern = /(?:date opened|opened|date of opening)[\s:]+(\d{2}\/\d{2}\/\d{4})/i;
-            const openedMatch = text.match(openedPattern);
-            if (openedMatch) {
-                analysis.dateOpened = openedMatch[1];
-            } else if (dates.length > 0) {
-                // Use the earliest date as Date Opened
-                analysis.dateOpened = dates[0].full;
+            // YYYY-MM-DD format
+            const ymdPattern = /(\d{4})-(\d{2})-(\d{2})/g;
+            let ymdMatch;
+            while ((ymdMatch = ymdPattern.exec(text)) !== null) {
+                dateMatches.push({
+                    full: `${ymdMatch[2]}/${ymdMatch[3]}/${ymdMatch[1]}`,
+                    month: parseInt(ymdMatch[2]),
+                    day: parseInt(ymdMatch[3]),
+                    year: parseInt(ymdMatch[1]),
+                    type: 'ymd'
+                });
             }
             
-            // Look for "Date of First Delinquency" or "First Delinquent" pattern
-            const delinquentPattern = /(?:date of first delinquency|first delinquent|first missed|first late)[\s:]+(\d{2}\/\d{2}\/\d{4})/i;
-            const delinquentMatch = text.match(delinquentPattern);
-            if (delinquentMatch) {
-                analysis.dateDelinquent = delinquentMatch[1];
-            } else if (dates.length > 1) {
-                // Use a later date as Date of First Delinquency
-                analysis.dateDelinquent = dates[dates.length - 1].full;
-            }
-            
-            // Detect negative items with more detail
-            const negativePatterns = {
-                late_payment: /(30|60|90|120)\s*days?\s*late|past\s*due|delinquent|payment\s*history/i,
-                collections: /collection|collected|debt\s*collector|placed\s*for\s*collection|assigned\s*to/i,
-                charge_off: /charge[\s-]*off|charged\s*off|profit\s*and\s*loss|written?\s*off/i,
-                repossession: /repossession|repos|repo|repossessed/i,
-                foreclosure: /foreclos|foreclosed|in\s*foreclosure/i,
-                bankruptcy: /bankruptcy|chapter\s*(7|13)|discharged|filed\s*bankruptcy/i,
-                tax_lien: /tax\s*lien|federal\s*tax\s*lien|state\s*tax\s*lien/i,
-                judgment: /judgment|court\s*judgment|civil\s*judgment/i,
-                hard_inquiry: /hard\s*inquiry|credit\s*inquiry|inquiry\s*date/i,
-                duplicate_account: /duplicate|same\s*account|multiple\s*listings/i
-            };
-            
-            const foundIssues = [];
-            for (const [type, pattern] of Object.entries(negativePatterns)) {
-                if (pattern.test(lowerText)) {
-                    analysis.negativeItems.push(type);
-                    // Get specific details for each type
-                    if (type === 'late_payment') {
-                        const lateMatch = text.match(/(30|60|90|120)\s*days?\s*late/i);
-                        if (lateMatch) foundIssues.push(`${lateMatch[1]} days late payment`);
-                    } else if (type === 'collections') {
-                        foundIssues.push('Account in collections');
-                    } else if (type === 'charge_off') {
-                        foundIssues.push('Account charged off');
-                    } else if (type === 'repossession') {
-                        foundIssues.push('Vehicle/property repossession');
-                    } else if (type === 'foreclosure') {
-                        foundIssues.push('Foreclosure reported');
-                    } else if (type === 'bankruptcy') {
-                        foundIssues.push('Bankruptcy filing');
-                    } else if (type === 'tax_lien') {
-                        foundIssues.push('Tax lien reported');
-                    } else if (type === 'judgment') {
-                        foundIssues.push('Court judgment');
-                    } else if (type === 'hard_inquiry') {
-                        foundIssues.push('Unauthorized hard inquiry');
-                    }
+            // Find Date Opened
+            const openedPatterns = [
+                /(?:date opened|opened|open date)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i,
+                /(?:date opened)[\s:;]+(\d{4}[\/\-]\d{2}[\/\-]\d{2})/i
+            ];
+            for (const pattern of openedPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    analysis.dateOpened = match[1].replace(/-/g, '/');
+                    console.log('Found date opened:', analysis.dateOpened);
+                    break;
                 }
             }
             
-            // Build Additional Notes with all findings
+            // Find Date of First Delinquency
+            const delinqPatterns = [
+                /(?:date of first delinquency|first delinquent|first missed payment)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i,
+                /(?:date reported|reported date)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i
+            ];
+            for (const pattern of delinqPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    analysis.dateDelinquent = match[1].replace(/-/g, '/');
+                    console.log('Found date delinquent:', analysis.dateDelinquent);
+                    break;
+                }
+            }
+            
+            // Fallback: use earliest date as opened, later as delinquent
+            if (!analysis.dateOpened && dateMatches.length > 0) {
+                const sorted = dateMatches.sort((a, b) => a.year - b.year || a.month - b.month || a.day - b.day);
+                analysis.dateOpened = sorted[0].full;
+            }
+            if (!analysis.dateDelinquent && dateMatches.length > 1) {
+                const sorted = dateMatches.sort((a, b) => a.year - b.year || a.month - b.month || a.day - b.day);
+                analysis.dateDelinquent = sorted[sorted.length - 1].full;
+            }
+            
+            // ========== DETECT NEGATIVE ITEMS ==========
+            const foundIssues = [];
+            
+            const negativePatterns = {
+                late_payment: {
+                    pattern: /(30|60|90|120)[\s-]*days?[\s-]*late|past[\s-]*due|delinquent[\s-]*account/i,
+                    name: 'Late Payment',
+                    desc: (m) => m && m[1] ? `${m[1]} days late` : 'Late payment'
+                },
+                collections: {
+                    pattern: /collection|debt[\s-]*collector|placed[\s-]*for[\s-]*collection|assigned[\s-]*to[\s-]*collection/i,
+                    name: 'Collections',
+                    desc: () => 'Account in collections'
+                },
+                charge_off: {
+                    pattern: /charge[\s-]*off|charged[\s-]*off|profit[\s-]*and[\s-]*loss/i,
+                    name: 'Charge-Off',
+                    desc: () => 'Account charged off'
+                },
+                repossession: {
+                    pattern: /repossession|repossessed|repo/i,
+                    name: 'Repossession',
+                    desc: () => 'Vehicle/property repossessed'
+                },
+                foreclosure: {
+                    pattern: /foreclos|foreclosed/i,
+                    name: 'Foreclosure',
+                    desc: () => 'Foreclosure reported'
+                },
+                bankruptcy: {
+                    pattern: /bankruptcy|chapter[\s-]*(7|13)/i,
+                    name: 'Bankruptcy',
+                    desc: (m) => m && m[1] ? `Chapter ${m[1]} bankruptcy` : 'Bankruptcy filing'
+                },
+                tax_lien: {
+                    pattern: /tax[\s-]*lien/i,
+                    name: 'Tax Lien',
+                    desc: () => 'Tax lien reported'
+                },
+                judgment: {
+                    pattern: /judgment|court[\s-]*judgment/i,
+                    name: 'Judgment',
+                    desc: () => 'Court judgment'
+                },
+                hard_inquiry: {
+                    pattern: /hard[\s-]*inquiry|credit[\s-]*inquiry/i,
+                    name: 'Hard Inquiry',
+                    desc: () => 'Unauthorized hard inquiry'
+                }
+            };
+            
+            for (const [key, {pattern, name, desc}] of Object.entries(negativePatterns)) {
+                const match = text.match(pattern);
+                if (match) {
+                    analysis.negativeItems.push(key);
+                    foundIssues.push(desc(match));
+                    console.log('Found negative item:', name);
+                }
+            }
+            
+            // ========== BUILD DISPUTE REASON & NOTES ==========
             const notes = [];
+            const discrepancies = [];
+            
+            // Header
+            notes.push('=== DISPUTE REASONS ===');
+            notes.push('');
+            
             if (foundIssues.length > 0) {
-                notes.push(`Issues found on this account:`);
-                foundIssues.forEach(issue => notes.push(`- ${issue}`));
-            }
-            
-            // Find discrepancies
-            // Check for balance discrepancies
-            const balanceMatches = text.match(/balance[:\s]+\$?([\d,]+\.?\d{0,2})/gi) || [];
-            const uniqueBalances = [...new Set(balanceMatches)];
-            if (uniqueBalances.length > 1) {
-                analysis.discrepancies.push({
-                    type: 'Balance Inconsistency',
-                    description: `Multiple balance amounts reported: ${uniqueBalances.join(', ')}`,
-                    severity: 'high'
+                notes.push('The following inaccuracies were detected on this account:');
+                foundIssues.forEach((issue, i) => {
+                    notes.push(`${i + 1}. ${issue}`);
                 });
-                notes.push(`- Balance inconsistency: Different amounts reported`);
+                notes.push('');
+                
+                // Build comprehensive dispute reason
+                analysis.disputeReason = `I am disputing this account due to the following inaccuracies: ${foundIssues.join('; ')}. `;
+                analysis.disputeReason += `These errors violate the Fair Credit Reporting Act (FCRA) which requires all reported information to be accurate, complete, and verifiable. `;
+                analysis.disputeReason += `I request immediate investigation and deletion of this inaccurate information from my credit report.`;
             }
             
-            // Check for old accounts
-            const currentYear = new Date().getFullYear();
+            // Check for balance discrepancies
+            const balancePattern = /(?:balance|amount owed|current balance)[\s:;\$]+([\d,]+\.?\d{0,2})/gi;
+            const balances = [];
+            let balMatch;
+            while ((balMatch = balancePattern.exec(text)) !== null) {
+                balances.push(balMatch[1].replace(/,/g, ''));
+            }
+            const uniqueBalances = [...new Set(balances)].filter(b => parseFloat(b) > 0);
+            if (uniqueBalances.length > 1) {
+                discrepancies.push(`Balance discrepancy: $${uniqueBalances.join(' vs $')}`);
+                notes.push(`BALANCE DISCREPANCY: Different amounts reported ($${uniqueBalances.join(' vs $')}). This violates FCRA accuracy requirements.`);
+                notes.push('');
+            }
+            
+            // Check for obsolete account
             if (analysis.dateOpened) {
                 const yearMatch = analysis.dateOpened.match(/\/(\d{4})$/);
                 if (yearMatch) {
                     const year = parseInt(yearMatch[1]);
-                    if (currentYear - year > 7) {
-                        analysis.discrepancies.push({
-                            type: 'Potential Obsolete Account',
-                            description: `Account opened in ${year} - may be over 7 years old and should be removed`,
-                            severity: 'high'
-                        });
-                        notes.push(`- Account may be obsolete (opened ${year}, over 7 years ago)`);
+                    const age = new Date().getFullYear() - year;
+                    if (age > 7) {
+                        discrepancies.push(`Account is ${age} years old - may be obsolete`);
+                        notes.push(`OBSOLETE ACCOUNT: Opened in ${year} (${age} years ago). Accounts over 7 years must be removed per FCRA § 605(a).`);
+                        notes.push('');
                     }
                 }
             }
             
             // Check for date discrepancies
-            if (dates.length > 3) {
-                analysis.discrepancies.push({
-                    type: 'Multiple Dates',
-                    description: `${dates.length} different dates found - possible date inaccuracy or re-aging`,
-                    severity: 'high'
-                });
-                notes.push(`- Multiple dates found: ${dates.map(d => d.full).join(', ')}`);
+            if (dateMatches.length > 3) {
+                discrepancies.push('Multiple conflicting dates found');
+                notes.push(`DATE DISCREPANCY: ${dateMatches.length} different dates found. Possible re-aging violation.`);
+                notes.push('');
             }
             
-            // Look for status codes
-            const statusPattern = /status[:\s]+([A-Za-z\s\-]+)/i;
+            // Account status
+            const statusPattern = /(?:status|account status)[\s:;]+([A-Za-z\s\-]+?)(?:\n|$)/i;
             const statusMatch = text.match(statusPattern);
             if (statusMatch) {
-                notes.push(`- Account status: ${statusMatch[1].trim()}`);
+                notes.push(`Account Status Reported: ${statusMatch[1].trim()}`);
+                notes.push('');
             }
             
-            // Look for high balance
-            const highBalancePattern = /(?:high balance|highest balance|credit limit)[:\s]+\$?([\d,]+)/i;
-            const highBalanceMatch = text.match(highBalancePattern);
-            if (highBalanceMatch) {
-                notes.push(`- High balance/limit: $${highBalanceMatch[1]}`);
+            // High balance
+            const highBalPattern = /(?:high balance|credit limit)[\s:;\$]+([\d,]+\.?\d{0,2})/i;
+            const highBalMatch = text.match(highBalPattern);
+            if (highBalMatch) {
+                notes.push(`High Balance/Credit Limit: $${highBalMatch[1]}`);
+                notes.push('');
             }
+            
+            // Summary section
+            notes.push('=== SUMMARY ===');
+            notes.push('');
+            if (analysis.creditor) notes.push(`Creditor: ${analysis.creditor}`);
+            if (analysis.accountNumber) notes.push(`Account: ${analysis.accountNumber}`);
+            if (analysis.dateOpened) notes.push(`Date Opened: ${analysis.dateOpened}`);
+            if (analysis.dateDelinquent) notes.push(`Date of First Delinquency: ${analysis.dateDelinquent}`);
+            notes.push('');
+            notes.push('This account contains inaccuracies that are damaging my credit profile. I demand verification and deletion per FCRA rights.');
             
             analysis.additionalNotes = notes.join('\n');
+            analysis.discrepancies = discrepancies.map(d => ({ type: 'Discrepancy', description: d, severity: 'high' }));
             
-            // Generate recommendations
+            // ========== RECOMMENDATIONS ==========
             if (analysis.negativeItems.includes('collections')) {
                 analysis.recommendations.push({
                     strategy: 'Collections Validation',
@@ -2162,7 +2262,6 @@
                     successRate: '85%'
                 });
             }
-            
             if (analysis.negativeItems.includes('late_payment')) {
                 analysis.recommendations.push({
                     strategy: 'Late Payment Dispute',
@@ -2170,8 +2269,7 @@
                     successRate: '75%'
                 });
             }
-            
-            if (analysis.discrepancies.length > 0) {
+            if (discrepancies.length > 0) {
                 analysis.recommendations.push({
                     strategy: 'Factual Disputing',
                     description: 'Use identified discrepancies as grounds for deletion',
@@ -2179,9 +2277,10 @@
                 });
             }
             
+            console.log('Analysis complete:', analysis);
             return analysis;
         }
-        
+
         function showUploadAnalysis(analysis, missingInfo = []) {
             let html = `
                 <div class="alert-box success" style="margin-bottom: 30px;">
