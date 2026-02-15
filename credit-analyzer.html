@@ -1937,43 +1937,62 @@
                 }
             }
             
-            // Extract creditor - look for known creditors and collection agencies
+            // Extract creditor - IMPROVED with comprehensive detection
             const creditorKeywords = [
-                'Bank', 'Credit Union', 'Capital One', 'Chase', 'Wells Fargo', 'Citi', 'Discover', 
-                'American Express', 'Amex', 'Portfolio Recovery', 'Midland', 'Encore', 'Synchrony',
-                'Comenity', 'LVNV', 'Resurgent', 'Convergent', 'ERC', 'Allied', 'IC Systems',
-                'Enhanced Recovery', 'Penn Credit', 'Transworld', 'Radius', 'AFNI', 'Cavalry',
-                'Unifund', 'Arrowhead', 'Bureaus', 'Centennial', 'First Savings', 'Credit One',
-                'Merrick', 'Indigo', 'Ollo', 'Avant', 'Lending Club', 'Prosper', 'Upstart',
-                'SoFi', 'Marcus', 'Ally', 'Discover Bank', 'Barclays', 'USAA', 'Navy Federal',
-                'PenFed', 'Bank of America', 'BofA', 'Wells', 'Fargo', 'TD Bank', 'PNC',
-                'Regions', 'SunTrust', 'Truist', 'Fifth Third', 'Huntington', 'KeyBank',
-                'Citizens', 'Santander', 'BB&T', 'M&T', 'Zions', 'Comerica', 'First Republic',
-                'Silicon Valley', 'Signature', 'SVB', 'First Citizens', 'UMB', 'Associated',
-                'BMO', 'Scotiabank', 'CIBC', 'RBC', 'TD Canada', 'HSBC', 'FifthThird'
+                'Bank of America', 'Chase', 'Wells Fargo', 'Citi', 'Discover', 
+                'American Express', 'Amex', 'Capital One', 'Credit One', 'Merrick Bank',
+                'Portfolio Recovery Associates', 'Portfolio Recovery', 'Midland Credit',
+                'Encore Capital', 'Synchrony Bank', 'Comenity Bank', 'LVNV Funding',
+                'Resurgent Capital', 'Convergent Outsourcing', 'ERC', 'Enhanced Recovery',
+                'Allied Collection', 'IC Systems', 'Transworld Systems', 'Radius Global',
+                'AFNI', 'Cavalry Portfolio', 'Unifund CCR', 'Arrowhead Capital',
+                'Centennial Bank', 'First Savings', 'Ollo', 'Avant', 'Lending Club',
+                'Prosper', 'Upstart', 'SoFi', 'Marcus', 'Ally Bank', 'Barclays',
+                'USAA', 'Navy Federal', 'PenFed', 'BofA', 'TD Bank', 'PNC',
+                'Regions Bank', 'SunTrust', 'Truist', 'Fifth Third', 'Huntington',
+                'KeyBank', 'Citizens Bank', 'Santander', 'BB&T', 'M&T Bank',
+                'Zions Bank', 'Comerica', 'First Republic', 'Silicon Valley Bank',
+                'Signature Bank', 'First Citizens', 'UMB Bank', 'Associated Bank',
+                'BMO Harris', 'Scotiabank', 'CIBC', 'RBC', 'HSBC', 'Contact'
             ];
             
-            // Look for creditor in the text
-            for (const keyword of creditorKeywords) {
-                const pattern = new RegExp(`(${keyword}[^\\n]{0,30})`, 'i');
+            // First try specific creditor names (longer matches first)
+            const sortedKeywords = creditorKeywords.sort((a, b) => b.length - a.length);
+            for (const keyword of sortedKeywords) {
+                const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\]/g, '\$&');
+                const pattern = new RegExp(`\b(${escapedKeyword})\b`, 'i');
                 const match = text.match(pattern);
-                if (match && match[1].length < 50) {
+                if (match) {
                     analysis.creditor = match[1].trim();
                     break;
                 }
             }
             
-            // If no creditor found, try generic patterns
+            // If no creditor found, try line-by-line analysis
             if (!analysis.creditor) {
-                const creditorPatterns = [
-                    /(?:creditor|lender|original creditor|sold to)[\s:]+([A-Z][A-Za-z\s&]+(?:Bank|Corp|Inc|LLC|Company|Financial|Credit))/i,
-                    /([A-Z][A-Za-z\s]+(?:Collection|Collections|Credit Systems|Recovery|Agency|Financial))/i,
-                    /account[^\n]*with\s+([A-Z][A-Za-z\s&]+)/i
-                ];
-                for (const pattern of creditorPatterns) {
-                    const match = text.match(pattern);
-                    if (match && match[1].length < 40) {
-                        analysis.creditor = match[1].trim();
+                const lines = text.split('\n');
+                for (const line of lines) {
+                    const creditorLabelMatch = line.match(/(?:creditor|lender|original creditor|current creditor|contact)[\s:;]+([A-Z][A-Za-z\s&]+?)(?:\s*$|\s+(?:account|date|status|phone))/i);
+                    if (creditorLabelMatch && creditorLabelMatch[1].length > 2 && creditorLabelMatch[1].length < 50) {
+                        analysis.creditor = creditorLabelMatch[1].trim();
+                        break;
+                    }
+                    
+                    const collectionMatch = line.match(/([A-Z][A-Za-z\s]+(?:Collection|Collections|Recovery|Credit Systems|Financial Services))(?:\s|$)/i);
+                    if (collectionMatch && collectionMatch[1].length > 5 && collectionMatch[1].length < 40) {
+                        analysis.creditor = collectionMatch[1].trim();
+                        break;
+                    }
+                    
+                    const bankMatch = line.match(/(?:account|acct).*?(?:with|from|by|name)[\s:]+([A-Z][A-Za-z\s&]+?)(?:\s*-|\s*Account|\s*#|\s*$|\s*Date)/i);
+                    if (bankMatch && bankMatch[1].length > 2 && bankMatch[1].length < 40) {
+                        analysis.creditor = bankMatch[1].trim();
+                        break;
+                    }
+                    
+                    const contactMatch = line.match(/contact[\s:]+([A-Z][A-Za-z\s&]+)/i);
+                    if (contactMatch && contactMatch[1].length > 2 && contactMatch[1].length < 40) {
+                        analysis.creditor = contactMatch[1].trim();
                         break;
                     }
                 }
