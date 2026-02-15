@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login Test</title>
+    <style>
+        body { font-family: Arial; padding: 50px; text-align: center; }
+        .box { border: 2px solid #ccc; padding: 30px; max-width: 400px; margin: 0 auto; border-radius: 10px; }
+        input { padding: 10px; font-size: 16px; width: 80%; margin: 10px 0; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .success { color: green; font-size: 20px; margin-top: 20px; }
+        .error { color: red; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="box" id="loginBox">
+        <h2>Test Login</h2>
+        <input type="text" id="pwd" value="S250502m!@#"><br>
+        <button onclick="doLogin()">Login</button>
+        <div id="msg"></div>
+    </div>
+    
+    <div id="mainBox" style="display:none;" class="box">
+        <h2 class="success">✅ SUCCESS!</h2>
+        <button onclick="doLogout()">Logout</button>
+    </div>
+
+    <script>
+        const ACCESS_CODE = 'S250502m!@#';
+        
+        function doLogin() {
+            const entered = document.getElementById('pwd').value;
+            const msg = document.getElementById('msg');
+            
+            if (entered === ACCESS_CODE) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('mainBox').style.display = 'block';
+                msg.innerHTML = '';
+            } else {
+                msg.innerHTML = '<div class="error">Wrong password. You entered: "' + entered + '" (length: ' + entered.length + ')</div>';
+            }
+        }
+        
+        function doLogout() {
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('mainBox').style.display = 'none';
+        }
+        
+        document.getElementById('pwd').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+    </script>
+</body>
+</html>
