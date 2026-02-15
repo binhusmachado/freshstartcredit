@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Credit Report Analyzer | Fresh Start Credit</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -552,37 +555,61 @@
         const ACCESS_CODE = 'S250502m!@#';
         let selectedItems = [];
         let generatedLetters = [];
+        let detectedItems = [];
 
         // Login Functions
         function checkLogin() {
             const input = document.getElementById('accessCode');
             const errorMsg = document.getElementById('loginError');
+            const loginScreen = document.getElementById('loginScreen');
+            const mainApp = document.getElementById('mainApp');
+            
+            if (!input || !loginScreen || !mainApp) {
+                console.error('Login elements not found');
+                return;
+            }
             
             if (input.value === ACCESS_CODE) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
                 sessionStorage.setItem('analyzerLoggedIn', 'true');
+                loadClientInfo();
             } else {
-                errorMsg.style.display = 'block';
+                if (errorMsg) errorMsg.style.display = 'block';
                 input.value = '';
+                input.focus();
             }
         }
 
         function logout() {
             sessionStorage.removeItem('analyzerLoggedIn');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
+            const loginScreen = document.getElementById('loginScreen');
+            const mainApp = document.getElementById('mainApp');
+            if (loginScreen && mainApp) {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+            }
         }
 
-        // Check if already logged in
-        if (sessionStorage.getItem('analyzerLoggedIn') === 'true') {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-        }
-
-        // Enter key support
-        document.getElementById('accessCode')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkLogin();
+        // Check if already logged in - wait for DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            if (sessionStorage.getItem('analyzerLoggedIn') === 'true') {
+                const loginScreen = document.getElementById('loginScreen');
+                const mainApp = document.getElementById('mainApp');
+                if (loginScreen && mainApp) {
+                    loginScreen.classList.add('hidden');
+                    mainApp.classList.remove('hidden');
+                    loadClientInfo();
+                }
+            }
+            
+            // Setup enter key support
+            const accessCodeInput = document.getElementById('accessCode');
+            if (accessCodeInput) {
+                accessCodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') checkLogin();
+                });
+            }
         });
 
         // Tab Switching
