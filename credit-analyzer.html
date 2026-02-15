@@ -6,6 +6,7 @@
     <title>AI Credit Report Analyzer | Fresh Start Credit</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -603,19 +604,21 @@
 
             // Simulate item detection
             setTimeout(() => {
-                const mockItems = [
-                    { type: 'Late Payment', creditor: 'Capital One', date: '2023-05' },
-                    { type: 'Collection', creditor: 'ABC Collections', date: '2022-11' },
-                    { type: 'Hard Inquiry', creditor: 'Auto Finance Co', date: '2023-08' }
+                detectedItems = [
+                    { type: 'Late Payment', creditor: 'Capital One', date: '2023-05', accountNumber: 'XXXX-1234' },
+                    { type: 'Collection', creditor: 'ABC Collections', date: '2022-11', accountNumber: 'COL-9876' },
+                    { type: 'Hard Inquiry', creditor: 'Auto Finance Co', date: '2023-08', accountNumber: 'INQ-4567' }
                 ];
 
                 let html = '';
-                mockItems.forEach((item, index) => {
+                detectedItems.forEach((item, index) => {
                     html += `
                         <div class="item-row">
                             <input type="checkbox" id="item${index}" value="${index}">
                             <label for="item${index}">
-                                <strong>${item.type}</strong> - ${item.creditor} (${item.date})
+                                <strong>${item.type}</strong> - ${item.creditor}
+                                ${item.accountNumber ? '(Acct: ' + item.accountNumber + ')' : ''}
+                                ${item.date ? '- Date: ' + item.date : ''}
                             </label>
                         </div>
                     `;
@@ -645,6 +648,9 @@
             }
         });
 
+        // Store items globally for reference
+        let detectedItems = [];
+
         // Generate Letters from Items
         function generateLettersFromItems() {
             const checkboxes = document.querySelectorAll('#itemsList input:checked');
@@ -653,12 +659,20 @@
                 return;
             }
 
-            checkboxes.forEach((cb, index) => {
-                generateLetter({
-                    type: 'Late Payment',
-                    creditor: 'Sample Creditor',
-                    strategy: 'factual'
-                });
+            checkboxes.forEach((cb) => {
+                const itemIndex = parseInt(cb.value);
+                const item = detectedItems[itemIndex];
+                if (item) {
+                    generateLetter({
+                        type: item.type,
+                        creditor: item.creditor,
+                        accountNumber: item.accountNumber || '',
+                        dateOpened: item.dateOpened || item.date || '',
+                        dateDelinquent: item.dateDelinquent || '',
+                        reason: item.reason || '',
+                        strategy: 'factual'
+                    });
+                }
             });
 
             switchTab('letters');
@@ -844,7 +858,10 @@ CC: Consumer Financial Protection Bureau (if unresolved)
                     <div style="margin-bottom: 30px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                         <div style="background: #1e3c72; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
                             <span><strong>${letter.creditor}</strong> - ${letter.type}</span>
-                            <button class="btn btn-accent" onclick="downloadLetter(${index})" style="width: auto; padding: 8px 16px;">Download PDF</button>
+                            <div>
+                                <button class="btn" onclick="downloadPDF(${index})" style="width: auto; padding: 8px 16px; margin-right: 10px;">📄 PDF</button>
+                                <button class="btn" onclick="downloadTXT(${index})" style="width: auto; padding: 8px 16px;">📝 TXT</button>
+                            </div>
                         </div>
                         <div class="letter-output">${letter.content.replace(/\n/g, '<br>')}</div>
                     </div>
@@ -854,18 +871,70 @@ CC: Consumer Financial Protection Bureau (if unresolved)
             container.innerHTML = html;
         }
 
-        // Download Letter
-        function downloadLetter(index) {
+        // Download as TXT
+        function downloadTXT(index) {
             const letter = generatedLetters[index];
             const blob = new Blob([letter.content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `dispute-letter-${letter.creditor.replace(/\s+/g, '-').toLowerCase()}.txt`;
+            a.download = `dispute-letter-${letter.creditor.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // Download as PDF
+        function downloadPDF(index) {
+            const letter = generatedLetters[index];
+            const { jsPDF } = window.jspdf;
+            
+            const doc = new jsPDF({
+                margin: 25,
+                unit: 'mm',
+                format: 'letter'
+            });
+
+            // Set font
+            doc.setFont('times', 'normal');
+            doc.setFontSize(11);
+
+            // Parse letter content and add to PDF
+            const lines = letter.content.split('\n');
+            let y = 20;
+            const lineHeight = 5;
+            const margin = 25;
+            const maxWidth = 170;
+
+            lines.forEach(line => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                // Check if line is a header or important
+                if (line.startsWith('RE:') || line.startsWith('ITEM DISPUTED') || line.startsWith('SPECIFIC REASON') || line.startsWith('REQUEST FOR') || line.startsWith('REMOVAL REQUEST')) {
+                    doc.setFont('times', 'bold');
+                } else {
+                    doc.setFont('times', 'normal');
+                }
+
+                // Handle long lines
+                const textLines = doc.splitTextToSize(line || ' ', maxWidth);
+                textLines.forEach(textLine => {
+                    doc.text(textLine, margin, y);
+                    y += lineHeight;
+                });
+
+                // Add extra spacing after sections
+                if (line === '' || line.startsWith('RE:') || line.startsWith('ITEM DISPUTED') || line.startsWith('SPECIFIC REASON') || line.startsWith('REQUEST FOR') || line.startsWith('REMOVAL REQUEST')) {
+                    y += 2;
+                }
+            });
+
+            // Save PDF
+            doc.save(`dispute-letter-${letter.creditor.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.pdf`);
         }
 
         // Client Info Functions
