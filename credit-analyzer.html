@@ -1635,12 +1635,19 @@
         
         function checkLogin() {
             const enteredCode = document.getElementById('accessCode').value;
+            console.log('Debug - Entered:', JSON.stringify(enteredCode));
+            console.log('Debug - Expected:', JSON.stringify(ACCESS_CODE));
+            console.log('Debug - Length entered:', enteredCode.length);
+            console.log('Debug - Length expected:', ACCESS_CODE.length);
+            console.log('Debug - Match:', enteredCode === ACCESS_CODE);
+            
             if (enteredCode === ACCESS_CODE) {
                 sessionStorage.setItem('creditAnalyzerLoggedIn', 'true');
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
             } else {
                 document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent = 'Invalid code. You entered ' + enteredCode.length + ' characters. Expected ' + ACCESS_CODE.length + '.';
             }
         }
         
