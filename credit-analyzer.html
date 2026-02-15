@@ -801,11 +801,11 @@
 
                 <!-- Tabs -->
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('phantom')">STEP 1: 👻 Phantom Bureaus</div>
-                    <div class="tab" onclick="switchTab('upload')">📤 Upload Report</div>
-                    <div class="tab" onclick="switchTab('manual')">✏️ Manual Analysis</div>
-                    <div class="tab" onclick="switchTab('strategies')">🎯 Fast Strategies</div>
-                    <div class="tab" onclick="switchTab('tools')">🛠️ Tools</div>
+                    <div class="tab active" onclick="switchTab('phantom', event)">STEP 1: 👻 Phantom Bureaus</div>
+                    <div class="tab" onclick="switchTab('upload', event)">📤 Upload Report</div>
+                    <div class="tab" onclick="switchTab('manual', event)">✏️ Manual Analysis</div>
+                    <div class="tab" onclick="switchTab('strategies', event)">🎯 Fast Strategies</div>
+                    <div class="tab" onclick="switchTab('tools', event)">🛠️ Tools</div>
                 </div>
 
                 <!-- PHANTOM BUREAUS TAB -->
@@ -1665,11 +1665,11 @@
             if (e.key === 'Enter') checkLogin();
         });
         
-        function switchTab(tabName) {
+        function switchTab(tabName, evt) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
+            if (evt && evt.target) {
+                evt.target.classList.add('active');
             } else {
                 // Find the tab button by onclick attribute
                 const tabBtn = document.querySelector(`.tab[onclick*="${tabName}"]`);
