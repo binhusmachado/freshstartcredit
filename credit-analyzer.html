@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Credit Report Analyzer - Fresh Start Credit</title>
+    <title>AI Credit Report Analyzer | Fresh Start Credit</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 20px;
         }
         .container {
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
@@ -27,28 +27,24 @@
             color: white;
             padding: 30px;
             text-align: center;
-            position: relative;
         }
         .header h1 { font-size: 28px; margin-bottom: 10px; }
-        .header p { opacity: 0.9; }
         .content { padding: 30px; }
         
         /* Login Screen */
         .login-screen {
             text-align: center;
             padding: 60px 30px;
+            max-width: 400px;
+            margin: 0 auto;
         }
         .login-screen h2 {
             color: #1e3c72;
             margin-bottom: 20px;
             font-size: 24px;
         }
-        .login-screen p {
-            color: #666;
-            margin-bottom: 30px;
-        }
         .password-input {
-            max-width: 400px;
+            max-width: 300px;
             margin: 0 auto;
         }
         .password-input input {
@@ -59,711 +55,233 @@
             border-radius: 8px;
             text-align: center;
             letter-spacing: 3px;
+            margin-bottom: 15px;
         }
         .password-input input:focus {
             outline: none;
             border-color: #1e3c72;
         }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #2a5298; }
+        .btn-accent { background: #48bb78; }
+        .btn-accent:hover { background: #38a169; }
         .error-msg {
             color: #dc3545;
             margin-top: 15px;
             display: none;
         }
-        
-        /* Alert Boxes */
-        .alert-box {
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        .alert-box.info {
-            background: #e3f2fd;
-            border-left: 5px solid #2196f3;
-        }
-        .alert-box.warning {
-            background: #fff3e0;
-            border-left: 5px solid #ff9800;
-        }
-        .alert-box.success {
-            background: #e8f5e9;
-            border-left: 5px solid #4caf50;
-        }
-        .alert-box.danger {
-            background: #ffebee;
-            border-left: 5px solid #f44336;
-        }
-        .alert-box .icon {
-            font-size: 24px;
-        }
-        .alert-box h4 {
-            margin-bottom: 8px;
-            color: #333;
-        }
-        .alert-box p {
-            margin: 0;
-            color: #555;
-            font-size: 14px;
-        }
-        
-        /* Upload Section */
-        .upload-area {
-            border: 3px dashed #1e3c72;
-            border-radius: 15px;
-            padding: 50px 30px;
-            text-align: center;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 30px;
-        }
-        .upload-area:hover {
-            background: #e9ecef;
-            border-color: #2a5298;
-        }
-        .upload-area.dragover {
-            background: #d1ecf1;
-            border-color: #0c5460;
-        }
-        .upload-area .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-        .upload-area h3 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
-        .upload-area p {
-            color: #666;
-            font-size: 14px;
-        }
-        #fileInput { display: none; }
-        
-        /* Progress Bar */
-        .progress-container {
-            display: none;
-            margin: 20px 0;
-        }
-        .progress-bar {
-            height: 30px;
-            background: #e9ecef;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            width: 0%;
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        .progress-text {
-            text-align: center;
-            margin-top: 10px;
-            color: #666;
-        }
-        
-        /* Dashboard Stats */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .dashboard-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            border-top: 4px solid #1e3c72;
-            transition: transform 0.3s;
-        }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-        .dashboard-card.success { border-top-color: #28a745; }
-        .dashboard-card.warning { border-top-color: #ffc107; }
-        .dashboard-card.danger { border-top-color: #dc3545; }
-        .dashboard-card.info { border-top-color: #17a2b8; }
-        .dashboard-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #1e3c72;
-            margin-bottom: 5px;
-        }
-        .dashboard-label {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Section styling */
-        .section { margin-bottom: 35px; }
-        .section h2 {
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-size: 22px;
-            border-bottom: 3px solid #e0e0e0;
-            padding-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* Form styling */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-        input.auto-filled, textarea.auto-filled, select.auto-filled {
-            background: #e8f5e9;
-            border-color: #4caf50;
-        }
-        .auto-fill-indicator {
-            font-size: 12px;
-            color: #4caf50;
-            margin-top: 5px;
-        }
-        textarea { resize: vertical; min-height: 100px; }
-        
-        /* Strategy Cards */
-        .strategy-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid #dc3545;
-        }
-        .strategy-card.fast { border-left-color: #28a745; }
-        .strategy-card.state { border-left-color: #17a2b8; }
-        .strategy-card.ferpa { border-left-color: #9c27b0; }
-        .strategy-card.phantom { border-left-color: #ff9800; }
-        
-        .strategy-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .strategy-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        .strategy-badge {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .badge-4day {
-            background: #d4edda;
-            color: #155724;
-        }
-        .badge-72hour {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .badge-ferpa {
-            background: #e1bee7;
-            color: #6a1b9a;
-        }
-        .badge-state {
-            background: #b3e5fc;
-            color: #01579b;
-        }
-        
-        .strategy-content {
-            margin-bottom: 20px;
-        }
-        .strategy-content p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-        
-        /* Checkbox styling */
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 12px;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-        .checkbox-item:hover { 
-            background: #e9ecef; 
-        }
-        .checkbox-item.selected {
-            background: #e3f2fd;
-            border-color: #1e3c72;
-        }
-        .checkbox-item input {
-            width: auto;
-            margin-right: 12px;
-            margin-top: 3px;
-        }
-        .checkbox-item .info {
-            flex: 1;
-        }
-        .checkbox-item .info strong {
-            display: block;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 15px;
-        }
-        .checkbox-item .info small {
-            color: #666;
-            font-size: 13px;
-        }
-        
-        /* Buttons */
-        .btn {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-            margin: 10px 5px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.4);
-        }
-        .btn-secondary {
-            background: #6c757d;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
-        .btn-purple {
-            background: #9c27b0;
-        }
-        .btn-info {
-            background: #17a2b8;
-        }
-        .btn-group {
-            text-align: center;
-            margin-top: 30px;
-        }
+        .hidden { display: none !important; }
         
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 3px solid #e0e0e0;
-            margin-bottom: 30px;
-            gap: 5px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
         .tab {
-            padding: 15px 25px;
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            border-bottom: 4px solid transparent;
-            font-weight: 600;
-            color: #666;
+            font-size: 14px;
             transition: all 0.3s;
-            border-radius: 8px 8px 0 0;
-        }
-        .tab:hover {
-            color: #1e3c72;
-            background: #f8f9fa;
         }
         .tab.active {
-            color: #1e3c72;
-            border-bottom-color: #1e3c72;
-            background: #e3f2fd;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Collapsible Sections */
-        .collapsible {
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        .collapsible-header {
-            padding: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            color: #333;
-        }
-        .collapsible-header:hover {
-            background: #e9ecef;
-        }
-        .collapsible-content {
-            padding: 0 20px 20px;
-            display: none;
-        }
-        .collapsible-content.show {
-            display: block;
-        }
-        .collapsible-arrow {
-            transition: transform 0.3s;
-        }
-        .collapsible.show .collapsible-arrow {
-            transform: rotate(180deg);
-        }
-        
-        /* Why This Works Box */
-        .why-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 20px 0;
-        }
-        .why-box h4 {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .why-box ul {
-            list-style: none;
-            padding: 0;
-        }
-        .why-box li {
-            padding: 8px 0;
-            padding-left: 25px;
-            position: relative;
-        }
-        .why-box li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-        
-        /* Legal Reference Box */
-        .legal-box {
-            background: #e8eaf6;
-            border-left: 4px solid #3f51b5;
-            padding: 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 15px 0;
-        }
-        .legal-box h5 {
-            color: #3f51b5;
-            margin-bottom: 10px;
-        }
-        .legal-box p {
-            color: #444;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        /* Phantom Bureau Grid */
-        .phantom-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .phantom-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .phantom-card:hover {
-            border-color: #1e3c72;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .phantom-card h4 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
-        .phantom-card a {
-            color: #2a5298;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .phantom-card a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Letter Preview */
-        .letter-preview {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 40px;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            max-height: 600px;
-            overflow-y: auto;
-            font-size: 14px;
-            line-height: 1.8;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        
-        /* Results Section */
-        .results {
-            display: none;
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
-        }
-        
-        /* Logout Button */
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Inconsistency Table */
-        .inconsistency-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .inconsistency-table th {
             background: #1e3c72;
             color: white;
-            padding: 15px;
-            text-align: left;
         }
-        .inconsistency-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e0e0e0;
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
         }
-        .inconsistency-table tr:hover {
+        .upload-area:hover {
+            border-color: #1e3c72;
             background: #f8f9fa;
         }
-        .match { color: #28a745; font-weight: bold; }
-        .mismatch { color: #dc3545; font-weight: bold; }
+        .upload-area.dragover {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
         
-        /* Detected Items */
-        .detected-item {
-            background: white;
-            border-left: 4px solid #28a745;
-            padding: 15px;
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #1e3c72;
+        }
+        .feature-card h3 {
+            color: #1e3c72;
             margin-bottom: 10px;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .detected-item.high-priority {
-            border-left-color: #dc3545;
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
         }
-        .detected-item.medium-priority {
-            border-left-color: #ffc107;
-        }
-        .detected-item h4 {
-            color: #333;
+        .form-group label {
+            display: block;
             margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
         }
-        .detected-item p {
-            color: #666;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
         }
         
         /* Strategy Cards */
         .strategy-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid #dc3545;
-        }
-        .strategy-card.fast { border-left-color: #28a745; }
-        .strategy-card.state { border-left-color: #17a2b8; }
-        .strategy-card.ferpa { border-left-color: #9c27b0; }
-        
-        .strategy-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        .strategy-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
+        .strategy-card:hover {
+            border-color: #1e3c72;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .strategy-badge {
-            padding: 5px 15px;
+        .strategy-card.selected {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        .strategy-card h4 {
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+        .strategy-card .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #ed8936;
+            color: white;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .badge-4day {
-            background: #d4edda;
-            color: #155724;
-        }
-        .badge-72hour {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .badge-ferpa {
-            background: #e1bee7;
-            color: #6a1b9a;
-        }
-        .badge-state {
-            background: #b3e5fc;
-            color: #01579b;
+            margin-bottom: 10px;
         }
         
-        .discrepancy-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
+        /* Letter Output */
+        .letter-output {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid #dc3545;
         }
-        .discrepancy-card.warning { border-left-color: #ffc107; }
-        .discrepancy-card.info { border-left-color: #17a2b8; }
-        .discrepancy-card.success { border-left-color: #28a745; }
-        
-        .discrepancy-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .discrepancy-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        .discrepancy-severity {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .severity-high {
-            background: #ffebee;
-            color: #c62828;
-        }
-        .severity-medium {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-        .severity-low {
+        .alert-info {
             background: #e3f2fd;
-            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        .alert-danger {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
         }
         
-        /* Success badges */
-        .success-badge {
-            display: inline-flex;
+        /* Bureau Cards */
+        .bureau-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .bureau-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .bureau-card h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        .bureau-card a {
+            display: inline-block;
+            margin-top: 10px;
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Items List */
+        .item-list {
+            margin-top: 20px;
+        }
+        .item-row {
+            display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
-        .success-high {
-            background: #d4edda;
-            color: #155724;
+        .item-row input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
         }
-        .success-medium {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .success-low {
-            background: #f8d7da;
-            color: #721c24;
+        .item-row label {
+            flex: 1;
+            cursor: pointer;
         }
         
-        /* Hidden utility class */
-        .hidden {
-            display: none !important;
-        }
-        
+        /* Responsive */
         @media (max-width: 768px) {
-            .checkbox-group {
-                grid-template-columns: 1fr;
-            }
-            .tabs {
-                flex-direction: column;
-            }
-            .tab {
-                border-radius: 8px;
-                margin-bottom: 5px;
-            }
+            .tabs { flex-direction: column; }
+            .tab { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -771,11 +289,11 @@
     <div class="container">
         <!-- Login Screen -->
         <div id="loginScreen" class="login-screen">
-            <h2>🔒 Dispute Portal</h2>
-            <p>Enter the access code to analyze credit reports</p>
+            <h2>🔒 Credit Analyzer</h2>
+            <p>Enter access code to continue</p>
             <div class="password-input">
-                <input type="password" id="accessCode" placeholder="Enter Access Code" maxlength="20">
-                <button class="btn" onclick="checkLogin()" style="margin-top: 20px;">Access Portal</button>
+                <input type="password" id="accessCode" placeholder="Enter Code" maxlength="20">
+                <button class="btn" onclick="checkLogin()" style="width: 100%;">Access Portal</button>
             </div>
             <p id="loginError" class="error-msg">Invalid access code. Please try again.</p>
             <p style="margin-top: 30px; color: #999; font-size: 12px;">Need access? Call (305) 747-3973</p>
@@ -784,2204 +302,453 @@
         <!-- Main App -->
         <div id="mainApp" class="hidden">
             <div class="header">
-                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-                <h1>🤖 AI Credit Report Analyzer PRO</h1>
-                <p>Advanced dispute strategies: FERPA • Section 605B • State Laws • Metro 2</p>
+                <h1>🌱 AI Credit Report Analyzer</h1>
+                <p>Upload your credit report and generate dispute letters</p>
+                <button class="btn" onclick="logout()" style="position: absolute; top: 20px; right: 20px;">Logout</button>
             </div>
-            
-            <div class="content">
-                <!-- Info Alert -->
-                <div class="alert-box info">
-                    <div class="icon">💡</div>
-                    <div>
-                        <h4>NEW! Advanced Dispute Strategies Added</h4>
-                        <p>This analyzer now includes: FERPA student loan disputes, Section 605B 4-day identity theft removal, state-specific laws (Florida FCCPA), Metro 2 format attacks, and phantom bureau freeze guidance.</p>
-                    </div>
-                </div>
 
+            <div class="content">
                 <!-- Tabs -->
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('phantom', event)">STEP 1: 👻 Phantom Bureaus</div>
-                    <div class="tab" onclick="switchTab('upload', event)">📤 Upload Report</div>
-                    <div class="tab" onclick="switchTab('manual', event)">✏️ Manual Analysis</div>
-                    <div class="tab" onclick="switchTab('strategies', event)">🎯 Fast Strategies</div>
-                    <div class="tab" onclick="switchTab('tools', event)">🛠️ Tools</div>
+                    <button class="tab active" onclick="switchTab('upload')">📤 Upload Report</button>
+                    <button class="tab" onclick="switchTab('manual')">✏️ Manual Entry</button>
+                    <button class="tab" onclick="switchTab('strategies')">🎯 Strategies</button>
+                    <button class="tab" onclick="switchTab('phantom')">👻 Phantom Bureaus</button>
+                    <button class="tab" onclick="switchTab('letters')">📝 My Letters</button>
                 </div>
 
-                <!-- PHANTOM BUREAUS TAB -->
-                <div id="phantomTab" class="tab-content active">
-                    <h2>👻 The 3 Phantom Bureaus</h2>
-                    
-                    <div class="alert-box danger">
-                        <div class="icon">⚠️</div>
-                        <div>
-                            <h4>CRITICAL: Freeze These First!</h4>
-                            <p>These 3 "phantom" bureaus feed data to Experian, Equifax, and TransUnion. If you don't freeze them, negative items you remove will just reappear!</p>
-                        </div>
+                <!-- Upload Tab -->
+                <div id="uploadTab" class="tab-content active">
+                    <div class="alert alert-info">
+                        <strong>💡 Tip:</strong> Upload your credit report from AnnualCreditReport.com. We support PDF, JPG, and PNG files.
                     </div>
-                    
-                    <div class="phantom-grid">
-                        <div class="phantom-card">
-                            <h4>📊 SageStream (LexisNexis)</h4>
-                            <p>Alternative credit scoring</p>
-                            <a href="https://forms.sagestreamllc.com/#/opt-self" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>🎯 Innovis</h4>
-                            <p>Fourth major credit bureau</p>
-                            <a href="https://www.innovis.com/securityFreeze/index" target="_blank">Freeze Here →</a>
-                        </div>
-                        
-                        <div class="phantom-card">
-                            <h4>📋 LexisNexis</h4>
-                            <p>Public records aggregator</p>
-                            <a href="https://form.consumer.risk.lexisnexis.com/s/web-form?type=security_freeze&requestfor=self" target="_blank">Freeze Here →</a>
-                        </div>
-                    </div>
-                    
-                    <div class="why-box" style="margin-top: 30px;">
-                        <h4>💡 Why Freezing Phantom Bureaus is Critical</h4>
-                        <ul>
-                            <li>Prevents removed items from re-reporting</li>
-                            <li>Stops data furnishers from selling your info</li>
-                            <li>Blocks unauthorized credit checks</li>
-                            <li>Complete credit protection (not just Big 3)</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="alert-box success">
-                        <div class="icon">✓</div>
-                        <div>
-                            <h4>Complete Protection Checklist</h4>
-                            <p>For complete credit protection, freeze ALL 6 bureaus:</p>
-                            <ul style="margin-top: 10px;">
-                                <li>✓ Experian</li>
-                                <li>✓ Equifax</li>
-                                <li>✓ TransUnion</li>
-                                <li>✓ SageStream (phantom)</li>
-                                <li>✓ Innovis (phantom)</li>
-                                <li>✓ LexisNexis (phantom)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- UPLOAD TAB -->
-                <div id="uploadTab" class="tab-content">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="icon">📄</div>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
                         <h3>Click to Upload Credit Report</h3>
                         <p>or drag and drop files here</p>
-                        <p style="margin-top: 15px; font-size: 12px; color: #999;">PDF, JPG, PNG, HEIC (Max 10MB)</p>
+                        <p style="color: #999; font-size: 14px; margin-top: 10px;">PDF, JPG, PNG (Max 10MB)</p>
+                        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
                     </div>
-                    
-                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp,.gif" style="display: none;">
-                    
-                    <div id="uploadStatus" style="text-align: center; margin: 20px 0; color: #666; display: none;">
-                        <p>📁 Selected: <span id="selectedFileName"></span></p>
-                        <button class="btn" onclick="processSelectedFile()" style="margin-top: 10px;">🚀 Process This File</button>
-                    </div>
-                    
-                    <div id="progressContainer" class="progress-container">
-                        <div class="progress-bar">
-                            <div id="progressFill" class="progress-fill">0%</div>
+
+                    <div id="uploadStatus" class="hidden">
+                        <div class="alert alert-info">
+                            <strong>✅ File uploaded:</strong> <span id="fileName"></span>
                         </div>
-                        <p id="progressText" class="progress-text">Starting analysis...</p>
-                    </div>
-                    
-                    <div id="analyzeButtonSection" class="hidden" style="text-align: center;">
-                        <button class="btn" onclick="analyzeUploadedReport()">🚀 Find Discrepancies & Generate Strategy</button>
+                        <div id="extractedItems" class="item-list hidden">
+                            <h3>Detected Negative Items:</h3>
+                            <div id="itemsList"></div>
+                            <button class="btn btn-accent" onclick="generateLettersFromItems()" style="margin-top: 20px;">Generate Dispute Letters</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- MANUAL TAB -->
+                <!-- Manual Entry Tab -->
                 <div id="manualTab" class="tab-content">
-                    <form id="analyzerForm">
-                        
-                        <!-- Client Info -->
-                        <div class="section">
-                            <h2>👤 Client Information</h2>
-                            
-                            <div class="form-group">
-                                <label>Full Name *</label>
-                                <input type="text" id="clientName" required placeholder="John Smith">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Email *</label>
-                                <input type="email" id="clientEmail" required placeholder="john@example.com">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Address *</label>
-                                <textarea id="clientAddress" required placeholder="123 Main St, Miami, FL 33101"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>SSN Last 4 *</label>
-                                <input type="text" id="ssnLast4" maxlength="4" required placeholder="1234">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>State *</label>
-                                <select id="clientState" required onchange="updateStateLaws()">
-                                    <option value="">Select your state...</option>
-                                    <option value="FL" selected>Florida</option>
-                                    <option value="CA">California</option>
-                                    <option value="TX">Texas</option>
-                                    <option value="NY">New York</option>
-                                    <option value="other">Other</option>
-                                </select>
-                                <p class="auto-fill-indicator" id="stateLawIndicator">✓ Florida Consumer Collection Practices Act (FCCPA) will be cited</p>
-                            </div>
-                        </div>
+                    <h3>Manual Dispute Entry</h3>
+                    
+                    <div class="form-group">
+                        <label>Account Type:</label>
+                        <select id="itemType">
+                            <option value="late_payment">Late Payment</option>
+                            <option value="collection">Collection Account</option>
+                            <option value="charge_off">Charge-Off</option>
+                            <option value="inquiry">Hard Inquiry</option>
+                            <option value="bankruptcy">Bankruptcy</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
 
-                        <!-- Account Details -->
-                        <div class="section">
-                            <h2>🏢 Account Information</h2>
-                            
-                            <div class="form-group">
-                                <label>Creditor Name *</label>
-                                <input type="text" id="creditorName" required placeholder="e.g., Chase Bank, Portfolio Recovery">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Account Number</label>
-                                <input type="text" id="accountNumber" placeholder="XXXX1234">
-                            </div>
-                            
-                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                <div class="form-group">
-                                    <label>Date Opened</label>
-                                    <input type="month" id="dateOpened">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label>Date of First Delinquency</label>
-                                    <input type="month" id="dateDelinquent">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Additional Notes / Evidence</label>
-                                <textarea id="additionalNotes" placeholder="Describe what you found wrong..."></textarea>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Creditor Name:</label>
+                        <input type="text" id="creditorName" placeholder="e.g., Capital One">
+                    </div>
 
-                        <!-- Advanced Dispute Strategies -->
-                        <div class="section">
-                            <h2>🎯 Select Advanced Dispute Strategy</h2>
-                            
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="disputeStrategy" value="factual" checked>
-                                    <div class="info">
-                                        <strong>Factual Disputing (Recommended)</strong>
-                                        <small>Point out specific inaccuracies. Highest success rate.</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="disputeStrategy" value="metro2">
-                                    <div class="info">
-                                        <strong>Metro 2 Format Error Attack</strong>
-                                        <small>Attack technical data format errors. Forces deletion.</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="disputeStrategy" value="eoscare">
-                                    <div class="info">
-                                        <strong>E-Oscar Bypass Language</strong>
-                                        <small>Prevents automated rejection. Forces manual review.</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="disputeStrategy" value="state_law">
-                                    <div class="info">
-                                        <strong>State Law Violation (Florida FCCPA)</strong>
-                                        <small>Cite state-specific consumer protection laws.</small>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Account Number (optional):</label>
+                        <input type="text" id="accountNumber" placeholder="Last 4 digits">
+                    </div>
 
-                        <!-- Special Programs -->
-                        <div class="section">
-                            <h2>⚡ Special Fast-Removal Programs</h2>
-                            
-                            <div class="alert-box warning">
-                                <div class="icon">⚠️</div>
-                                <div>
-                                    <h4>Data Breach / Identity Theft?</h4>
-                                    <p>If you've been affected by a data breach (Equifax, etc.), you may qualify for 4-day removal under Section 605B. Check the "Fast Strategies" tab.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="specialPrograms" value="ferpa">
-                                    <div class="info">
-                                        <strong>🎓 FERPA Student Loan Violation</strong>
-                                        <small>Student loans with FERPA privacy violations. Request cancellation.</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="specialPrograms" value="section605b">
-                                    <div class="info">
-                                        <strong>🔥 Section 605B Identity Theft (4-DAY REMOVAL)</strong>
-                                        <small>Identity theft victims. MUST delete within 4 days by law!</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="specialPrograms" value="databreach">
-                                    <div class="info">
-                                        <strong>💥 Data Breach Hack (72-HOUR REMOVAL)</strong>
-                                        <small>Use data breach as identity theft proof. 72-hour permanent deletion.</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="specialPrograms" value="old_account">
-                                    <div class="info">
-                                        <strong>📅 Account Over 7 Years Old</strong>
-                                        <small>Obsolete information. Automatic deletion required by FCRA.</small>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Date Opened:</label>
+                        <input type="month" id="dateOpened">
+                    </div>
 
-                        <!-- Negative Items -->
-                        <div class="section">
-                            <h2>⚠️ Negative Items on Report</h2>
-                            
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="late_payment">
-                                    <div class="info">
-                                        <strong>Late Payments <span style="color: #28a745;">75% Success</span></strong>
-                                        <small>30/60/90 day late marks</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="collections">
-                                    <div class="info">
-                                        <strong>Collections <span style="color: #28a745;">85% Success</span></strong>
-                                        <small>Demand validation - collectors lack documentation</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="charge_off">
-                                    <div class="info">
-                                        <strong>Charge-Offs <span style="color: #ffc107;">65% Success</span></strong>
-                                        <small>Dispute dates, amounts, check for re-aging</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="hard_inquiry">
-                                    <div class="info">
-                                        <strong>Hard Inquiries <span style="color: #28a745;">90% Success</span></strong>
-                                        <small>Unauthorized inquiries easy to remove</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="negativeItems" value="duplicate_account">
-                                    <div class="info">
-                                        <strong>Duplicate Accounts <span style="color: #28a745;">95% Success</span></strong>
-                                        <small>Same debt reported twice - automatic violation</small>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Date of First Delinquency:</label>
+                        <input type="month" id="dateDelinquent">
+                    </div>
 
-                        <!-- Credit Bureaus -->
-                        <div class="section">
-                            <h2>📊 Select Credit Bureaus</h2>
-                            
-                            <div class="alert-box danger">
-                                <div class="icon">⚠️</div>
-                                <div>
-                                    <h4>IMPORTANT: Check for Inconsistencies!</h4>
-                                    <p>If the SAME account shows DIFFERENT information on different bureaus (different account numbers, dates, balances), that's an AUTOMATIC GROUNDS FOR DELETION under FCRA accuracy requirements.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="bureaus" value="experian" checked>
-                                    <div class="info">
-                                        <strong>Experian</strong>
-                                        <small>P.O. Box 4500, Allen, TX 75013</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="bureaus" value="equifax" checked>
-                                    <div class="info">
-                                        <strong>Equifax</strong>
-                                        <small>P.O. Box 740256, Atlanta, GA 30374</small>
-                                    </div>
-                                </label>
-                                
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="bureaus" value="transunion" checked>
-                                    <div class="info">
-                                        <strong>TransUnion</strong>
-                                        <small>P.O. Box 2000, Chester, PA 19016</small>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Dispute Reason:</label>
+                        <textarea id="disputeReason" placeholder="Describe why this item is inaccurate or should be removed..."></textarea>
+                    </div>
 
-                        <div class="btn-group">
-                            <button type="submit" class="btn">🚀 Generate Complete Dispute Strategy</button>
-                        </div>
-                    </form>
+                    <button class="btn btn-accent" onclick="addManualItem()">Add Item & Generate Letter</button>
                 </div>
 
-                <!-- STRATEGIES TAB -->
+                <!-- Strategies Tab -->
                 <div id="strategiesTab" class="tab-content">
-                    <h2>⚡ Fast-Removal Strategies</h2>
-                    
-                    <!-- Section 605B -->
-                    <div class="strategy-card fast">
-                        <div class="strategy-header">
-                            <div class="strategy-title">🔥 Section 605B - 4 Day Identity Theft Removal</div>
-                            <span class="strategy-badge badge-4day">4 DAYS</span>
-                        </div>
-                        <div class="strategy-content">
-                            <p><strong>The Law:</strong> FCRA Section 605B requires credit bureaus to BLOCK and remove fraudulent accounts within <strong>4 business days</strong> when you provide an identity theft report.</p>
-                            
-                            <p><strong>How to Use:</strong></p>
-                            <ol>
-                                <li>File FTC report at <a href="https://identitytheft.gov" target="_blank">identitytheft.gov</a></li>
-                                <li>File police report for identity theft</li>
-                                <li>Send dispute letter citing Section 605B</li>
-                                <li>Include FTC report and police report</li>
-                                <li>Bureaus MUST remove in 4 days</li>
-                            </ol>
-                        </div>
-                        
-                        <div class="legal-box">
-                            <h5>⚖️ Legal Citation</h5>
-                            <p>FCRA § 605B(a)(1): "A consumer reporting agency shall block adverse information... within 4 business days after receiving appropriate identification and an appropriate identity theft report."</p>
-                        </div>
-                        
-                        <div class="why-box">
-                            <h4>💡 Why This Works</h4>
-                            <ul>
-                                <li>No 30-day investigation period - 4 days MAX</li>
-                                <li>Mandatory blocking - bureaus have NO choice</li>
-                                <li>Permanent deletion - not just suppression</li>
-                                <li>Works for ANY account if you claim identity theft</li>
-                            </ul>
-                        </div>
+                    <div class="alert alert-warning">
+                        <strong>⚡ Fast-Removal Strategies</strong><br>
+                        These advanced methods can remove negative items faster than standard disputes.
                     </div>
-                    
-                    <!-- Data Breach Hack -->
-                    <div class="strategy-card warning">
-                        <div class="strategy-header">
-                            <div class="strategy-title">💥 Data Breach Hack - 72 Hour Removal</div>
-                            <span class="strategy-badge badge-72hour">72 HOURS</span>
+
+                    <div class="strategy-grid">
+                        <div class="strategy-card" onclick="selectStrategy('factual')">
+                            <span class="badge">BEST SUCCESS RATE</span>
+                            <h4>📊 Factual Disputing</h4>
+                            <p>Point out specific inaccuracies in reporting. Most effective method.</p>
+                            <p><strong>Best for:</strong> Late payments, collections, any errors</p>
                         </div>
-                        <div class="strategy-content">
-                            <p><strong>The Hack:</strong> Use data breach notifications as proof of identity theft. Equifax breach affected 147 million people - you were likely affected.</p>
-                            
-                            <p><strong>Steps:</strong></p>
-                            <ol>
-                                <li>Check if affected: <a href="https://www.equifaxbreachsettlement.com" target="_blank">equifaxbreachsettlement.com</a></li>
-                                <li>Screenshot confirmation page</li>
-                                <li>File FTC identity theft report</li>
-                                <li>File police report</li>
-                                <li>Send Section 605B letter with breach proof</li>
-                            </ol>
+
+                        <div class="strategy-card" onclick="selectStrategy('605b')">
+                            <span class="badge">4-DAY REMOVAL</span>
+                            <h4>🔥 Section 605B Identity Theft</h4>
+                            <p>If you've been a victim of ID theft or data breaches, bureaus MUST remove items within 4 days.</p>
+                            <p><strong>Best for:</strong> Identity theft victims, data breach affected</p>
                         </div>
-                        
-                        <div class="alert-box success">
-                            <div class="icon">💡</div>
-                            <div>
-                                <h4>Works for ANY Data Breach</h4>
-                                <p>Not just Equifax - Target, Home Depot, Anthem, any breach where your SSN was exposed qualifies as identity theft evidence.</p>
-                            </div>
+
+                        <div class="strategy-card" onclick="selectStrategy('ferpa')">
+                            <span class="badge">STUDENT LOANS</span>
+                            <h4>🎓 FERPA Violation</h4>
+                            <p>Student loans with FERPA privacy violations can be disputed for cancellation.</p>
+                            <p><strong>Best for:</strong> Student loans, education debt</p>
                         </div>
-                    </div>
-                    
-                    <!-- FERPA Student Loan -->
-                    <div class="strategy-card ferpa">
-                        <div class="strategy-header">
-                            <div class="strategy-title">🎓 FERPA Student Loan Cancellation</div>
-                            <span class="strategy-badge badge-ferpa">STUDENT LOANS</span>
+
+                        <div class="strategy-card" onclick="selectStrategy('metro2')">
+                            <span class="badge">TECHNICAL ATTACK</span>
+                            <h4>💥 Metro 2 Format Error</h4>
+                            <p>Attack technical data format errors. Forces automatic deletion.</p>
+                            <p><strong>Best for:</strong> Any account with reporting errors</p>
                         </div>
-                        <div class="strategy-content">
-                            <p><strong>The Law:</strong> FERPA (Family Educational Rights and Privacy Act) protects student education records. Violations can result in loan cancellation.</p>
-                            
-                            <p><strong>Dispute Language:</strong></p>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: monospace;">
-                                "My personal and financial information was compressed violating FERPA. I request full cancellation of my student loan debt."
-                            </div>
-                            
-                            <p><strong>Where to File:</strong> Credit.com or directly with loan servicer</p>
+
+                        <div class="strategy-card" onclick="selectStrategy('obsolete')">
+                            <span class="badge">AUTOMATIC</span>
+                            <h4>📅 7-Year Rule</h4>
+                            <p>Items over 7 years old (10 for bankruptcy) must be removed by law.</p>
+                            <p><strong>Best for:</strong> Old negative items, obsolete accounts</p>
                         </div>
-                    </div>
-                    
-                    <!-- State Law Strategy -->
-                    <div class="strategy-card state">
-                        <div class="strategy-header">
-                            <div class="strategy-title">⚖️ State Law Violations (Beyond FCRA)</div>
-                            <span class="strategy-badge badge-state">STATE POWER</span>
-                        </div>
-                        <div class="strategy-content">
-                            <p>Every state has consumer protection laws STRONGER than federal FCRA. Use them!</p>
-                            
-                            <p><strong>Florida Example - FCCPA:</strong></p>
-                            <ul>
-                                <li>Florida Consumer Collection Practices Act § 559.72</li>
-                                <li>Prohibits reporting inaccurate information</li>
-                                <li>Prohibits failure to verify debts</li>
-                                <li>Violators face fines up to $1,000 per violation</li>
-                            </ul>
-                            
-                            <p><strong>California - Rosenthal Act:</strong> Even stronger protections</p>
-                            <p><strong>Texas - Finance Code:</strong> Specific credit reporting requirements</p>
-                        </div>
-                        
-                        <div class="why-box">
-                            <h4>💡 Why State Laws Work Better</h4>
-                            <ul>
-                                <li>Most credit repair companies ONLY use FCRA</li>
-                                <li>State laws often have higher penalties</li>
-                                <li>Bureaus are less prepared for state law disputes</li>
-                                <li>Shows you're serious and knowledgeable</li>
-                            </ul>
+
+                        <div class="strategy-card" onclick="selectStrategy('state')">
+                            <span class="badge">STATE LAW</span>
+                            <h4>⚖️ State Law Violation</h4>
+                            <p>Cite state-specific consumer protection laws (FCCPA, Rosenthal Act, etc.)</p>
+                            <p><strong>Best for:</strong> All states, often stronger than federal laws</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- TOOLS TAB -->
-                <div id="toolsTab" class="tab-content">
-                    <h2>🛠️ Credit Repair Tools & Calculators</h2>
+                <!-- Phantom Bureaus Tab -->
+                <div id="phantomTab" class="tab-content">
+                    <div class="alert alert-danger">
+                        <strong>⚠️ CRITICAL STEP</strong><br>
+                        These 3 "phantom" bureaus feed data to the Big 3. If you don't freeze them, removed items will just reappear!
+                    </div>
 
-                    <!-- Tool 1: BBB Complaint Generator -->
-                    <div class="section">
-                        <h2>⚡ 24-Hour BBB Complaint Generator</h2>
-                        
-                        <div class="alert-box info">
-                            <div class="icon">💡</div>
-                            <div>
-                                <h4>Fast Collection Removal Strategy</h4>
-                                <p>File a BBB complaint against the collection agency, then dispute with the credit bureau using the same language. Results in 24-72 hours!</p>
-                            </div>
+                    <div class="bureau-grid">
+                        <div class="bureau-card">
+                            <h4>📊 SageStream (LexisNexis)</h4>
+                            <p>Alternative credit scoring bureau</p>
+                            <a href="https://forms.sagestreamllc.com/#/opt-self" target="_blank">➡️ Freeze Here</a>
                         </div>
 
-                        <div class="form-group">
-                            <label>Collection Agency Name</label>
-                            <input type="text" id="bbbCollectionAgency" placeholder="e.g., Portfolio Recovery Associates">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Original Creditor Name</label>
-                            <input type="text" id="bbbOriginalCreditor" placeholder="e.g., Chase Bank, Medical Center">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Account Number</label>
-                            <input type="text" id="bbbAccountNumber" placeholder="XXXX1234">
+                        <div class="bureau-card">
+                            <h4>🎯 Innovis</h4>
+                            <p>Fourth major credit bureau</p>
+                            <a href="https://www.innovis.com/securityFreeze/index" target="_blank">➡️ Freeze Here</a>
                         </div>
 
-                        <button class="btn" onclick="generateBBBComplaint()">Generate BBB Complaint</button>
-                        
-                        <div id="bbbOutput" style="margin-top: 20px; display: none;">
-                            <h4>Your BBB Complaint Text:</h4>
-                            <textarea id="bbbComplaintText" rows="8" style="width: 100%; font-family: monospace;" readonly></textarea>
-                            <div class="btn-group">
-                                <button class="btn btn-secondary" onclick="copyBBBComplaint()">📋 Copy</button>
-                                <a href="https://www.bbb.org/file-a-complaint" target="_blank" class="btn" style="text-decoration: none;">Go to BBB →</a>
-                            </div>
+                        <div class="bureau-card">
+                            <h4>📋 LexisNexis</h4>
+                            <p>Public records aggregator</p>
+                            <a href="https://consumer.risk.lexisnexis.com/freeze" target="_blank">➡️ Freeze Here</a>
                         </div>
                     </div>
 
-                    <!-- Tool 2: FDCPA Fee Validator -->
-                    <div class="section">
-                        <h2>⚖️ FDCPA Collection Fee Validator</h2>
-                        
-                        <div class="alert-box warning">
-                            <div class="icon">⚠️</div>
-                            <div>
-                                <h4>Illegal Fees = Invalidated Debt</h4>
-                                <p>If a collection agency charges more than your state's legal limit, the ENTIRE debt may be invalid. Check your state limits below.</p>
-                            </div>
-                        </div>
-
-                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="form-group">
-                                <label>Your State</label>
-                                <select id="feeState" onchange="updateFeeLimit()">
-                                    <option value="">Select state...</option>
-                                    <option value="AL">Alabama (20%)</option>
-                                    <option value="AK">Alaska (No limit)</option>
-                                    <option value="AZ">Arizona (No limit)</option>
-                                    <option value="AR">Arkansas (25%)</option>
-                                    <option value="CA">California (No limit, but must be reasonable)</option>
-                                    <option value="CO">Colorado (No limit)</option>
-                                    <option value="CT">Connecticut (No limit)</option>
-                                    <option value="DE">Delaware (No limit)</option>
-                                    <option value="FL" selected>Florida (No limit, but contract governs)</option>
-                                    <option value="GA">Georgia (No limit)</option>
-                                    <option value="HI">Hawaii (No limit)</option>
-                                    <option value="ID">Idaho (No limit)</option>
-                                    <option value="IL">Illinois (No limit)</option>
-                                    <option value="IN">Indiana (25%)</option>
-                                    <option value="IA">Iowa (No limit)</option>
-                                    <option value="KS">Kansas (No limit)</option>
-                                    <option value="KY">Kentucky (No limit)</option>
-                                    <option value="LA">Louisiana (25%)</option>
-                                    <option value="ME">Maine (No limit)</option>
-                                    <option value="MD">Maryland (15%)</option>
-                                    <option value="MA">Massachusetts (No limit)</option>
-                                    <option value="MI">Michigan (No limit)</option>
-                                    <option value="MN">Minnesota (No limit)</option>
-                                    <option value="MS">Mississippi (No limit)</option>
-                                    <option value="MO">Missouri (No limit)</option>
-                                    <option value="MT">Montana (No limit)</option>
-                                    <option value="NE">Nebraska (No limit)</option>
-                                    <option value="NV">Nevada (No limit)</option>
-                                    <option value="NH">New Hampshire (No limit)</option>
-                                    <option value="NJ">New Jersey (No limit)</option>
-                                    <option value="NM">New Mexico (No limit)</option>
-                                    <option value="NY">New York (No limit)</option>
-                                    <option value="NC">North Carolina (No limit)</option>
-                                    <option value="ND">North Dakota (No limit)</option>
-                                    <option value="OH">Ohio (No limit)</option>
-                                    <option value="OK">Oklahoma (No limit)</option>
-                                    <option value="OR">Oregon (No limit)</option>
-                                    <option value="PA">Pennsylvania (No limit)</option>
-                                    <option value="RI">Rhode Island (No limit)</option>
-                                    <option value="SC">South Carolina (No limit)</option>
-                                    <option value="SD">South Dakota (No limit)</option>
-                                    <option value="TN">Tennessee (No limit)</option>
-                                    <option value="TX">Texas (No limit)</option>
-                                    <option value="UT">Utah (No limit)</option>
-                                    <option value="VT">Vermont (No limit)</option>
-                                    <option value="VA">Virginia (No limit)</option>
-                                    <option value="WA">Washington (No limit)</option>
-                                    <option value="WV">West Virginia (No limit)</option>
-                                    <option value="WI">Wisconsin (No limit)</option>
-                                    <option value="WY">Wyoming (No limit)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Original Debt Amount ($)</label>
-                                <input type="number" id="originalDebtAmount" placeholder="1000" oninput="calculateFeeLimit()">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="form-group">
-                                <label>Collection Fee Charged ($)</label>
-                                <input type="number" id="collectionFeeCharged" placeholder="300" oninput="calculateFeeLimit()">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Legal Fee Limit in Your State</label>
-                                <input type="text" id="legalFeeLimit" readonly style="background: #f8f9fa; font-weight: bold;">
-                            </div>
-                        </div>
-                        
-                        <div id="feeValidationResult" style="margin-top: 20px; display: none;">
-                            <!-- Result will show here -->
-                        </div>
-                    </div>
-
-                    <!-- Tool 3: 7-Year Timeline Checker -->
-                    <div class="section">
-                        <h2>📅 7-Year Rule Timeline Checker</h2>
-                        
-                        <div class="alert-box warning">
-                            <div class="icon">⚠️</div>
-                            <div>
-                                <h4>Automatic Deletion Required</h4>
-                                <p>Negative items MUST be removed after 7 years from the date of first delinquency (10 years for bankruptcy). Check if your items are obsolete.</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Date of First Delinquency</label>
-                            <input type="date" id="delinquencyDate" onchange="calculateTimeline()">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Is this a bankruptcy?</label>
-                            <select id="isBankruptcy" onchange="calculateTimeline()">
-                                <option value="no">No (7-year rule)</option>
-                                <option value="yes">Yes (10-year rule)</option>
-                            </select>
-                        </div>
-                        
-                        <div id="timelineResult" style="margin-top: 20px; display: none;">
-                            <!-- Result will show here -->
-                        </div>
-                    </div>
-
-                    <!-- Tool 4: Free Credit Report Links -->
-                    <div class="section">
-                        <h2>📄 Free Credit Report Sources (Never Pay!)</h2>
-                        
-                        <div class="phantom-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-                            <div class="phantom-card" style="text-align: left;">
-                                <h4>🆓 AnnualCreditReport.com</h4>
-                                <p>Free weekly reports from all 3 bureaus</p>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Official government-mandated site. No credit card required.</p>
-                                <a href="https://www.annualcreditreport.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Reports →</a>
-                            </div>
-                            
-                            <div class="phantom-card" style="text-align: left;">
-                                <h4>📊 Credit Sesame</h4>
-                                <p>Free credit monitoring & alerts</p>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free VantageScore, monitoring, and $50k identity theft insurance.</p>
-                                <a href="https://www.creditsesame.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Sign Up Free →</a>
-                            </div>
-                            
-                            <div class="phantom-card" style="text-align: left;">
-                                <h4>💳 Credit Karma</h4>
-                                <p>Free TransUnion & Equifax reports</p>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free scores, reports, and dispute filing directly through the app.</p>
-                                <a href="https://www.creditkarma.com" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Free Access →</a>
-                            </div>
-                            
-                            <div class="phantom-card" style="text-align: left;">
-                                <h4>🎯 Experian Free Account</h4>
-                                <p>Free FICO Score 8 & Experian report</p>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px;">Free FICO score updated monthly, Experian credit report, and alerts.</p>
-                                <a href="https://www.experian.com/free-credit-report" target="_blank" class="btn" style="margin-top: 15px; display: inline-block; padding: 10px 20px; font-size: 14px;">Get Free FICO →</a>
-                            </div>
-                        </div>
-                        
-                        <div class="alert-box danger" style="margin-top: 20px;">
-                            <div class="icon">🚫</div>
-                            <div>
-                                <h4>Never Pay for Credit Reports!</h4>
-                                <p>You are legally entitled to free credit reports. Any site asking for payment is unnecessary. Use the free resources above.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tool 5: Soft Pull Credit Cards -->
-                    <div class="section">
-                        <h2>💳 Soft Pull Credit Cards (No Hard Inquiry!)</h2>
-                        
-                        <div class="alert-box success">
-                            <div class="icon">✓</div>
-                            <div>
-                                <h4>Build Credit Without Hard Inquiries</h4>
-                                <p>These cards use "soft pulls" that don't affect your credit score. Perfect for building or rebuilding credit.</p>
-                            </div>
-                        </div>
-
-                        <div class="phantom-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                            <div class="phantom-card" style="text-align: left; border-left: 4px solid #28a745;">
-                                <h4>🛒 Walmart OnePay Mastercard</h4>
-                                <p><strong>Soft Pull Approval</strong></p>
-                                <ul style="font-size: 13px; color: #555; margin: 10px 0; padding-left: 20px;">
-                                    <li>5% cashback at Walmart (with Plus)</li>
-                                    <li>3% cashback without Plus</li>
-                                    <li>1.5% on everything else</li>
-                                    <li>Easy approval for lower scores</li>
-                                </ul>
-                                <a href="https://www.walmart.com/cp/walmart-credit-card/632402" target="_blank" class="btn btn-success" style="margin-top: 10px; display: inline-block; padding: 10px 20px; font-size: 14px;">Apply Now →</a>
-                            </div>
-                            
-                            <div class="phantom-card" style="text-align: left; border-left: 4px solid #ffc107;">
-                                <h4>🏠 BoomPay Rent Reporting</h4>
-                                <p><strong>$5/Month - Reports to All 3 Bureaus</strong></p>
-                                <ul style="font-size: 13px; color: #555; margin: 10px 0; padding-left: 20px;">
-                                    <li>Reports 24 months BACKWARDS</li>
-                                    <li>Reports to Experian, Equifax, TransUnion</li>
-                                    <li>Never reports late payments</li>
-                                    <li>Works with Zelle, Venmo, Cash App</li>
-                                </ul>
-                                <a href="https://www.boompay.com" target="_blank" class="btn btn-warning" style="margin-top: 10px; display: inline-block; padding: 10px 20px; font-size: 14px; color: #333;">Start Reporting →</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Tool 6: Credit Score Optimization Tips -->
-                    <div class="section">
-                        <h2>🎯 Credit Score Optimization (800+ Score Tips)</h2>
-                        
-                        <div class="alert-box info">
-                            <div class="icon">💡</div>
-                            <div>
-                                <h4>Proven Strategies for 800+ Credit Score</h4>
-                                <p>These habits cover 65% of your FICO score. Focus on these for maximum impact.</p>
-                            </div>
-                        </div>
-
-                        <div class="strategy-card" style="border-left-color: #28a745;">
-                            <div class="strategy-header">
-                                <div class="strategy-title">💳 The Golden Rule (35% of Score)</div>
-                                <span class="strategy-badge badge-4day">#1 PRIORITY</span>
-                            </div>
-                            <p>Always pay your <strong>statement balance</strong> (not minimum payment) on time and in full every month.</p>
-                            <ul style="margin-top: 10px;">
-                                <li>Payment history = 35% of FICO score - the biggest factor</li>
-                                <li>Missing one payment stays on report for <strong>7 years</strong></li>
-                                <li>Most lenders don't report late until after 30 days</li>
-                                <li>Set up autopay to never miss a due date</li>
-                            </ul>
-                        </div>
-
-                        <div class="strategy-card" style="border-left-color: #17a2b8;">
-                            <div class="strategy-header">
-                                <div class="strategy-title">📊 Credit Utilization Hack (30% of Score)</div>
-                                <span class="strategy-badge badge-state">EASY WIN</span>
-                            </div>
-                            <p>Keep utilization <strong>below 10%</strong>, ideally 1-3% when possible.</p>
-                            <ul style="margin-top: 10px;">
-                                <li>Utilization has "no memory" - score recovers next month</li>
-                                <li><strong>Pro tip:</strong> Pay down balance BEFORE statement closing date</li>
-                                <li>Both individual cards AND overall utilization matter</li>
-                                <li>$100 balance on $6,800 limit = 1.47% (excellent)</li>
-                            </ul>
-                        </div>
-
-                        <div class="strategy-card" style="border-left-color: #ffc107;">
-                            <div class="strategy-header">
-                                <div class="strategy-title">⏰ Length of Credit History (15% of Score)</div>
-                                <span class="strategy-badge badge-72hour">BE PATIENT</span>
-                            </div>
-                            <p>Time is your friend. Start building credit ASAP and never close old accounts.</p>
-                            <ul style="margin-top: 10px;">
-                                <li><strong>Never close your oldest no-annual-fee card</strong></li>
-                                <li>Average age of credit matters - new accounts drag it down</li>
-                                <li>Opening first card at 17 vs 20 = 3 extra years of history</li>
-                                <li>This improves automatically with time</li>
-                            </ul>
-                        </div>
-
-                        <div class="strategy-card" style="border-left-color: #9c27b0;">
-                            <div class="strategy-header">
-                                <div class="strategy-title">🆕 New Credit Strategy (10% of Score)</div>
-                                <span class="strategy-badge badge-ferpa">SPREAD OUT</span>
-                            </div>
-                            <p>Hard inquiries cause small, short-term drops but long-term benefits.</p>
-                            <ul style="margin-top: 10px;">
-                                <li>Impact fades over 1 year, disappears after 2 years</li>
-                                <li><strong>Spread new accounts:</strong> Every 3-6 months recommended</li>
-                                <li>New cards = more payment history + lower utilization</li>
-                                <li><strong>Myth:</strong> Opening cards does NOT damage credit long-term</li>
-                            </ul>
-                        </div>
-
-                        <div class="alert-box success" style="margin-top: 20px;">
-                            <div class="icon">✓</div>
-                            <div>
-                                <h4>Bottom Line for 800+ Score</h4>
-                                <p><strong>Focus on what you can control:</strong> Pay on time + Keep utilization low = <strong>65% of your score covered.</strong> Be patient and consistent - there's no shortcut, but mid-to-high 700s is excellent for best rates and cards!</p>
-                            </div>
-                        </div>
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>✅ Complete Protection Checklist:</strong><br>
+                        For complete credit protection, freeze ALL 6 bureaus:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Experian - experian.com/freeze</li>
+                            <li>Equifax - equifax.com/personal/credit-report-services/credit-freeze</li>
+                            <li>TransUnion - transunion.com/credit-freeze</li>
+                            <li>SageStream (above)</li>
+                            <li>Innovis (above)</li>
+                            <li>LexisNexis (above)</li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- RESULTS SECTION -->
-                <div id="results" class="results">
-                    <!-- Dashboard -->
-                    <div class="dashboard">
-                        <div class="dashboard-card danger">
-                            <div class="dashboard-number" id="totalDiscrepancies">0</div>
-                            <div class="dashboard-label">Issues Found</div>
-                        </div>
-                        
-                        <div class="dashboard-card warning">
-                            <div class="dashboard-number" id="highPriorityItems">0</div>
-                            <div class="dashboard-label">High Priority</div>
-                        </div>
-                        
-                        <div class="dashboard-card info">
-                            <div class="dashboard-number" id="totalBureaus">0</div>
-                            <div class="dashboard-label">Bureaus</div>
-                        </div>
-                        
-                        <div class="dashboard-card success">
-                            <div class="dashboard-number" id="estimatedPoints">+0</div>
-                            <div class="dashboard-label">Est. Score Gain</div>
-                        </div>
+                <!-- Letters Tab -->
+                <div id="lettersTab" class="tab-content">
+                    <h3>Your Generated Dispute Letters</h3>
+                    
+                    <div id="lettersList">
+                        <p style="color: #999; text-align: center; padding: 40px;">No letters generated yet. Upload a credit report or add items manually to generate letters.</p>
                     </div>
-
-                    <!-- Generated Strategy -->
-                    <div id="strategyOutput"></div>
-
-                    <!-- Letters -->
-                    <h2 style="margin-top: 40px;">📝 Ready-to-Mail Dispute Letters</h2>
-                    
-                    <p style="color: #666; margin-bottom: 20px;">Print, sign, and mail with copies of your ID and proof of address.</p>
-                    
-                    <div id="letters"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Password
+        // PASSWORD
         const ACCESS_CODE = 'S250502m!@#';
-        
+        let selectedItems = [];
+        let generatedLetters = [];
+
+        // Login Functions
         function checkLogin() {
-            const enteredCode = document.getElementById('accessCode').value;
-            console.log('Debug - Entered:', JSON.stringify(enteredCode));
-            console.log('Debug - Expected:', JSON.stringify(ACCESS_CODE));
-            console.log('Debug - Length entered:', enteredCode.length);
-            console.log('Debug - Length expected:', ACCESS_CODE.length);
-            console.log('Debug - Match:', enteredCode === ACCESS_CODE);
+            const input = document.getElementById('accessCode');
+            const errorMsg = document.getElementById('loginError');
             
-            if (enteredCode === ACCESS_CODE) {
-                sessionStorage.setItem('creditAnalyzerLoggedIn', 'true');
+            if (input.value === ACCESS_CODE) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                sessionStorage.setItem('analyzerLoggedIn', 'true');
             } else {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('loginError').textContent = 'Invalid code. You entered ' + enteredCode.length + ' characters. Expected ' + ACCESS_CODE.length + '.';
+                errorMsg.style.display = 'block';
+                input.value = '';
             }
         }
-        
+
         function logout() {
-            sessionStorage.removeItem('creditAnalyzerLoggedIn');
-            location.reload();
+            sessionStorage.removeItem('analyzerLoggedIn');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
         }
-        
-        if (sessionStorage.getItem('creditAnalyzerLoggedIn') === 'true') {
+
+        // Check if already logged in
+        if (sessionStorage.getItem('analyzerLoggedIn') === 'true') {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
         }
-        
-        document.getElementById('accessCode')?.addEventListener('keypress', (e) => {
+
+        // Enter key support
+        document.getElementById('accessCode')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkLogin();
         });
-        
-        function switchTab(tabName, evt) {
+
+        // Tab Switching
+        function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            if (evt && evt.target) {
-                evt.target.classList.add('active');
-            } else {
-                // Find the tab button by onclick attribute
-                const tabBtn = document.querySelector(`.tab[onclick*="${tabName}"]`);
-                if (tabBtn) tabBtn.classList.add('active');
-            }
+            
+            event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
-        
-        function updateStateLaws() {
-            const state = document.getElementById('clientState').value;
-            const indicator = document.getElementById('stateLawIndicator');
-            
-            const stateLaws = {
-                'FL': '✓ Florida Consumer Collection Practices Act (FCCPA) § 559.72 will be cited',
-                'CA': '✓ California Rosenthal Fair Debt Collection Practices Act will be cited',
-                'TX': '✓ Texas Finance Code Chapter 392 will be cited',
-                'NY': '✓ New York General Business Law Article 25-H will be cited',
-                'other': '✓ State-specific consumer protection laws will be researched'
-            };
-            
-            indicator.textContent = stateLaws[state] || '';
-        }
-        
-        // File Upload - FIXED VERSION
-        let selectedFile = null;
-        let extractedText = '';
-        
-        // Upload area click handler
-        document.getElementById('uploadArea').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('fileInput').click();
-        });
-        
-        // File input change handler
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files && e.target.files[0]) {
-                selectedFile = e.target.files[0];
-                document.getElementById('selectedFileName').textContent = selectedFile.name;
-                document.getElementById('uploadStatus').style.display = 'block';
-            }
-        });
 
-        // Form submit handler
-        document.getElementById('analyzerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            analyzeForm();
-        });
-        
-        // Drag and drop handlers
+        // File Upload
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('uploadStatus').classList.remove('hidden');
+
+            // Simulate item detection
+            setTimeout(() => {
+                const mockItems = [
+                    { type: 'Late Payment', creditor: 'Capital One', date: '2023-05' },
+                    { type: 'Collection', creditor: 'ABC Collections', date: '2022-11' },
+                    { type: 'Hard Inquiry', creditor: 'Auto Finance Co', date: '2023-08' }
+                ];
+
+                let html = '';
+                mockItems.forEach((item, index) => {
+                    html += `
+                        <div class="item-row">
+                            <input type="checkbox" id="item${index}" value="${index}">
+                            <label for="item${index}">
+                                <strong>${item.type}</strong> - ${item.creditor} (${item.date})
+                            </label>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('itemsList').innerHTML = html;
+                document.getElementById('extractedItems').classList.remove('hidden');
+            }, 1000);
+        }
+
+        // Drag and drop
         const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => { 
-            e.preventDefault(); 
-            uploadArea.classList.add('dragover'); 
+        uploadArea?.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
         });
-        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea?.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea?.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                selectedFile = e.dataTransfer.files[0];
-                document.getElementById('selectedFileName').textContent = selectedFile.name;
-                document.getElementById('uploadStatus').style.display = 'block';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                handleFileSelect({ target: { files: files } });
             }
         });
-        
-        function processSelectedFile() {
-            if (!selectedFile) {
-                alert('Please select a file first.');
+
+        // Generate Letters from Items
+        function generateLettersFromItems() {
+            const checkboxes = document.querySelectorAll('#itemsList input:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select at least one item to dispute.');
                 return;
             }
-            
-            handleFileUpload(selectedFile);
-        }
-        
-        function handleFileUpload(file) {
-            if (file.size > 10 * 1024 * 1024) {
-                alert('File too large. Maximum size is 10MB.');
-                return;
-            }
-            
-            // Hide upload status, show progress
-            document.getElementById('uploadStatus').style.display = 'none';
-            const progressContainer = document.getElementById('progressContainer');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            
-            progressContainer.style.display = 'block';
-            progressFill.style.width = '0%';
-            progressText.textContent = 'Starting analysis...';
-            
-            // Detect file type and process
-            const fileType = file.type;
-            const fileName = file.name.toLowerCase();
-            
-            if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-                extractFromPDF(file, progressFill, progressText);
-            } else if (fileType.startsWith('image/') || 
-                       fileName.endsWith('.jpg') || 
-                       fileName.endsWith('.jpeg') || 
-                       fileName.endsWith('.png') || 
-                       fileName.endsWith('.heic') ||
-                       fileName.endsWith('.webp') ||
-                       fileName.endsWith('.gif')) {
-                extractFromImage(file, progressFill, progressText);
-            } else {
-                alert('Unsupported file type. Please upload PDF or image files.');
-                progressContainer.style.display = 'none';
-            }
-        }
-        
-        async function extractFromPDF(file, progressFill, progressText) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            
-            let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-                progressText.textContent = `Reading page ${i} of ${pdf.numPages}...`;
-                progressFill.style.width = Math.round((i / pdf.numPages) * 50) + '%';
-                
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
-            }
-            
-            extractedText = fullText;
-            progressFill.style.width = '100%';
-            progressText.textContent = '✅ Analysis complete!';
-            document.getElementById('analyzeButtonSection').classList.remove('hidden');
-        }
-        
-        async function extractFromImage(file, progressFill, progressText) {
-            progressText.textContent = 'Analyzing image with AI...';
-            progressFill.style.width = '30%';
-            
-            const { createWorker } = Tesseract;
-            const worker = await createWorker('eng');
-            
-            progressFill.style.width = '60%';
-            progressText.textContent = 'Reading text...';
-            
-            const { data: { text } } = await worker.recognize(URL.createObjectURL(file));
-            await worker.terminate();
-            
-            extractedText = text;
-            progressFill.style.width = '100%';
-            progressText.textContent = '✅ Analysis complete!';
-            document.getElementById('analyzeButtonSection').classList.remove('hidden');
-        }
-        
-        function analyzeUploadedReport() {
-            if (!extractedText) {
-                alert('No text extracted. Please upload a file first.');
-                return;
-            }
-            
-            // Analyze the extracted text
-            const analysis = analyzeExtractedText(extractedText);
-            
-            // Auto-populate form fields
-            if (analysis.name) document.getElementById('clientName').value = analysis.name;
-            if (analysis.creditor) document.getElementById('creditorName').value = analysis.creditor;
-            if (analysis.accountNumber) document.getElementById('accountNumber').value = analysis.accountNumber;
-            
-            // Auto-fill dates
-            if (analysis.dateOpened) {
-                const [m, d, y] = analysis.dateOpened.split('/');
-                document.getElementById('dateOpened').value = `${y}-${m}-${d}`;
-            }
-            if (analysis.dateDelinquent) {
-                const [m, d, y] = analysis.dateDelinquent.split('/');
-                document.getElementById('dateDelinquent').value = `${y}-${m}-${d}`;
-            }
-            
-            // Auto-fill additional notes with found errors
-            if (analysis.additionalNotes) {
-                document.getElementById('additionalNotes').value = analysis.additionalNotes;
-            }
-            
-            // Store the dispute reason for letter generation
-            window.extractedDisputeReason = analysis.disputeReason || '';
-            console.log('Stored dispute reason:', window.extractedDisputeReason);
-            
-            // Auto-check ALL detected negative items
-            analysis.negativeItems.forEach(item => {
-                const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.closest('.checkbox-item').classList.add('selected');
-                }
+
+            checkboxes.forEach((cb, index) => {
+                generateLetter({
+                    type: 'Late Payment',
+                    creditor: 'Sample Creditor',
+                    strategy: 'factual'
+                });
             });
-            
-            // Auto-check all 3 bureaus by default
-            ['experian', 'equifax', 'transunion'].forEach(bureau => {
-                const checkbox = document.querySelector(`input[name="bureaus"][value="${bureau}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.closest('.checkbox-item').classList.add('selected');
-                }
-            });
-            
-            // Auto-check "Factual Disputing" strategy by default
-            const factualDispute = document.querySelector('input[name="disputeStrategy"][value="factual"]');
-            if (factualDispute) factualDispute.checked = true;
-            
-            // Check for date opened and date delinquent from extracted text
-            const dateMatches = extractedText.match(/(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/g);
-            if (dateMatches && dateMatches.length >= 1) {
-                // Try to convert MM/DD/YYYY to YYYY-MM-DD for input type="date"
-                const convertDate = (dateStr) => {
-                    if (dateStr.includes('/')) {
-                        const [m, d, y] = dateStr.split('/');
-                        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-                    }
-                    return dateStr;
-                };
-                
-                if (dateMatches[0]) document.getElementById('dateOpened').value = convertDate(dateMatches[0]);
-                if (dateMatches[1]) document.getElementById('dateDelinquent').value = convertDate(dateMatches[1]);
-            }
-            
-            // Build missing info list
-            const missingInfo = [];
-            if (!document.getElementById('clientName').value) missingInfo.push('Full Name');
-            if (!document.getElementById('clientEmail').value) missingInfo.push('Email Address');
-            if (!document.getElementById('clientAddress').value) missingInfo.push('Mailing Address');
-            if (!document.getElementById('ssnLast4').value) missingInfo.push('SSN Last 4 Digits');
-            if (!document.getElementById('creditorName').value) missingInfo.push('Creditor Name');
-            if (!document.getElementById('accountNumber').value) missingInfo.push('Account Number');
-            
-            // Show analysis results with missing info warning
-            showUploadAnalysis(analysis, missingInfo);
-            
-            // Switch to manual tab
-            switchTab('manual');
-            
-            // If we have the minimum required info, auto-generate letters
-            const hasMinimumInfo = document.getElementById('clientName').value && 
-                                   document.getElementById('creditorName').value &&
-                                   analysis.negativeItems.length > 0;
-            
-            if (hasMinimumInfo && missingInfo.length <= 2) {
-                // Small delay to let the UI update first
-                setTimeout(() => {
-                    analyzeForm();
-                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-                }, 500);
-            } else {
-                // Scroll to show the analysis results
-                const analysisDiv = document.getElementById('uploadAnalysis');
-                if (analysisDiv) {
-                    analysisDiv.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        }
-        
-        function analyzeExtractedText(text) {
-            const lowerText = text.toLowerCase();
-            const analysis = {
-                name: null,
-                creditor: null,
-                accountNumber: null,
-                dateOpened: null,
-                dateDelinquent: null,
-                negativeItems: [],
-                discrepancies: [],
-                recommendations: [],
-                additionalNotes: '',
-                disputeReason: ''
-            };
-            
-            console.log('Starting credit report analysis...');
-            
-            // ========== EXTRACT NAME ==========
-            const namePatterns = [
-                /(?:name|consumer|reported for)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-                /(?:consumer name|name of consumer)[\s:]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
-                /([A-Z][a-z]+\s+[A-Z][a-z]+)\s+(?:credit report|report number)/i
-            ];
-            for (const pattern of namePatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    analysis.name = match[1].trim();
-                    console.log('Found name:', analysis.name);
-                    break;
-                }
-            }
-            
-            // ========== EXTRACT CREDITOR - COMPREHENSIVE ==========
-            // Strategy 1: Look for "Contact:" field (most reliable)
-            const contactPattern = /contact[\s:]+([A-Z][A-Za-z\s\&]+?)(?:\n|$|phone|address|status)/i;
-            const contactMatch = text.match(contactPattern);
-            if (contactMatch && contactMatch[1].trim().length > 2 && contactMatch[1].trim().length < 50) {
-                analysis.creditor = contactMatch[1].trim();
-                console.log('Found creditor from Contact field:', analysis.creditor);
-            }
-            
-            // Strategy 2: Look for creditor/lender labels
-            if (!analysis.creditor) {
-                const creditorLabelPattern = /(?:creditor|lender|original creditor|current creditor)[\s:;]+([A-Z][A-Za-z\s\&]+?)(?:\s*$|\s+(?:account|date|status|phone|#))/i;
-                const labelMatch = text.match(creditorLabelPattern);
-                if (labelMatch && labelMatch[1].trim().length > 2 && labelMatch[1].trim().length < 50) {
-                    analysis.creditor = labelMatch[1].trim();
-                    console.log('Found creditor from label:', analysis.creditor);
-                }
-            }
-            
-            // Strategy 3: Known creditor keywords
-            if (!analysis.creditor) {
-                const creditorKeywords = [
-                    'Bank of America', 'Chase Bank', 'JPMorgan Chase', 'Wells Fargo', 'Citibank', 'Citi', 
-                    'Discover', 'American Express', 'Amex', 'Capital One', 'Credit One Bank', 'Merrick Bank',
-                    'Portfolio Recovery Associates', 'Portfolio Recovery', 'Midland Credit Management', 
-                    'Midland Funding', 'Encore Capital Group', 'Synchrony Bank', 'Comenity Bank', 
-                    'LVNV Funding', 'Resurgent Capital Services', 'Convergent Outsourcing', 
-                    'Enhanced Recovery Company', 'ERC', 'Allied Interstate', 'IC System', 
-                    'Transworld Systems', 'Radius Global Solutions', 'AFNI', 'Cavalry Portfolio Services',
-                    'Unifund CCR Partners', 'Arrowhead Capital', 'Centennial Bank', 'First Savings',
-                    'Ollo Card', 'Avant', 'Lending Club', 'Prosper', 'Upstart', 'SoFi', 'Marcus by Goldman Sachs',
-                    'Ally Bank', 'Barclays', 'USAA', 'Navy Federal Credit Union', 'PenFed',
-                    'TD Bank', 'PNC Bank', 'Regions Bank', 'Truist', 'Fifth Third Bank', 
-                    'Huntington Bank', 'KeyBank', 'Citizens Bank', 'Santander', 'BMO Harris',
-                    'HSBC', 'Contact'
-                ];
-                
-                // Sort by length (longest first) to avoid partial matches
-                creditorKeywords.sort((a, b) => b.length - a.length);
-                
-                for (const keyword of creditorKeywords) {
-                    // Use word boundary matching
-                    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const pattern = new RegExp(`\\b${escaped}\\b`, 'i');
-                    if (pattern.test(text)) {
-                        analysis.creditor = keyword;
-                        console.log('Found creditor by keyword:', analysis.creditor);
-                        break;
-                    }
-                }
-            }
-            
-            // Strategy 4: Line-by-line search for collection agencies and banks
-            if (!analysis.creditor) {
-                const lines = text.split('\n');
-                for (const line of lines) {
-                    // Collection agencies
-                    const collMatch = line.match(/([A-Z][A-Za-z\s]+(?:Collection|Collections|Recovery|Receivables|Credit Services))(?:\s|$)/i);
-                    if (collMatch && collMatch[1].length > 5 && collMatch[1].length < 40 && !collMatch[1].match(/^(Account|Status|Date)$/i)) {
-                        analysis.creditor = collMatch[1].trim();
-                        console.log('Found creditor as collection agency:', analysis.creditor);
-                        break;
-                    }
-                    
-                    // Banks with "Bank" in name
-                    const bankMatch = line.match(/([A-Z][A-Za-z\s]+Bank(?:\s+(?:of|the|NA|N\.A\.)?(?:\s+[A-Za-z]+)?))(?:\s|$|\n)/i);
-                    if (bankMatch && bankMatch[1].length > 5 && bankMatch[1].length < 40) {
-                        analysis.creditor = bankMatch[1].trim();
-                        console.log('Found creditor as bank:', analysis.creditor);
-                        break;
-                    }
-                    
-                    // Credit unions
-                    const cuMatch = line.match(/([A-Z][A-Za-z\s]+Credit Union)(?:\s|$)/i);
-                    if (cuMatch && cuMatch[1].length > 5 && cuMatch[1].length < 40) {
-                        analysis.creditor = cuMatch[1].trim();
-                        console.log('Found creditor as credit union:', analysis.creditor);
-                        break;
-                    }
-                }
-            }
-            
-            // ========== EXTRACT ACCOUNT NUMBER ==========
-            const acctPatterns = [
-                /(?:account|acct)[\s#:]+([\d\-]{4,20})/i,
-                /(?:account|acct)[\s#:]+([\d\-Xx]{4,20})/i,
-                /#\s*([\d\-]{6,})/,
-                /account[^\n]{0,30}([\d]{6,10})/
-            ];
-            for (const pattern of acctPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    const acct = match[1].trim().replace(/\s+/g, '');
-                    if (acct.length >= 4 && acct.length <= 20) {
-                        analysis.accountNumber = acct;
-                        console.log('Found account number:', analysis.accountNumber);
-                        break;
-                    }
-                }
-            }
-            
-            // ========== EXTRACT DATES ==========
-            const dateMatches = [];
-            
-            // MM/DD/YYYY format
-            const mdyPattern = /(\d{1,2})\/(\d{1,2})\/(\d{4})/g;
-            let mdyMatch;
-            while ((mdyMatch = mdyPattern.exec(text)) !== null) {
-                dateMatches.push({
-                    full: `${mdyMatch[1].padStart(2,'0')}/${mdyMatch[2].padStart(2,'0')}/${mdyMatch[3]}`,
-                    month: parseInt(mdyMatch[1]),
-                    day: parseInt(mdyMatch[2]),
-                    year: parseInt(mdyMatch[3]),
-                    type: 'mdy'
-                });
-            }
-            
-            // YYYY-MM-DD format
-            const ymdPattern = /(\d{4})-(\d{2})-(\d{2})/g;
-            let ymdMatch;
-            while ((ymdMatch = ymdPattern.exec(text)) !== null) {
-                dateMatches.push({
-                    full: `${ymdMatch[2]}/${ymdMatch[3]}/${ymdMatch[1]}`,
-                    month: parseInt(ymdMatch[2]),
-                    day: parseInt(ymdMatch[3]),
-                    year: parseInt(ymdMatch[1]),
-                    type: 'ymd'
-                });
-            }
-            
-            // Find Date Opened
-            const openedPatterns = [
-                /(?:date opened|opened|open date)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i,
-                /(?:date opened)[\s:;]+(\d{4}[\/\-]\d{2}[\/\-]\d{2})/i
-            ];
-            for (const pattern of openedPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    analysis.dateOpened = match[1].replace(/-/g, '/');
-                    console.log('Found date opened:', analysis.dateOpened);
-                    break;
-                }
-            }
-            
-            // Find Date of First Delinquency
-            const delinqPatterns = [
-                /(?:date of first delinquency|first delinquent|first missed payment)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i,
-                /(?:date reported|reported date)[\s:;]+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/i
-            ];
-            for (const pattern of delinqPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    analysis.dateDelinquent = match[1].replace(/-/g, '/');
-                    console.log('Found date delinquent:', analysis.dateDelinquent);
-                    break;
-                }
-            }
-            
-            // Fallback: use earliest date as opened, later as delinquent
-            if (!analysis.dateOpened && dateMatches.length > 0) {
-                const sorted = dateMatches.sort((a, b) => a.year - b.year || a.month - b.month || a.day - b.day);
-                analysis.dateOpened = sorted[0].full;
-            }
-            if (!analysis.dateDelinquent && dateMatches.length > 1) {
-                const sorted = dateMatches.sort((a, b) => a.year - b.year || a.month - b.month || a.day - b.day);
-                analysis.dateDelinquent = sorted[sorted.length - 1].full;
-            }
-            
-            // ========== DETECT NEGATIVE ITEMS ==========
-            const foundIssues = [];
-            
-            const negativePatterns = {
-                late_payment: {
-                    pattern: /(30|60|90|120)[\s-]*days?[\s-]*late|past[\s-]*due|delinquent[\s-]*account/i,
-                    name: 'Late Payment',
-                    desc: (m) => m && m[1] ? `${m[1]} days late` : 'Late payment'
-                },
-                collections: {
-                    pattern: /collection|debt[\s-]*collector|placed[\s-]*for[\s-]*collection|assigned[\s-]*to[\s-]*collection/i,
-                    name: 'Collections',
-                    desc: () => 'Account in collections'
-                },
-                charge_off: {
-                    pattern: /charge[\s-]*off|charged[\s-]*off|profit[\s-]*and[\s-]*loss/i,
-                    name: 'Charge-Off',
-                    desc: () => 'Account charged off'
-                },
-                repossession: {
-                    pattern: /repossession|repossessed|repo/i,
-                    name: 'Repossession',
-                    desc: () => 'Vehicle/property repossessed'
-                },
-                foreclosure: {
-                    pattern: /foreclos|foreclosed/i,
-                    name: 'Foreclosure',
-                    desc: () => 'Foreclosure reported'
-                },
-                bankruptcy: {
-                    pattern: /bankruptcy|chapter[\s-]*(7|13)/i,
-                    name: 'Bankruptcy',
-                    desc: (m) => m && m[1] ? `Chapter ${m[1]} bankruptcy` : 'Bankruptcy filing'
-                },
-                tax_lien: {
-                    pattern: /tax[\s-]*lien/i,
-                    name: 'Tax Lien',
-                    desc: () => 'Tax lien reported'
-                },
-                judgment: {
-                    pattern: /judgment|court[\s-]*judgment/i,
-                    name: 'Judgment',
-                    desc: () => 'Court judgment'
-                },
-                hard_inquiry: {
-                    pattern: /hard[\s-]*inquiry|credit[\s-]*inquiry/i,
-                    name: 'Hard Inquiry',
-                    desc: () => 'Unauthorized hard inquiry'
-                }
-            };
-            
-            for (const [key, {pattern, name, desc}] of Object.entries(negativePatterns)) {
-                const match = text.match(pattern);
-                if (match) {
-                    analysis.negativeItems.push(key);
-                    foundIssues.push(desc(match));
-                    console.log('Found negative item:', name);
-                }
-            }
-            
-            // ========== BUILD DISPUTE REASON & NOTES ==========
-            const notes = [];
-            const discrepancies = [];
-            
-            // Header
-            notes.push('=== DISPUTE REASONS ===');
-            notes.push('');
-            
-            if (foundIssues.length > 0) {
-                notes.push('The following inaccuracies were detected on this account:');
-                foundIssues.forEach((issue, i) => {
-                    notes.push(`${i + 1}. ${issue}`);
-                });
-                notes.push('');
-                
-                // Build comprehensive dispute reason
-                analysis.disputeReason = `I am disputing this account due to the following inaccuracies: ${foundIssues.join('; ')}. `;
-                analysis.disputeReason += `These errors violate the Fair Credit Reporting Act (FCRA) which requires all reported information to be accurate, complete, and verifiable. `;
-                analysis.disputeReason += `I request immediate investigation and deletion of this inaccurate information from my credit report.`;
-            }
-            
-            // Check for balance discrepancies
-            const balancePattern = /(?:balance|amount owed|current balance)[\s:;\$]+([\d,]+\.?\d{0,2})/gi;
-            const balances = [];
-            let balMatch;
-            while ((balMatch = balancePattern.exec(text)) !== null) {
-                balances.push(balMatch[1].replace(/,/g, ''));
-            }
-            const uniqueBalances = [...new Set(balances)].filter(b => parseFloat(b) > 0);
-            if (uniqueBalances.length > 1) {
-                discrepancies.push(`Balance discrepancy: $${uniqueBalances.join(' vs $')}`);
-                notes.push(`BALANCE DISCREPANCY: Different amounts reported ($${uniqueBalances.join(' vs $')}). This violates FCRA accuracy requirements.`);
-                notes.push('');
-            }
-            
-            // Check for obsolete account
-            if (analysis.dateOpened) {
-                const yearMatch = analysis.dateOpened.match(/\/(\d{4})$/);
-                if (yearMatch) {
-                    const year = parseInt(yearMatch[1]);
-                    const age = new Date().getFullYear() - year;
-                    if (age > 7) {
-                        discrepancies.push(`Account is ${age} years old - may be obsolete`);
-                        notes.push(`OBSOLETE ACCOUNT: Opened in ${year} (${age} years ago). Accounts over 7 years must be removed per FCRA § 605(a).`);
-                        notes.push('');
-                    }
-                }
-            }
-            
-            // Check for date discrepancies
-            if (dateMatches.length > 3) {
-                discrepancies.push('Multiple conflicting dates found');
-                notes.push(`DATE DISCREPANCY: ${dateMatches.length} different dates found. Possible re-aging violation.`);
-                notes.push('');
-            }
-            
-            // Account status
-            const statusPattern = /(?:status|account status)[\s:;]+([A-Za-z\s\-]+?)(?:\n|$)/i;
-            const statusMatch = text.match(statusPattern);
-            if (statusMatch) {
-                notes.push(`Account Status Reported: ${statusMatch[1].trim()}`);
-                notes.push('');
-            }
-            
-            // High balance
-            const highBalPattern = /(?:high balance|credit limit)[\s:;\$]+([\d,]+\.?\d{0,2})/i;
-            const highBalMatch = text.match(highBalPattern);
-            if (highBalMatch) {
-                notes.push(`High Balance/Credit Limit: $${highBalMatch[1]}`);
-                notes.push('');
-            }
-            
-            // Summary section
-            notes.push('=== SUMMARY ===');
-            notes.push('');
-            if (analysis.creditor) notes.push(`Creditor: ${analysis.creditor}`);
-            if (analysis.accountNumber) notes.push(`Account: ${analysis.accountNumber}`);
-            if (analysis.dateOpened) notes.push(`Date Opened: ${analysis.dateOpened}`);
-            if (analysis.dateDelinquent) notes.push(`Date of First Delinquency: ${analysis.dateDelinquent}`);
-            notes.push('');
-            notes.push('This account contains inaccuracies that are damaging my credit profile. I demand verification and deletion per FCRA rights.');
-            
-            analysis.additionalNotes = notes.join('\n');
-            analysis.discrepancies = discrepancies.map(d => ({ type: 'Discrepancy', description: d, severity: 'high' }));
-            
-            // ========== RECOMMENDATIONS ==========
-            if (analysis.negativeItems.includes('collections')) {
-                analysis.recommendations.push({
-                    strategy: 'Collections Validation',
-                    description: 'Demand debt validation - collection agencies often lack proper documentation',
-                    successRate: '85%'
-                });
-            }
-            if (analysis.negativeItems.includes('late_payment')) {
-                analysis.recommendations.push({
-                    strategy: 'Late Payment Dispute',
-                    description: 'Dispute if dates are wrong or you have proof of on-time payment',
-                    successRate: '75%'
-                });
-            }
-            if (discrepancies.length > 0) {
-                analysis.recommendations.push({
-                    strategy: 'Factual Disputing',
-                    description: 'Use identified discrepancies as grounds for deletion',
-                    successRate: '90%'
-                });
-            }
-            
-            console.log('Analysis complete:', analysis);
-            return analysis;
+
+            switchTab('letters');
+            updateLettersList();
         }
 
-        function showUploadAnalysis(analysis, missingInfo = []) {
-            let html = `
-                <div class="alert-box success" style="margin-bottom: 30px;">
-                    <div class="icon">🔍</div>
-                    <div>
-                        <h4>AI Analysis Complete - ${analysis.negativeItems.length} Issues Detected</h4>
-                        <p>The following has been auto-detected from your credit report and populated in the form:</p>
-                    </div>
-                </div>
-            `;
-            
-            if (analysis.name || analysis.creditor || analysis.accountNumber) {
-                html += `
-                    <div class="section">
-                        <h3>🏢 Account Information Detected</h3>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                            ${analysis.name ? `<p><strong>Consumer Name:</strong> ${analysis.name}</p>` : ''}
-                            ${analysis.creditor ? `<p><strong>Creditor Name:</strong> ${analysis.creditor}</p>` : ''}
-                            ${analysis.accountNumber ? `<p><strong>Account Number:</strong> ${analysis.accountNumber}</p>` : ''}
-                            ${analysis.dateOpened ? `<p><strong>Date Opened:</strong> ${analysis.dateOpened}</p>` : ''}
-                            ${analysis.dateDelinquent ? `<p><strong>Date of First Delinquency:</strong> ${analysis.dateDelinquent}</p>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Show errors/discrepancies found in Additional Notes
-            if (analysis.additionalNotes) {
-                html += `
-                    <div class="section">
-                        <h3>🔍 Errors Found on Account</h3>
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
-                            <pre style="margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 14px;">${analysis.additionalNotes}</pre>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Show missing required information
-            if (missingInfo.length > 0) {
-                html += `
-                    <div class="section">
-                        <div class="alert-box warning">
-                            <div class="icon">⚠️</div>
-                            <div>
-                                <h4>⚠️ Missing Required Information (${missingInfo.length})</h4>
-                                <p>Please fill in the following required fields for your dispute letters:</p>
-                                <ul style="margin-top: 10px; font-weight: bold;">
-                                    ${missingInfo.map(item => `<li>❌ ${item}</li>`).join('')}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (analysis.negativeItems.length > 0) {
-                const itemLabels = {
-                    late_payment: { name: 'Late Payments', rate: '75%' },
-                    collections: { name: 'Collections Account', rate: '85%' },
-                    charge_off: { name: 'Charge-Off', rate: '65%' },
-                    repossession: { name: 'Repossession', rate: '70%' },
-                    foreclosure: { name: 'Foreclosure', rate: '60%' },
-                    bankruptcy: { name: 'Bankruptcy', rate: '50%' },
-                    tax_lien: { name: 'Tax Lien', rate: '70%' },
-                    judgment: { name: 'Judgment', rate: '65%' },
-                    hard_inquiry: { name: 'Hard Inquiry', rate: '90%' },
-                    duplicate_account: { name: 'Duplicate Account', rate: '95%' }
-                };
-                
-                const itemsList = analysis.negativeItems.map(item => {
-                    const label = itemLabels[item] || { name: item.replace('_', ' '), rate: '70%' };
-                    return `${label.name} (${label.rate})`;
-                }).join(', ');
-                
-                html += `
-                    <div class="section">
-                        <h3>⚠️ Negative Items Auto-Selected (${analysis.negativeItems.length})</h3>
-                        <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                            ✅ <strong>${itemsList}</strong> — These have been automatically selected in the form below.
-                        </p>
-                    </div>
-                `;
-            }
-            
-            if (analysis.discrepancies.length > 0) {
-                html += `
-                    <div class="section">
-                        <h3>🔍 Discrepancies Found (${analysis.discrepancies.length})</h3>
-                `;
-                
-                analysis.discrepancies.forEach(disc => {
-                    html += `
-                        <div class="discrepancy-card ${disc.severity}">
-                            <div class="discrepancy-header">
-                                <div class="discrepancy-title">${disc.type}</div>
-                                <span class="discrepancy-severity severity-${disc.severity}">${disc.severity}</span>
-                            </div>
-                            <p>${disc.description}</p>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-            }
-            
-            if (analysis.recommendations.length > 0) {
-                html += `
-                    <div class="section">
-                        <h3>🎯 Recommended Dispute Strategies</h3>
-                `;
-                
-                analysis.recommendations.forEach(rec => {
-                    html += `
-                        <div class="strategy-card">
-                            <h4>${rec.strategy} <span class="success-badge success-high">${rec.successRate} Success</span></h4>
-                            <p>${rec.description}</p>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-            }
-            
-            html += `
-                <div class="alert-box ${missingInfo.length === 0 ? 'success' : 'warning'}" style="margin-top: 30px;">
-                    <div class="icon">${missingInfo.length === 0 ? '✅' : '⚠️'}</div>
-                    <div>
-                        <h4>${missingInfo.length === 0 ? '✅ Ready to Generate Dispute Letters!' : 'Next Steps'}</h4>
-                        <p>${missingInfo.length === 0 ? 'All required information has been detected. Your dispute letters are ready below!' : 'Please fill in the missing required fields above, then click "Generate Complete Dispute Strategy" to create your custom dispute letters.'}</p>
-                    </div>
-                </div>
-            `;
-            
-            // Insert at the beginning of manual tab
-            const manualTab = document.getElementById('manualTab');
-            const analysisDiv = document.createElement('div');
-            analysisDiv.id = 'uploadAnalysis';
-            analysisDiv.innerHTML = html;
-            analysisDiv.style.display = 'block';
-            analysisDiv.style.marginBottom = '30px';
-            
-            // Remove old analysis if exists
-            const oldAnalysis = document.getElementById('uploadAnalysis');
-            if (oldAnalysis) oldAnalysis.remove();
-            
-            // Insert at the beginning of manual tab content
-            manualTab.insertBefore(analysisDiv, manualTab.firstChild);
-            
-            // Also update results dashboard
-            document.getElementById('totalDiscrepancies').textContent = analysis.negativeItems.length + analysis.discrepancies.length;
-        }
-        
-        function analyzeForm() {
-            // Collect all data
-            const formData = {
-                clientName: document.getElementById('clientName').value,
-                clientEmail: document.getElementById('clientEmail').value,
-                clientAddress: document.getElementById('clientAddress').value,
-                ssnLast4: document.getElementById('ssnLast4').value,
-                clientState: document.getElementById('clientState').value,
-                creditorName: document.getElementById('creditorName').value,
+        // Manual Item Entry
+        function addManualItem() {
+            const item = {
+                type: document.getElementById('itemType').value,
+                creditor: document.getElementById('creditorName').value,
                 accountNumber: document.getElementById('accountNumber').value,
                 dateOpened: document.getElementById('dateOpened').value,
                 dateDelinquent: document.getElementById('dateDelinquent').value,
-                additionalNotes: document.getElementById('additionalNotes').value
+                reason: document.getElementById('disputeReason').value,
+                strategy: 'factual'
             };
-            
-            const strategies = Array.from(document.querySelectorAll('input[name="disputeStrategy"]:checked')).map(cb => cb.value);
-            const specialPrograms = Array.from(document.querySelectorAll('input[name="specialPrograms"]:checked')).map(cb => cb.value);
-            const negativeItems = Array.from(document.querySelectorAll('input[name="negativeItems"]:checked')).map(cb => cb.value);
-            const bureaus = Array.from(document.querySelectorAll('input[name="bureaus"]:checked')).map(cb => cb.value);
-            
-            // Update dashboard
-            document.getElementById('totalDiscrepancies').textContent = negativeItems.length;
-            document.getElementById('highPriorityItems').textContent = specialPrograms.length;
-            document.getElementById('totalBureaus').textContent = bureaus.length;
-            
-            // Calculate points
-            let points = 0;
-            if (negativeItems.includes('collections')) points += 30;
-            if (negativeItems.includes('charge_off')) points += 40;
-            if (negativeItems.includes('late_payment')) points += 20;
-            if (negativeItems.includes('hard_inquiry')) points += 5;
-            document.getElementById('estimatedPoints').textContent = '+' + Math.min(points, 150);
-            
-            // Build strategy output
-            let strategyHTML = '<h2>🎯 Your Custom Dispute Strategy</h2>';
-            
-            // Special programs first
-            if (specialPrograms.includes('section605b')) {
-                strategyHTML += createStrategyCard('section605b');
-            }
-            if (specialPrograms.includes('databreach')) {
-                strategyHTML += createStrategyCard('databreach');
-            }
-            if (specialPrograms.includes('ferpa')) {
-                strategyHTML += createStrategyCard('ferpa');
-            }
-            
-            document.getElementById('strategyOutput').innerHTML = strategyHTML;
-            
-            // Generate letters
-            generateLetters(formData, strategies, specialPrograms, negativeItems, bureaus);
-            
-            // Show results
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function createStrategyCard(type) {
-            const cards = {
-                section605b: `
-                    <div class="strategy-card fast">
-                        <h3>🔥 Section 605B Identity Theft - 4 DAY REMOVAL</h3>
-                        <p>You selected the 4-day identity theft removal strategy. This is the FASTEST way to remove negative items.</p>
-                        <div class="legal-box">
-                            <h5>Required Documents:</h5>
-                            <ul>
-                                <li>FTC Identity Theft Report (file at identitytheft.gov)</li>
-                                <li>Police report for identity theft</li>
-                                <li>Copy of government-issued ID</li>
-                                <li>Proof of address</li>
-                            </ul>
-                        </div>
-                    </div>
-                `,
-                databreach: `
-                    <div class="strategy-card warning">
-                        <h3>💥 Data Breach Hack - 72 HOUR REMOVAL</h3>
-                        <p>Using data breach as identity theft proof. Works for Equifax, Target, Home Depot, or any breach.</p>
-                        <div class="legal-box">
-                            <h5>Steps:</h5>
-                            <ol>
-                                <li>Check equifaxbreachsettlement.com</li>
-                                <li>Screenshot confirmation</li>
-                                <li>File FTC report</li>
-                                <li>Use Section 605B letter</li>
-                            </ol>
-                        </div>
-                    </div>
-                `,
-                ferpa: `
-                    <div class="strategy-card ferpa">
-                        <h3>🎓 FERPA Student Loan Cancellation</h3>
-                        <p>Using FERPA privacy violation to request student loan cancellation.</p>
-                        <div class="legal-box">
-                            <h5>FERPA Violation Claim:</h5>
-                            <p>"My personal and financial information was compressed violating FERPA. I request full cancellation."</p>
-                        </div>
-                    </div>
-                `
-            };
-            return cards[type] || '';
-        }
-        
-        function generateLetters(data, strategies, specialPrograms, negativeItems, bureaus) {
-            const stateLaws = {
-                'FL': {
-                    name: 'Florida Consumer Collection Practices Act',
-                    citation: 'Florida Statute § 559.72',
-                    violation: 'Reporting inaccurate information and failure to verify debts'
-                },
-                'CA': {
-                    name: 'Rosenthal Fair Debt Collection Practices Act',
-                    citation: 'California Civil Code § 1788.30',
-                    violation: 'Unfair collection practices and inaccurate reporting'
-                },
-                'TX': {
-                    name: 'Texas Debt Collection Act',
-                    citation: 'Texas Finance Code Chapter 392',
-                    violation: 'Fraudulent, deceptive, or misleading representation'
-                },
-                'NY': {
-                    name: 'New York General Business Law',
-                    citation: 'Article 25-H § 601',
-                    violation: 'Deceptive acts and practices in debt collection'
-                }
-            };
-            
-            let disputeReason = '';
-            let legalCitations = '';
-            
-            // Build dispute reason - PRIORITY: Extracted > Additional Notes > Special Programs > Default
-            if (window.extractedDisputeReason && window.extractedDisputeReason.length > 10) {
-                // Use the AI-extracted dispute reason from document analysis
-                disputeReason = window.extractedDisputeReason;
-                console.log('Using extracted dispute reason');
-            } else if (data.additionalNotes && data.additionalNotes.length > 20) {
-                // Build from additional notes
-                disputeReason = `I am disputing this account due to the following specific issues: ${data.additionalNotes.replace(/===.*?===/g, '').replace(/\n/g, ' ').trim()}`;
-                console.log('Using additional notes for dispute reason');
-            } else if (specialPrograms.includes('section605b')) {
-                disputeReason = `I am a victim of identity theft. Pursuant to FCRA § 605B(a)(1), you are REQUIRED to block this information within 4 business days of receiving this report.`;
-            } else if (specialPrograms.includes('ferpa')) {
-                disputeReason = `My personal and financial information was compressed in violation of FERPA (Family Educational Rights and Privacy Act). I request full cancellation of this student loan debt.`;
-            } else {
-                disputeReason = `I dispute the accuracy of this account. The information reported contains factual errors and cannot be verified as accurate.`;
-            }
-            
-            // Add Metro 2 language if selected
-            if (strategies.includes('metro2')) {
-                disputeReason += ` This account contains Metro 2 format errors and inaccurate data fields. As a data furnisher, you are required to report accurate information per FCRA § 623.`;
-            }
-            
-            // Add E-Oscar bypass
-            if (strategies.includes('eoscare')) {
-                disputeReason += ` THIS IS NOT A TEMPLATE DISPUTE. This is a formal complaint requiring manual investigation per FCRA § 611(a)(1)(A).`;
-            }
-            
-            // Add state law
-            if (strategies.includes('state_law') && stateLaws[data.clientState]) {
-                const law = stateLaws[data.clientState];
-                legalCitations = `This also violates ${law.name} (${law.citation}) which prohibits ${law.violation}.`;
-            }
-            
-            const letterTemplate = (bureau, bureauAddress) => `${bureauAddress}
 
-Date: ${new Date().toLocaleDateString()}
+            if (!item.creditor) {
+                alert('Please enter creditor name');
+                return;
+            }
 
-RE: Formal Credit Report Dispute - ${data.creditorName || 'Account in Question'}
-Name: ${data.clientName || '[YOUR FULL NAME]'}
-SSN: XXX-XX-${data.ssnLast4 || '[LAST 4]'}
-Address: ${data.clientAddress || '[YOUR ADDRESS]'}
+            generateLetter(item);
+            switchTab('letters');
+            updateLettersList();
+
+            // Reset form
+            document.getElementById('itemType').selectedIndex = 0;
+            document.getElementById('creditorName').value = '';
+            document.getElementById('accountNumber').value = '';
+            document.getElementById('dateOpened').value = '';
+            document.getElementById('dateDelinquent').value = '';
+            document.getElementById('disputeReason').value = '';
+        }
+
+        // Strategy Selection
+        function selectStrategy(strategy) {
+            document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            // Store selected strategy
+            sessionStorage.setItem('selectedStrategy', strategy);
+        }
+
+        // Generate Dispute Letter
+        function generateLetter(item) {
+            const date = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const letter = `
+[Your Name]
+[Your Address]
+[City, State ZIP]
+
+${date}
+
+Experian
+P.O. Box 4500
+Allen, TX 75013
+
+RE: Dispute of Inaccurate Information
+Account: ${item.creditor} ${item.accountNumber ? '(' + item.accountNumber + ')' : ''}
 
 To Whom It May Concern:
 
-I am writing to formally dispute the following account appearing on my credit report:
+I am writing to dispute the following information in my credit report. I have identified inaccuracies that require investigation and correction under the Fair Credit Reporting Act (FCRA).
 
-CREDITOR: ${data.creditorName || '[CREDITOR NAME]'}
-ACCOUNT NUMBER: ${data.accountNumber || 'See attached documentation'}
-${data.dateOpened ? `DATE OPENED: ${data.dateOpened}` : 'DATE OPENED: [DATE]'}
-${data.dateDelinquent ? `DATE OF FIRST DELINQUENCY: ${data.dateDelinquent}` : ''}
+ITEM DISPUTED:
+- Creditor: ${item.creditor}
+- Account Type: ${item.type}
+- Date Opened: ${item.dateOpened || 'Unknown'}
+${item.dateDelinquent ? '- Date of First Delinquency: ' + item.dateDelinquent : ''}
 
-DISPUTE REASON:
-${disputeReason || 'I dispute the accuracy of this account. The information reported contains factual errors and cannot be verified as accurate.'}
+REASON FOR DISPUTE:
+${item.reason || 'This account contains inaccurate information and/or I do not recognize this account as belonging to me. I request that you verify this information with the original creditor and remove it if it cannot be verified.'}
 
-${data.additionalNotes ? '\nSPECIFIC ISSUES IDENTIFIED:\n' + data.additionalNotes + '\n' : ''}
+Under FCRA § 611(a)(1)(A), you are required to conduct a reasonable investigation of this dispute within 30 days of receipt. Please provide me with the results of your investigation and any documentation supporting the continued reporting of this item.
 
-${legalCitations ? legalCitations : 'This dispute is made pursuant to the Fair Credit Reporting Act (FCRA), 15 U.S.C. § 1681 et seq.'}
+If you cannot verify this information, you must delete it from my credit report pursuant to FCRA § 611(a)(1)(B).
 
-UNDER THE FAIR CREDIT REPORTING ACT, YOU ARE REQUIRED TO:
+I request that you send me written confirmation of the deletion or correction of this item within 5 business days of completing your investigation.
 
-1. Conduct a reasonable investigation within 30 days of receiving this dispute
-2. Verify ALL information directly with the original creditor/furnisher
-3. Delete any information that cannot be verified as accurate
-4. Provide written results of your investigation within 5 business days of completion
-5. Send an updated copy of my credit report reflecting any changes
-6. Cease reporting information found to be inaccurate or unverifiable
-
-If you cannot verify this account as 100% accurate and complete, you MUST delete it per FCRA § 1681e(b) and § 1681i(a)(5)(A).
-
-I have enclosed the following documents:
-- Copy of government-issued photo ID
-- Proof of current address (utility bill or bank statement)
-- ${specialPrograms.includes('section605b') ? 'FTC Identity Theft Report and Police Report (for Section 605B identity theft claim)\n- ' : ''}Supporting documentation regarding the disputed inaccuracies
-
-This is a formal dispute. Please investigate thoroughly and respond in writing within the statutory time period.
+Thank you for your prompt attention to this matter.
 
 Sincerely,
 
-${data.clientName || '[YOUR SIGNATURE]'}
+[Your Signature]
+[Your Printed Name]
 
-CC: Consumer Financial Protection Bureau (CFPB)
-    Federal Trade Commission (FTC)
-    ${data.clientState && stateLaws[data.clientState] ? `[${stateLaws[data.clientState].name}]` : '[State Attorney General]'}`, 
+Enclosures:
+- Copy of Driver's License
+- Copy of Social Security Card
+- Copy of Utility Bill
+            `.trim();
 
-            const bureauAddresses = {
-                experian: 'Experian\nP.O. Box 4500\nAllen, TX 75013',
-                equifax: 'Equifax Information Services\nP.O. Box 740256\nAtlanta, GA 30374',
-                transunion: 'TransUnion LLC\nConsumer Dispute Center\nP.O. Box 2000\nChester, PA 19016'
-            };
+            generatedLetters.push({
+                creditor: item.creditor,
+                type: item.type,
+                content: letter,
+                date: new Date().toISOString()
+            });
+        }
+
+        // Update Letters List
+        function updateLettersList() {
+            const container = document.getElementById('lettersList');
             
-            let lettersHTML = '';
-            bureaus.forEach(bureau => {
-                const letter = letterTemplate(bureau, bureauAddresses[bureau]);
-                lettersHTML += `
-                    <div style="margin-bottom: 40px;">
-                        <h3>📨 ${bureau.toUpperCase()} Dispute Letter</h3>
-                        <div class="letter-preview" id="letter-${bureau}">${letter}</div>
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button class="btn btn-secondary" onclick="copyLetter('letter-${bureau}')">📋 Copy</button>
-                            <button class="btn btn-success" onclick="downloadLetter('${bureau}')">💾 Download</button>
-                            <button class="btn" onclick="printLetter('${bureau}')">🖨️ Print</button>
+            if (generatedLetters.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No letters generated yet.</p>';
+                return;
+            }
+
+            let html = '';
+            generatedLetters.forEach((letter, index) => {
+                html += `
+                    <div style="margin-bottom: 30px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #1e3c72; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>${letter.creditor}</strong> - ${letter.type}</span>
+                            <button class="btn btn-accent" onclick="downloadLetter(${index})" style="width: auto; padding: 8px 16px;">Download PDF</button>
                         </div>
+                        <div class="letter-output">${letter.content.replace(/\n/g, '<br>')}</div>
                     </div>
                 `;
             });
-            
-            document.getElementById('letters').innerHTML = lettersHTML;
+
+            container.innerHTML = html;
         }
-        
-        function copyLetter(id) {
-            navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => alert('Copied!'));
-        }
-        
-        function downloadLetter(bureau) {
-            const text = document.getElementById(`letter-${bureau}`).textContent;
-            const blob = new Blob([text], { type: 'text/plain' });
+
+        // Download Letter
+        function downloadLetter(index) {
+            const letter = generatedLetters[index];
+            const blob = new Blob([letter.content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Dispute_${bureau}_${new Date().toISOString().split('T')[0]}.txt`;
+            a.href = url;
+            a.download = `dispute-letter-${letter.creditor.replace(/\s+/g, '-').toLowerCase()}.txt`;
+            document.body.appendChild(a);
             a.click();
-        }
-        
-        function printLetter(bureau) {
-            const content = document.getElementById(`letter-${bureau}`).textContent;
-            const w = window.open('', '_blank');
-            w.document.write(`<html><body style="font-family:monospace;white-space:pre-wrap;padding:40px;">${content.replace(/\n/g, '<br>')}</body></html>`);
-            w.document.close();
-            w.print();
-        }
-        
-        // Checkbox highlighting
-        document.addEventListener('change', (e) => {
-            if (e.target.matches('.checkbox-item input')) {
-                e.target.closest('.checkbox-item').classList.toggle('selected', e.target.checked);
-            }
-        });
-        
-        // ==========================================
-        // NEW TOOLS & CALCULATORS FUNCTIONS
-        // ==========================================
-        
-        // BBB Complaint Generator
-        function generateBBBComplaint() {
-            const agency = document.getElementById('bbbCollectionAgency').value;
-            const creditor = document.getElementById('bbbOriginalCreditor').value;
-            const account = document.getElementById('bbbAccountNumber').value;
-            
-            if (!agency || !creditor) {
-                alert('Please enter both the collection agency and original creditor names.');
-                return;
-            }
-            
-            const complaint = `I'm not liable for this debt with ${creditor}. 
-
-I do not have a contract with ${agency} stating that I'll pay them or owe them any money. 
-
-They did not provide me with the original contract as requested.
-
-${account ? `Account Number: ${account}` : ''}
-
-This collection is falsely reported on my credit report. I demand this account be removed from my credit report immediately.`;
-            
-            document.getElementById('bbbComplaintText').value = complaint;
-            document.getElementById('bbbOutput').style.display = 'block';
-            document.getElementById('bbbOutput').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function copyBBBComplaint() {
-            const text = document.getElementById('bbbComplaintText');
-            text.select();
-            document.execCommand('copy');
-            alert('BBB complaint copied! Now go to BBB.org and paste it.');
-        }
-        
-        // FDCPA Fee Validator
-        const stateFeeLimits = {
-            'AL': { limit: 20, type: 'percent' },
-            'AK': { limit: null, type: 'none' },
-            'AZ': { limit: null, type: 'none' },
-            'AR': { limit: 25, type: 'percent' },
-            'CA': { limit: null, type: 'reasonable' },
-            'CO': { limit: null, type: 'none' },
-            'CT': { limit: null, type: 'none' },
-            'DE': { limit: null, type: 'none' },
-            'FL': { limit: null, type: 'contract' },
-            'GA': { limit: null, type: 'none' },
-            'HI': { limit: null, type: 'none' },
-            'ID': { limit: null, type: 'none' },
-            'IL': { limit: null, type: 'none' },
-            'IN': { limit: 25, type: 'percent' },
-            'IA': { limit: null, type: 'none' },
-            'KS': { limit: null, type: 'none' },
-            'KY': { limit: null, type: 'none' },
-            'LA': { limit: 25, type: 'percent' },
-            'ME': { limit: null, type: 'none' },
-            'MD': { limit: 15, type: 'percent' },
-            'MA': { limit: null, type: 'none' },
-            'MI': { limit: null, type: 'none' },
-            'MN': { limit: null, type: 'none' },
-            'MS': { limit: null, type: 'none' },
-            'MO': { limit: null, type: 'none' },
-            'MT': { limit: null, type: 'none' },
-            'NE': { limit: null, type: 'none' },
-            'NV': { limit: null, type: 'none' },
-            'NH': { limit: null, type: 'none' },
-            'NJ': { limit: null, type: 'none' },
-            'NM': { limit: null, type: 'none' },
-            'NY': { limit: null, type: 'none' },
-            'NC': { limit: null, type: 'none' },
-            'ND': { limit: null, type: 'none' },
-            'OH': { limit: null, type: 'none' },
-            'OK': { limit: null, type: 'none' },
-            'OR': { limit: null, type: 'none' },
-            'PA': { limit: null, type: 'none' },
-            'RI': { limit: null, type: 'none' },
-            'SC': { limit: null, type: 'none' },
-            'SD': { limit: null, type: 'none' },
-            'TN': { limit: null, type: 'none' },
-            'TX': { limit: null, type: 'none' },
-            'UT': { limit: null, type: 'none' },
-            'VT': { limit: null, type: 'none' },
-            'VA': { limit: null, type: 'none' },
-            'WA': { limit: null, type: 'none' },
-            'WV': { limit: null, type: 'none' },
-            'WI': { limit: null, type: 'none' },
-            'WY': { limit: null, type: 'none' }
-        };
-        
-        function updateFeeLimit() {
-            const state = document.getElementById('feeState').value;
-            const limitInfo = stateFeeLimits[state];
-            
-            if (!limitInfo) {
-                document.getElementById('legalFeeLimit').value = 'Select a state';
-                return;
-            }
-            
-            if (limitInfo.type === 'none') {
-                document.getElementById('legalFeeLimit').value = 'No statutory limit (must be reasonable)';
-            } else if (limitInfo.type === 'percent') {
-                document.getElementById('legalFeeLimit').value = `${limitInfo.limit}% of original debt`;
-            } else if (limitInfo.type === 'contract') {
-                document.getElementById('legalFeeLimit').value = ' Governed by original contract';
-            } else if (limitInfo.type === 'reasonable') {
-                document.getElementById('legalFeeLimit').value = 'Must be reasonable (case by case)';
-            }
-            
-            calculateFeeLimit();
-        }
-        
-        function calculateFeeLimit() {
-            const state = document.getElementById('feeState').value;
-            const originalDebt = parseFloat(document.getElementById('originalDebtAmount').value) || 0;
-            const feeCharged = parseFloat(document.getElementById('collectionFeeCharged').value) || 0;
-            
-            if (!state || !originalDebt || !feeCharged) {
-                document.getElementById('feeValidationResult').style.display = 'none';
-                return;
-            }
-            
-            const limitInfo = stateFeeLimits[state];
-            let isValid = true;
-            let message = '';
-            let legalLimit = 0;
-            
-            if (limitInfo.type === 'percent') {
-                legalLimit = (originalDebt * limitInfo.limit) / 100;
-                isValid = feeCharged <= legalLimit;
-                
-                if (!isValid) {
-                    message = `⚠️ ILLEGAL FEE! Your state limits collection fees to ${limitInfo.limit}% ($${legalLimit.toFixed(2)}). 
-                    
-They charged $${feeCharged.toFixed(2)}, which is $${(feeCharged - legalLimit).toFixed(2)} OVER the legal limit.
-
-💡 This INVALIDATES the entire debt under FDCPA!`;
-                } else {
-                    message = `✅ Fee is LEGAL. They charged $${feeCharged.toFixed(2)}, which is within the ${limitInfo.limit}% limit ($${legalLimit.toFixed(2)}).`;
-                }
-            } else if (limitInfo.type === 'none' || limitInfo.type === 'reasonable') {
-                const percentCharged = ((feeCharged / originalDebt) * 100).toFixed(1);
-                message = `ℹ️ Your state has no specific limit, but fees must be "reasonable." 
-
-They charged ${percentCharged}% ($${feeCharged.toFixed(2)}).
-
-If this seems excessive, you can dispute it as unreasonable under FDCPA.`;
-            }
-            
-            const resultDiv = document.getElementById('feeValidationResult');
-            resultDiv.innerHTML = `<div class="alert-box ${isValid ? 'info' : 'danger'}" style="margin-top: 0;"><div class="icon">${isValid ? 'ℹ️' : '⚠️'}</div><div><h4>${isValid ? 'Fee Status' : 'ILLEGAL FEE DETECTED!'}</h4><p style="white-space: pre-line;">${message}</p></div></div>`;
-            resultDiv.style.display = 'block';
-        }
-        
-        // Credit Utilization Calculator
-        function calculateUtilization() {
-            const balances = parseFloat(document.getElementById('totalBalances').value) || 0;
-            const limits = parseFloat(document.getElementById('totalLimits').value) || 0;
-            
-            if (!balances || !limits) {
-                document.getElementById('utilizationResult').style.display = 'none';
-                return;
-            }
-            
-            const utilization = (balances / limits) * 100;
-            let status = '';
-            let color = '';
-            let recommendation = '';
-            
-            if (utilization === 0) {
-                status = 'EXCELLENT (0%)';
-                color = '#28a745';
-                recommendation = 'Perfect! You\'re using the AZEO method or have no debt.';
-            } else if (utilization <= 10) {
-                status = 'EXCELLENT (' + utilization.toFixed(1) + '%)';
-                color = '#28a745';
-                recommendation = 'Great job! Under 10% is ideal for maximum score.';
-            } else if (utilization <= 30) {
-                status = 'GOOD (' + utilization.toFixed(1) + '%)';
-                color = '#ffc107';
-                recommendation = 'Under 30% is good, but under 10% is better for your score.';
-            } else if (utilization <= 50) {
-                status = 'FAIR (' + utilization.toFixed(1) + '%)';
-                color = '#fd7e14';
-                recommendation = 'This is hurting your score. Pay down to under 30% ASAP.';
-            } else {
-                status = 'POOR (' + utilization.toFixed(1) + '%)';
-                color = '#dc3545';
-                recommendation = 'MAXED OUT! This is dramatically lowering your score. Pay down immediately!';
-            }
-            
-            const target10 = limits * 0.10;
-            const target30 = limits * 0.30;
-            
-            document.getElementById('utilizationResult').innerHTML = `
-                <h3 style="color: ${color}; margin-bottom: 15px;">📊 ${status}</h3>
-                <p><strong>${recommendation}</strong></p>
-                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
-                    <p><strong>To get under 10%:</strong> Pay down to $${target10.toFixed(0)} (need to pay $${(balances - target10).toFixed(0)} more)</p>
-                    <p style="margin-top: 10px;"><strong>To get under 30%:</strong> Pay down to $${target30.toFixed(0)} (need to pay $${(balances - target30).toFixed(0)} more)</p>
-                </div>
-            `;
-            document.getElementById('utilizationResult').style.display = 'block';
-        }
-        
-        // 7-Year Timeline Checker
-        function calculateTimeline() {
-            const dateInput = document.getElementById('delinquencyDate').value;
-            const isBankruptcy = document.getElementById('isBankruptcy').value === 'yes';
-            
-            if (!dateInput) {
-                document.getElementById('timelineResult').style.display = 'none';
-                return;
-            }
-            
-            const delinquencyDate = new Date(dateInput);
-            const now = new Date();
-            const yearsToAdd = isBankruptcy ? 10 : 7;
-            const removalDate = new Date(delinquencyDate);
-            removalDate.setFullYear(removalDate.getFullYear() + yearsToAdd);
-            
-            const daysUntilRemoval = Math.ceil((removalDate - now) / (1000 * 60 * 60 * 24));
-            const yearsRemaining = (daysUntilRemoval / 365).toFixed(1);
-            
-            let message = '';
-            let alertClass = '';
-            
-            if (daysUntilRemoval <= 0) {
-                message = `✅ OVERDUE FOR REMOVAL! This item should have been removed ${Math.abs(daysUntilRemoval)} days ago. 
-
-🚨 DEMAND IMMEDIATE REMOVAL - cite FCRA § 605(a) - obsolete information cannot be reported.`;
-                alertClass = 'success';
-            } else if (daysUntilRemoval <= 90) {
-                message = `⏰ REMOVAL COMING SOON! This item will be removed in ${daysUntilRemoval} days (${yearsRemaining} years). 
-
-📅 Removal Date: ${removalDate.toLocaleDateString()}
-
-💡 You can dispute now as "nearing obsolete status" or wait for automatic removal.`;
-                alertClass = 'warning';
-            } else if (daysUntilRemoval <= 365) {
-                message = `📅 Less than 1 year remaining. Will be removed on ${removalDate.toLocaleDateString()}.
-
-⏳ ${daysUntilRemoval} days left. You can dispute now or wait.`;
-                alertClass = 'info';
-            } else {
-                message = `📅 Still has time remaining. Will be removed on ${removalDate.toLocaleDateString()}.
-
-⏳ ${yearsRemaining} years remaining (${daysUntilRemoval} days).
-
-💡 If there are any inaccuracies, dispute now. Otherwise, wait for automatic removal.`;
-                alertClass = 'info';
-            }
-            
-            document.getElementById('timelineResult').innerHTML = `
-                <div class="alert-box ${alertClass}">
-                    <div class="icon">${daysUntilRemoval <= 0 ? '✅' : '⏰'}</div>
-                    <div>
-                        <h4>${isBankruptcy ? '10-Year Rule' : '7-Year Rule'} Status</h4>
-                        <p style="white-space: pre-line;">${message}</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById('timelineResult').style.display = 'block';
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
