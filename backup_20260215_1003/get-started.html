@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started | Fresh Start Credit Solutions</title>
+    <meta name="description" content="Start your credit repair journey. Fill out our intake form and begin your free consultation today.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">Fresh Start Credit</span>
+                </a>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="credit-analyzer.html">🔍 Analyzer</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="get-started.html" class="btn btn-primary">Get Started</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Start Your Credit Repair Journey</h1>
+                <p>Fill out the form below to get your free consultation and begin the process.</p>
+            </div>
+        </section>
+
+        <section class="intake-section">
+            <div class="container">
+                <div class="intake-grid">
+                    <div class="intake-info">
+                        <h2>What Happens Next?</h2>
+                        <p>Once you submit this form:</p>
+                        <ul class="intake-benefits">
+                            <li>We review your information within 24 hours</li>
+                            <li>You receive a free consultation call</li>
+                            <li>We analyze your credit reports together</li>
+                            <li>Get a customized action plan</li>
+                            <li>Choose your payment option</li>
+                            <li>We start disputing immediately</li>
+                        </ul>
+                        <p style="margin-top: 2rem;"><strong>Questions?</strong> Call us at (305) 747-3973</p>
+                    </div>
+
+                    <div class="intake-form-wrapper">
+                        <form id="intakeForm" class="intake-form">
+                            <div id="formSuccess" class="alert alert-success" style="display: none; padding: 2rem; background: #d1fae5; border-radius: 0.75rem; margin-bottom: 2rem;">
+                                <h3 style="color: #065f46; margin-bottom: 0.5rem;">✓ Thank You! Your Request Was Sent</h3>
+                                <p style="color: #065f46; margin: 0 0 1rem 0;">We've received your information and will call you within 24 hours.</p>
+                                <hr style="border: none; border-top: 1px solid #a7f3d0; margin: 1rem 0;">
+                                <p style="color: #065f46; margin: 0; font-size: 0.9rem;">
+                                    <strong>What to Expect:</strong><br>
+                                    ✅ Free 15-minute consultation<br>
+                                    ✅ Personalized credit analysis<br>
+                                    ✅ Clear action plan with pricing<br>
+                                    ✅ No pressure, just real help<br><br>
+                                    <strong>Questions?</strong> Call us at (305) 747-3973
+                                </p>
+                            </div>
+                            <div id="formError" class="alert alert-error" style="display: none; padding: 1rem; background: #fee2e2; border-radius: 0.75rem; margin-bottom: 2rem; color: #991b1b;">
+                                <p>There was an error. Please try again or call us at (305) 747-3973.</p>
+                            </div>
+                            <!-- Personal Information -->
+                            <div class="form-section">
+                                <h3><span class="section-number">1</span>Personal Information</h3>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" name="firstName" required placeholder="John">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email Address *</label>
+                                        <input type="email" id="email" name="email" required placeholder="john@example.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number *</label>
+                                        <input type="tel" id="phone" name="phone" required placeholder="(305) 747-3973">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dob">Date of Birth *</label>
+                                        <input type="date" id="dob" name="dob" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ssn">Last 4 of SSN *</label>
+                                        <input type="text" id="ssn" name="ssn" maxlength="4" required placeholder="1234">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Goals -->
+                            <div class="form-section">
+                                <h3><span class="section-number">2</span>Your Credit Goals</h3>
+                                
+                                <div class="form-group">
+                                    <label for="goal">Primary Goal *</label>
+                                    <select id="goal" name="goal" required>
+                                        <option value="">Select your primary goal...</option>
+                                        <option value="mortgage">Buy a house / Mortgage approval</option>
+                                        <option value="auto">Buy a car / Auto loan</option>
+                                        <option value="refinance">Refinance existing loan</option>
+                                        <option value="credit-cards">Get better credit cards</option>
+                                        <option value="general">Improve credit score generally</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="timeline">Target Timeline *</label>
+                                    <select id="timeline" name="timeline" required>
+                                        <option value="">When do you need results?...</option>
+                                        <option value="urgent">ASAP (1-2 months)</option>
+                                        <option value="soon">Soon (3-6 months)</option>
+                                        <option value="planning">Planning ahead (6+ months)</option>
+                                        <option value="flexible">Flexible</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="currentScore">Current Credit Score (if known)</label>
+                                    <select id="currentScore" name="currentScore">
+                                        <option value="">Select range...</option>
+                                        <option value="below500">Below 500</option>
+                                        <option value="500-550">500-550</option>
+                                        <option value="550-600">550-600</option>
+                                        <option value="600-650">600-650</option>
+                                        <option value="650-700">650-700</option>
+                                        <option value="700plus">700+</option>
+                                        <option value="unknown">I don't know</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="situation">Tell Us About Your Situation</label>
+                                    <textarea id="situation" name="situation" rows="4" placeholder="Briefly describe your credit situation, any negative items you know about, and what you'd like to achieve..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Payment Selection -->
+                            <div class="form-section">
+                                <h3><span class="section-number">3</span>Choose Your Plan</h3>
+                                
+                                <div class="payment-options">
+                                    <label class="payment-option selected">
+                                        <input type="radio" name="plan" value="per-deletion" checked>
+                                        <h4>Per Deletion</h4>
+                                        <div class="payment-price">$75</div>
+                                        <p class="payment-note">Per item removed</p>
+                                    </label>
+
+                                    <label class="payment-option">
+                                        <input type="radio" name="plan" value="package">
+                                        <h4>Package Deal</h4>
+                                        <div class="payment-price">$599</div>
+                                        <p class="payment-note">Up to 15 items</p>
+                                    </label>
+
+                                    <label class="payment-option">
+                                        <input type="radio" name="plan" value="consultation">
+                                        <h4>Free Consultation</h4>
+                                        <div class="payment-price">FREE</div>
+                                        <p class="payment-note">No obligation strategy session</p>
+                                    </label>
+                                </div>
+
+                                <p style="font-size: 0.875rem; color: var(--text-light); margin-top: 1rem;">
+                                    <strong>Note:</strong> Your initial consultation is completely FREE with no obligation. For Per Deletion ($75/item) and Package ($599) plans, you'll only be charged after we review your credit reports together and you decide to move forward.
+                                </p>
+                            </div>
+
+                            <!-- Terms -->
+                            <div class="form-section">
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="consent" required>
+                                        <span>I consent to being contacted about credit repair services. I understand this is not a binding agreement and I can cancel at any time. I authorize Fresh Start Credit Solutions to review my credit reports. *</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="terms" required>
+                                        <span>I agree to the Terms of Service and Privacy Policy. I understand that credit repair results vary and cannot be guaranteed. *</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="formLoading" style="display: none; text-align: center; padding: 2rem;">
+                                <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                <p style="margin-top: 1rem; color: var(--text-light);">Submitting your request...</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-large btn-block" id="submitBtn">
+                                Submit for FREE Consultation
+                            </button>
+                            <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; margin-top: 1rem;">
+                                🔒 Your information is secure. We never share your data with third parties.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">Fresh Start Credit</span>
+                    </a>
+                    <p>Helping you build the credit you need for the life you want.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="services.html">Services</a></li>
+                    <li><a href="credit-analyzer.html">🔍 Analyzer</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="get-started.html">Get Started</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p>📧 fastbtimes@gmail.com</p>
+                    <p>📱 (305) 747-3973</p>
+                    <p>🕐 Mon-Fri: 9AM - 6PM EST</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Fresh Start Credit Solutions. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Payment option selection
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // Form submission with Airtable integration
+        document.getElementById('intakeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const formLoading = document.getElementById('formLoading');
+            const formSections = document.querySelectorAll('.form-section');
+            
+            submitBtn.style.display = 'none';
+            formLoading.style.display = 'block';
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Generate client ID
+            const clientId = 'FSC' + Date.now().toString(36).toUpperCase();
+            
+            // Prepare Airtable record
+            const airtableRecord = {
+                fields: {
+                    'Client ID': clientId,
+                    'First Name': data.firstName,
+                    'Last Name': data.lastName,
+                    'Email': data.email,
+                    'Phone': data.phone,
+                    'Date of Birth': data.dob,
+                    'SSN Last 4': data.ssn,
+                    'Primary Goal': data.goal,
+                    'Timeline': data.timeline,
+                    'Current Score': data.currentScore || 'Unknown',
+                    'Situation': data.situation || '',
+                    'Selected Plan': data.plan,
+                    'Consent': data.consent === 'on' ? 'Yes' : 'No',
+                    'Terms Accepted': data.terms === 'on' ? 'Yes' : 'No',
+                    'Status': 'New Lead',
+                    'Submission Date': new Date().toISOString()
+                }
+            };
+            
+            try {
+                // Submit to Airtable
+                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(airtableRecord)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Airtable submission failed');
+                }
+                
+                const result = await response.json();
+                console.log('Airtable record created:', result);
+                
+                // Save to localStorage as backup
+                const submissions = JSON.parse(localStorage.getItem('formSubmissions') || '[]');
+                submissions.push({...data, clientId, timestamp: new Date().toISOString(), airtableId: result.id});
+                localStorage.setItem('formSubmissions', JSON.stringify(submissions));
+                
+                // Send email notification as backup
+                const subject = encodeURIComponent('New Lead: ' + data.firstName + ' ' + data.lastName);
+                const body = encodeURIComponent(
+                    'NEW CLIENT SUBMISSION\n' +
+                    '=====================\n\n' +
+                    'Client ID: ' + clientId + '\n' +
+                    'Airtable Record: ' + result.id + '\n' +
+                    'Name: ' + data.firstName + ' ' + data.lastName + '\n' +
+                    'Email: ' + data.email + '\n' +
+                    'Phone: ' + data.phone + '\n\n' +
+                    'View in Airtable: https://airtable.com/appOVQy00Y5PpxjtB/tblXXXXXXXX/viwXXXXXXXX/' + result.id
+                );
+                
+                // Open email in new tab (won't block if popup blocked)
+                const mailtoWindow = window.open('mailto:fastbtimes@gmail.com?subject=' + subject + '&body=' + body, '_blank');
+                if (mailtoWindow) {
+                    setTimeout(() => mailtoWindow.close(), 1000);
+                }
+                
+                // Show success
+                document.getElementById('formSuccess').style.display = 'block';
+                formSections.forEach(s => s.style.display = 'none');
+                formLoading.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Form error:', error);
+                document.getElementById('formError').style.display = 'block';
+                document.getElementById('formError').innerHTML = '<p>There was an error submitting your form. Please try again or call us directly at (305) 747-3973.</p><p style="font-size: 0.85rem; margin-top: 0.5rem;">Error: ' + error.message + '</p>';
+                submitBtn.style.display = 'block';
+                formLoading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

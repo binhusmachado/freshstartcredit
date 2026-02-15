@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Fresh Start Credit Solutions</title>
+    <meta name="description" content="Get in touch with Fresh Start Credit Solutions for a free consultation. Start your journey to better credit today.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">Fresh Start Credit Solutions</span>
+                </a>
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="credit-analyzer.html">🔍 Analyzer</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="get-started.html" class="btn btn-primary">Get Started</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Get in Touch</h1>
+                <p>Ready to start your credit repair journey? Let's talk.</p>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <h2>Contact Information</h2>
+                        
+                        <div class="info-item">
+                            <span class="info-icon">📧</span>
+                            <div>
+                                <h3>Email</h3>
+                                <p>fastbtimes@gmail.com</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">📱</span>
+                            <div>
+                                <h3>Phone</h3>
+                                <p>(305) 747-3973</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">🕐</span>
+                            <div>
+                                <h3>Business Hours</h3>
+                                <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
+                                <p>Saturday - Sunday: Closed</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">📍</span>
+                            <div>
+                                <h3>Office Location</h3>
+                                <p>123 Financial District</p>
+                                <p>Suite 400</p>
+                                <p>New York, NY 10004</p>
+                            </div>
+                        </div>
+
+                        <div class="response-time">
+                            <p><strong>Response Time:</strong> We typically respond to all inquiries within 24 business hours.</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-wrapper">
+                        <h2>Schedule Your Free Consultation</h2>
+                        <p>Fill out the form below and we'll get back to you to schedule your free, no-obligation consultation.</p>
+                        
+                        <form class="contact-form" id="contactForm" action="https://formspree.io/f/mwvnovoz" method="POST">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name *</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="lastName">Last Name *</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="goal">Primary Goal *</label>
+                                <select id="goal" name="goal" required>
+                                    <option value="">Select your primary goal...</option>
+                                    <option value="mortgage">Buy a house / Mortgage approval</option>
+                                    <option value="auto">Buy a car / Auto loan</option>
+                                    <option value="refinance">Refinance existing loan</option>
+                                    <option value="credit-cards">Get better credit cards</option>
+                                    <option value="general">Improve credit score generally</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeline">Target Timeline</label>
+                                <select id="timeline" name="timeline">
+                                    <option value="">When do you need results?...</option>
+                                    <option value="urgent">ASAP (1-2 months)</option>
+                                    <option value="soon">Soon (3-6 months)</option>
+                                    <option value="planning">Planning ahead (6+ months)</option>
+                                    <option value="flexible">Flexible</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Tell Us About Your Situation</label>
+                                <textarea id="message" name="message" rows="4" placeholder="Briefly describe your credit situation and what you'd like to achieve..."></textarea>
+                            </div>
+
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="consent" required>
+                                    <span>I consent to being contacted about credit repair services. I understand this is not a binding agreement and I can cancel at any time. *</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-large btn-block">Request Free Consultation</button>
+                        </form>
+
+                        <p class="form-note">* Required fields. Your information is secure and will never be shared with third parties.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="what-to-expect">
+            <div class="container">
+                <h2 class="section-title">What Happens Next?</h2>
+                
+                <div class="steps-grid">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <h3>We Review Your Request</h3>
+                        <p>Our team reviews your information within 24 hours.</p>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <h3>Schedule Consultation</h3>
+                        <p>We'll call or email to schedule your free 30-minute consultation.</p>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <h3>Review Your Credit</h3>
+                        <p>We'll analyze your credit reports and identify improvement opportunities.</p>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <h3>Get Your Plan</h3>
+                        <p>Receive a custom action plan and pricing tailored to your situation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">Fresh Start Credit Solutions</span>
+                    </a>
+                    <p>Helping you build the credit you need for the life you want.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="services.html">Services</a></li>
+                    <li><a href="credit-analyzer.html">🔍 Analyzer</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>📧 info@freshstartcredit.com</p>
+                    <p>📱 (555) 123-4567</p>
+                    <p>🕐 Mon-Fri: 9AM - 6PM EST</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Fresh Start Credit Solutions. All rights reserved.</p>
+                <p class="disclaimer">Credit repair services provided in accordance with the Credit Repair Organizations Act.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const data = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    alert('Thank you! Your consultation request has been sent. We\'ll contact you within 24 business hours at the phone number or email you provided.');
+                    form.reset();
+                } else {
+                    response.json().then(data => {
+                        if (data.errors) {
+                            alert('Oops! ' + data.errors.map(error => error.message).join(', '));
+                        } else {
+                            alert('Oops! There was a problem submitting your form. Please try again or call us at (305) 747-3973.');
+                        }
+                    });
+                }
+            }).catch(error => {
+                alert('Oops! There was a problem submitting your form. Please try again or call us at (305) 747-3973.');
+            });
+        });
+    </script>
+</body>
+</html>
