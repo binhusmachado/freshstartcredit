@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portal Login Test</title>
+    <style>
+        body { font-family: Arial; padding: 50px; max-width: 600px; margin: 0 auto; }
+        .login-box { border: 2px solid #ccc; padding: 30px; border-radius: 10px; text-align: center; }
+        input { padding: 15px; font-size: 18px; width: 80%; margin: 10px 0; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        .error { color: red; margin-top: 15px; display: none; }
+        .success { color: green; margin-top: 15px; display: none; font-size: 24px; }
+        .debug { background: #f0f0f0; padding: 15px; margin-top: 20px; text-align: left; font-family: monospace; font-size: 14px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="login-box" id="loginBox">
+        <h2>🔒 Test Portal Login</h2>
+        <p>Enter password to test</p>
+        
+        <input type="text" id="testPassword" placeholder="Enter password (visible for testing)" value="S250502m!@#"><br>
+        
+        <button onclick="attemptLogin()">Access Portal</button>
+        
+        <div id="errorMsg" class="error">Invalid access code. Please try again.</div>
+        <div id="successMsg" class="success">✅ LOGIN SUCCESSFUL!</div>
+    </div>
+
+    <div id="mainContent" class="hidden">
+        <h2>Welcome to the Portal</h2>
+        <p>You have successfully logged in!</p>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div class="debug" id="debugOutput">
+        <strong>Debug Info:</strong><br>
+        Waiting for login attempt...
+    </div>
+
+    <script>
+        const ACCESS_CODE = 'S250502m!@#';
+        
+        function attemptLogin() {
+            const input = document.getElementById('testPassword');
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            const debugOutput = document.getElementById('debugOutput');
+            const loginBox = document.getElementById('loginBox');
+            const mainContent = document.getElementById('mainContent');
+            
+            const entered = input.value;
+            const isMatch = entered === ACCESS_CODE;
+            
+            // Debug output
+            let debugHTML = '<strong>Debug Info:</strong><br>';
+            debugHTML += 'Entered: "' + entered + '"<br>';
+            debugHTML += 'Expected: "' + ACCESS_CODE + '" (<br>';
+            debugHTML += 'Match: ' + isMatch + '<br>';
+            debugHTML += 'Entered length: ' + entered.length + '<br>';
+            debugHTML += 'Expected length: ' + ACCESS_CODE.length + '<br>';
+            
+            // Character-by-character comparison
+            debugHTML += '<br><strong>Character comparison:</strong><br>';
+            for (let i = 0; i < Math.max(entered.length, ACCESS_CODE.length); i++) {
+                const e = entered[i] || '(none)';
+                const c = ACCESS_CODE[i] || '(none)';
+                const match = e === c ? '✓' : '✗';
+                debugHTML += 'Pos ' + i + ': "' + e + '" vs "' + c + '" ' + match + '<br>';
+            }
+            
+            debugOutput.innerHTML = debugHTML;
+            
+            if (isMatch) {
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'block';
+                loginBox.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                sessionStorage.setItem('portalLoggedIn', 'true');
+            } else {
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+            }
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('portalLoggedIn');
+            location.reload();
+        }
+        
+        // Check if already logged in
+        if (sessionStorage.getItem('portalLoggedIn') === 'true') {
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+        
+        // Allow Enter key
+        document.getElementById('testPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') attemptLogin();
+        });
+    </script>
+</body>
+</html>
