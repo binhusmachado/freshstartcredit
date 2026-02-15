@@ -897,7 +897,7 @@
 
                 <!-- MANUAL TAB -->
                 <div id="manualTab" class="tab-content">
-                    <form id="analyzerForm" onsubmit="event.preventDefault(); analyzeForm();">
+                    <form id="analyzerForm">
                         
                         <!-- Client Info -->
                         <div class="section">
@@ -1711,6 +1711,12 @@
                 document.getElementById('selectedFileName').textContent = selectedFile.name;
                 document.getElementById('uploadStatus').style.display = 'block';
             }
+        });
+
+        // Form submit handler
+        document.getElementById('analyzerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            analyzeForm();
         });
         
         // Drag and drop handlers
