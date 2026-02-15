@@ -594,39 +594,238 @@
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
 
-        // File Upload
-        function handleFileSelect(event) {
+        // File Upload with Auto-Extraction
+        async function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             document.getElementById('fileName').textContent = file.name;
             document.getElementById('uploadStatus').classList.remove('hidden');
+            document.getElementById('extractedItems').classList.add('hidden');
 
-            // Simulate item detection
-            setTimeout(() => {
-                detectedItems = [
-                    { type: 'Late Payment', creditor: 'Capital One', date: '2023-05', accountNumber: 'XXXX-1234' },
-                    { type: 'Collection', creditor: 'ABC Collections', date: '2022-11', accountNumber: 'COL-9876' },
-                    { type: 'Hard Inquiry', creditor: 'Auto Finance Co', date: '2023-08', accountNumber: 'INQ-4567' }
-                ];
+            // Show processing status
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'processingStatus';
+            statusDiv.className = 'alert alert-info';
+            statusDiv.innerHTML = '<strong>⏳ Processing...</strong> Extracting data from your credit report. This may take a moment.';
+            document.getElementById('uploadStatus').appendChild(statusDiv);
 
-                let html = '';
-                detectedItems.forEach((item, index) => {
-                    html += `
-                        <div class="item-row">
-                            <input type="checkbox" id="item${index}" value="${index}">
-                            <label for="item${index}">
-                                <strong>${item.type}</strong> - ${item.creditor}
-                                ${item.accountNumber ? '(Acct: ' + item.accountNumber + ')' : ''}
-                                ${item.date ? '- Date: ' + item.date : ''}
-                            </label>
+            try {
+                let extractedText = '';
+
+                if (file.type === 'application/pdf') {
+                    extractedText = await extractTextFromPDF(file);
+                } else if (file.type.startsWith('image/')) {
+                    extractedText = await extractTextFromImage(file);
+                }
+
+                // Parse the extracted text for negative items
+                detectedItems = parseCreditReport(extractedText);
+
+                // Remove processing status
+                statusDiv.remove();
+
+                if (detectedItems.length === 0) {
+                    document.getElementById('itemsList').innerHTML = `
+                        <div class="alert alert-warning">
+                            <strong>No negative items detected automatically.</strong><br>
+                            Please use the "Manual Entry" tab to add items manually.
                         </div>
                     `;
-                });
+                } else {
+                    let html = '<h4>Select items to dispute:</h4>';
+                    detectedItems.forEach((item, index) => {
+                        html += `
+                            <div class="item-row">
+                                <input type="checkbox" id="item${index}" value="${index}" checked>
+                                <label for="item${index}">
+                                    <strong>${item.type}</strong> - ${item.creditor}<br>
+                                    <small style="color: #666;">
+                                        ${item.accountNumber ? 'Account: ' + item.accountNumber + ' | ' : ''}
+                                        ${item.dateOpened ? 'Opened: ' + item.dateOpened + ' | ' : ''}
+                                        ${item.balance ? 'Balance: $' + item.balance : ''}
+                                    </small>
+                                </label>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('itemsList').innerHTML = html;
+                }
 
-                document.getElementById('itemsList').innerHTML = html;
                 document.getElementById('extractedItems').classList.remove('hidden');
-            }, 1000);
+
+            } catch (error) {
+                console.error('Extraction error:', error);
+                statusDiv.className = 'alert alert-danger';
+                statusDiv.innerHTML = '<strong>❌ Error processing file.</strong> Please try again or use Manual Entry.';
+            }
+        }
+
+        // Extract text from PDF
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+
+            return fullText;
+        }
+
+        // Extract text from image using OCR
+        async function extractTextFromImage(file) {
+            const result = await Tesseract.recognize(file, 'eng', {
+                logger: m => console.log(m)
+            });
+            return result.data.text;
+        }
+
+        // Parse credit report text for negative items
+        function parseCreditReport(text) {
+            const items = [];
+            const lowerText = text.toLowerCase();
+
+            // Look for collections
+            const collectionPatterns = [
+                /collection\s*(?:agency|account)?[\s:]*([A-Z][A-Za-z\s&.,]+?)(?=\s+(?:account|date|status|$))/gi,
+                /([A-Z][A-Za-z\s&.,]+collection[A-Za-z\s&.,]*?)(?=\s+(?:account|date|status|$))/gi,
+                /(collection[s]?)[\s:]+([^\n]+)/gi
+            ];
+
+            // Look for late payments
+            const latePaymentPatterns = [
+                /(\d+)\s*(?:day|days)?\s*late/i,
+                /late\s*payment[s]?/gi,
+                /past\s*due/gi,
+                /delinquent/gi
+            ];
+
+            // Look for charge-offs
+            const chargeOffPatterns = [
+                /charge[\s-]*off/gi,
+                /charged\s*off/gi
+            ];
+
+            // Look for inquiries
+            const inquiryPatterns = [
+                /hard\s*inquiry/gi,
+                /credit\s*inquiry/gi,
+                /inquiry\s+by[\s:]+([A-Z][A-Za-z\s&.,]+)/gi
+            ];
+
+            // Extract account numbers (typically XXXX-XXXX or last 4 digits)
+            const accountNumberPattern = /(?:account\s*(?:#|number|num|no)[:\s]*)([X\d\-]{4,})/gi;
+
+            // Extract dates (MM/DD/YYYY or MM-YYYY format)
+            const datePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g;
+
+            // Extract balances ($X,XXX.XX format)
+            const balancePattern = /\$?([\d,]+\.?\d{0,2})/g;
+
+            // Process text line by line for better accuracy
+            const lines = text.split('\n');
+            
+            lines.forEach((line, idx) => {
+                const lowerLine = line.toLowerCase();
+                let itemType = null;
+                let creditor = null;
+
+                // Detect item type
+                if (collectionPatterns.some(p => {
+                    const match = line.match(p);
+                    if (match) {
+                        creditor = match[1] || match[2] || match[0];
+                        return true;
+                    }
+                    return false;
+                })) {
+                    itemType = 'Collection';
+                } else if (chargeOffPatterns.some(p => lowerLine.match(p))) {
+                    itemType = 'Charge-Off';
+                } else if (latePaymentPatterns.some(p => lowerLine.match(p))) {
+                    itemType = 'Late Payment';
+                } else if (inquiryPatterns.some(p => {
+                    const match = line.match(p);
+                    if (match) {
+                        creditor = match[1];
+                        return true;
+                    }
+                    return false;
+                })) {
+                    itemType = 'Hard Inquiry';
+                }
+
+                // If we found an item type, extract more details
+                if (itemType && !items.some(i => i.creditor === creditor && i.type === itemType)) {
+                    // Look for creditor name if not already found
+                    if (!creditor) {
+                        // Try to extract creditor from the line or surrounding lines
+                        const creditorMatch = line.match(/([A-Z][A-Za-z\s&.,]{2,50})(?:\s+(?:account|#|\d))/);
+                        if (creditorMatch) {
+                            creditor = creditorMatch[1].trim();
+                        }
+                    }
+
+                    // Extract account number
+                    const accountMatch = line.match(accountNumberPattern) || 
+                                        (lines[idx + 1] && lines[idx + 1].match(accountNumberPattern));
+                    const accountNumber = accountMatch ? accountMatch[1] : '';
+
+                    // Extract date
+                    const dateMatch = line.match(datePattern);
+                    const dateOpened = dateMatch ? dateMatch[0] : '';
+
+                    // Extract balance
+                    const balanceMatch = line.match(balancePattern);
+                    const balance = balanceMatch ? balanceMatch[1].replace(/,/g, '') : '';
+
+                    if (creditor && creditor.length > 2) {
+                        items.push({
+                            type: itemType,
+                            creditor: creditor.replace(/[^a-zA-Z0-9\s&.,]/g, '').trim(),
+                            accountNumber: accountNumber,
+                            dateOpened: dateOpened,
+                            balance: balance,
+                            reason: ''
+                        });
+                    }
+                }
+            });
+
+            // Also do a broader search for creditors mentioned with negative keywords
+            const creditorNames = text.match(/([A-Z][A-Z\s&.,]{3,50})(?:\s+(?:reported|balance|status))/g);
+            if (creditorNames) {
+                creditorNames.forEach(name => {
+                    const cleanName = name.replace(/\s+(?:reported|balance|status).*/i, '').trim();
+                    if (cleanName.length > 3 && !items.some(i => i.creditor === cleanName)) {
+                        // Check if this creditor appears near negative keywords
+                        const creditorIndex = text.indexOf(cleanName);
+                        const surroundingText = text.substring(Math.max(0, creditorIndex - 200), 
+                                                               Math.min(text.length, creditorIndex + 200)).toLowerCase();
+                        
+                        if (surroundingText.includes('collection') || 
+                            surroundingText.includes('late') || 
+                            surroundingText.includes('charge') ||
+                            surroundingText.includes('past due')) {
+                            items.push({
+                                type: 'Negative Account',
+                                creditor: cleanName,
+                                accountNumber: '',
+                                dateOpened: '',
+                                balance: '',
+                                reason: ''
+                            });
+                        }
+                    }
+                });
+            }
+
+            return items;
         }
 
         // Drag and drop
@@ -737,33 +936,82 @@
                 clientInfo = JSON.parse(savedInfo);
             }
 
+            // Get selected strategy
+            const selectedStrategy = sessionStorage.getItem('selectedStrategy') || 'factual';
+
             const date = new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
             });
 
-            // Build specific dispute reason based on item details
-            let specificReason = item.reason || '';
-            if (!specificReason) {
-                specificReason = `I am disputing this ${item.type} account with ${item.creditor}. `;
+            // Build strategy-specific content
+            let strategyHeader = '';
+            let strategyReason = '';
+            let strategyLegal = '';
+            let strategyRequest = '';
+
+            switch(selectedStrategy) {
+                case '605b':
+                    strategyHeader = 'RE: Section 605B Identity Theft Report - FCRA § 605B';
+                    strategyReason = `I am a victim of identity theft/fraud. This ${item.type} account with ${item.creditor} was opened fraudulently without my knowledge or authorization. I am reporting this as an identity theft incident under FCRA § 605B.`;
+                    strategyLegal = 'Under FCRA § 605B(a)(1), you are required to block adverse information resulting from identity theft within 4 business days of receiving an appropriate identity theft report. This request constitutes such a report.';
+                    strategyRequest = 'I demand that you block this information from my credit report within 4 business days as required by federal law. Failure to do so will result in immediate legal action.';
+                    break;
+                    
+                case 'ferpa':
+                    strategyHeader = 'RE: FERPA Violation - Student Loan Dispute';
+                    strategyReason = `This ${item.type} account with ${item.creditor} involves educational records. I am disputing this item based on violations of the Family Educational Rights and Privacy Act (FERPA), 20 U.S.C. § 1232g.`;
+                    strategyLegal = 'Under FERPA, educational institutions and loan servicers must comply with strict privacy requirements. Violations of FERPA may result in cancellation of the underlying debt. Under FCRA § 623(a)(5), furnishers must correct any information found to be inaccurate.';
+                    strategyRequest = 'I request immediate investigation of FERPA violations and removal of this account if FERPA violations are confirmed.';
+                    break;
+                    
+                case 'metro2':
+                    strategyHeader = 'RE: Metro 2 Format Compliance Dispute';
+                    strategyReason = `This ${item.type} account with ${item.creditor} contains Metro 2 reporting format errors that violate CDIA standards and FCRA accuracy requirements.`;
+                    strategyLegal = 'Under Metro 2 guidelines and FCRA § 607(a), furnishers must maintain reasonable procedures to assure maximum possible accuracy. Metro 2 format errors constitute prima facie evidence of inaccurate reporting requiring immediate deletion.';
+                    strategyRequest = 'I demand verification of Metro 2 compliance and deletion of this account if Metro 2 format errors are confirmed.';
+                    break;
+                    
+                case 'obsolete':
+                    strategyHeader = 'RE: Obsolete Account - FCRA § 605(a)';
+                    strategyReason = `This ${item.type} account with ${item.creditor} exceeds the maximum reporting period of 7 years (or 10 years for bankruptcy) as established by FCRA § 605(a).`;
+                    strategyLegal = 'Under FCRA § 605(a), consumer reporting agencies may not report accounts that predate the report by more than seven years (ten years for bankruptcy). Continued reporting of this obsolete item violates federal law.';
+                    strategyRequest = 'I demand immediate deletion of this obsolete account as required by FCRA § 605(a). Continued reporting exposes you to statutory damages.';
+                    break;
+                    
+                case 'state':
+                    strategyHeader = 'RE: State Consumer Protection Law Violation';
+                    strategyReason = `This ${item.type} account with ${item.creditor} violates state consumer protection laws including the Fair Credit Billing Act, state debt collection statutes, and common law duties of accuracy.`;
+                    strategyLegal = 'In addition to federal FCRA requirements, state consumer protection laws (such as state FCBA equivalents, UDAP statutes, and common law negligence standards) impose additional duties of accuracy and reasonable investigation.';
+                    strategyRequest = 'I demand compliance with both federal and applicable state consumer protection laws, including deletion if accuracy cannot be verified under the higher state standards.';
+                    break;
+                    
+                case 'factual':
+                default:
+                    strategyHeader = 'RE: Factual Dispute - FCRA § 611';
+                    strategyReason = item.reason || buildDefaultReason(item);
+                    strategyLegal = 'Under FCRA § 611(a)(1)(A), you are required to conduct a reasonable investigation of this dispute within 30 days of receipt. Under FCRA § 607(a), you must follow reasonable procedures to assure maximum possible accuracy.';
+                    strategyRequest = 'I request written confirmation of deletion or correction within 5 business days of completing your investigation.';
+                    break;
+            }
+
+            // Build specific dispute reason if not using strategy
+            function buildDefaultReason(item) {
+                let reason = `I am disputing this ${item.type} account with ${item.creditor}. `;
                 
                 if (item.type === 'Late Payment') {
-                    specificReason += `I dispute the reported late payment(s) as I have records showing payments were made on time. `;
-                    specificReason += `The reported delinquency is inaccurate and damaging my credit score.`;
+                    reason += `I dispute the reported late payment(s) as I have records showing payments were made on time. The reported delinquency is inaccurate and damaging my credit score.`;
                 } else if (item.type === 'Collection') {
-                    specificReason += `I do not recognize this collection account and request validation of the debt. `;
-                    specificReason += `If this debt is valid, I request proof of assignment from the original creditor.`;
+                    reason += `I do not recognize this collection account and request validation of the debt. If this debt is valid, I request proof of assignment from the original creditor.`;
                 } else if (item.type === 'Charge-Off') {
-                    specificReason += `I dispute the accuracy of this charge-off. `;
-                    specificReason += `I request verification of the date of first delinquency and the accuracy of the reported balance.`;
+                    reason += `I dispute the accuracy of this charge-off. I request verification of the date of first delinquency and the accuracy of the reported balance.`;
                 } else if (item.type === 'Hard Inquiry') {
-                    specificReason += `I did not authorize this credit inquiry. `;
-                    specificReason += `Please provide documentation showing my written authorization for this inquiry.`;
+                    reason += `I did not authorize this credit inquiry. Please provide documentation showing my written authorization for this inquiry.`;
                 } else {
-                    specificReason += `This account contains inaccurate information. `;
-                    specificReason += `I request that you verify all details with the original creditor and remove this item if it cannot be verified.`;
+                    reason += `This account contains inaccurate information. I request that you verify all details with the original creditor and remove this item if it cannot be verified.`;
                 }
+                return reason;
             }
 
             const letter = `${clientInfo.fullName}
@@ -779,17 +1027,19 @@ Experian
 P.O. Box 4500
 Allen, TX 75013
 
-RE: Formal Dispute of Inaccurate Information - FCRA § 611
+${strategyHeader}
 Account: ${item.creditor}${item.accountNumber ? ' - Account #' + item.accountNumber : ''}
 
 To Whom It May Concern:
 
-I am writing to formally dispute inaccurate information appearing on my credit report. Under the Fair Credit Reporting Act (FCRA) § 611(a)(1)(A), you are required to conduct a reasonable investigation of this dispute within thirty (30) days of receipt.
+I am writing to formally dispute inaccurate information appearing on my credit report.
 
 CONSUMER INFORMATION:
 Name: ${clientInfo.fullName}
 Address: ${clientInfo.address}, ${clientInfo.city}, ${clientInfo.state} ${clientInfo.zip}
 SSN: XXX-XX-${clientInfo.ssn}
+Phone: ${clientInfo.phone}
+Email: ${clientInfo.email}
 
 ITEM DISPUTED:
 - Creditor/Furnisher: ${item.creditor}
@@ -797,6 +1047,49 @@ ITEM DISPUTED:
 - Account Number: ${item.accountNumber || 'Not Provided'}
 - Date Opened: ${item.dateOpened || 'Unknown'}
 ${item.dateDelinquent ? '- Date of First Delinquency: ' + item.dateDelinquent + '\n' : ''}- Current Status: Reported as Negative/Adverse
+
+SPECIFIC REASON FOR DISPUTE:
+${strategyReason}
+
+${strategyLegal}
+
+REQUEST FOR INVESTIGATION:
+I request that you conduct a complete investigation of this disputed item. Specifically, I request that you:
+
+1. Contact the furnisher (${item.creditor}) to verify the accuracy of this account
+2. Provide me with the results of your investigation within the statutory time period
+3. Forward all documentation supporting the continued reporting of this item
+4. If the furnisher cannot verify this information, delete it from my credit report immediately
+
+${strategyRequest}
+
+Thank you for your prompt attention to this matter.
+
+Respectfully submitted,
+
+
+_________________________________
+${clientInfo.fullName}
+Date: ${date}
+
+Enclosures:
+- Copy of Government-Issued Photo ID
+- Copy of Social Security Card (showing last 4 digits: ${clientInfo.ssn})
+- Copy of Recent Utility Bill (proving current address)
+${selectedStrategy === '605b' ? '- Copy of Identity Theft Report/Police Report\n' : ''}${selectedStrategy === 'ferpa' ? '- Copy of Student Enrollment Records\n' : ''}
+
+CC: Consumer Financial Protection Bureau (if unresolved)
+     - file a complaint at consumerfinance.gov/complaint
+            `.trim();
+
+            generatedLetters.push({
+                creditor: item.creditor,
+                type: item.type,
+                strategy: selectedStrategy,
+                content: letter,
+                date: new Date().toISOString()
+            });
+        }
 
 SPECIFIC REASON FOR DISPUTE:
 ${specificReason}
