@@ -1836,6 +1836,10 @@
                 document.getElementById('additionalNotes').value = analysis.additionalNotes;
             }
             
+            // Store the dispute reason for letter generation
+            window.extractedDisputeReason = analysis.disputeReason || '';
+            console.log('Stored dispute reason:', window.extractedDisputeReason);
+            
             // Auto-check ALL detected negative items
             analysis.negativeItems.forEach(item => {
                 const checkbox = document.querySelector(`input[name="negativeItems"][value="${item}"]`);
@@ -2564,8 +2568,16 @@
             let disputeReason = '';
             let legalCitations = '';
             
-            // Build dispute reason based on special programs
-            if (specialPrograms.includes('section605b')) {
+            // Build dispute reason - PRIORITY: Extracted > Additional Notes > Special Programs > Default
+            if (window.extractedDisputeReason && window.extractedDisputeReason.length > 10) {
+                // Use the AI-extracted dispute reason from document analysis
+                disputeReason = window.extractedDisputeReason;
+                console.log('Using extracted dispute reason');
+            } else if (data.additionalNotes && data.additionalNotes.length > 20) {
+                // Build from additional notes
+                disputeReason = `I am disputing this account due to the following specific issues: ${data.additionalNotes.replace(/===.*?===/g, '').replace(/\n/g, ' ').trim()}`;
+                console.log('Using additional notes for dispute reason');
+            } else if (specialPrograms.includes('section605b')) {
                 disputeReason = `I am a victim of identity theft. Pursuant to FCRA § 605B(a)(1), you are REQUIRED to block this information within 4 business days of receiving this report.`;
             } else if (specialPrograms.includes('ferpa')) {
                 disputeReason = `My personal and financial information was compressed in violation of FERPA (Family Educational Rights and Privacy Act). I request full cancellation of this student loan debt.`;
@@ -2593,46 +2605,52 @@
 
 Date: ${new Date().toLocaleDateString()}
 
-RE: Formal Credit Report Dispute - ${data.creditorName}
-Name: ${data.clientName}
-SSN: XXX-XX-${data.ssnLast4}
-Address: ${data.clientAddress}
+RE: Formal Credit Report Dispute - ${data.creditorName || 'Account in Question'}
+Name: ${data.clientName || '[YOUR FULL NAME]'}
+SSN: XXX-XX-${data.ssnLast4 || '[LAST 4]'}
+Address: ${data.clientAddress || '[YOUR ADDRESS]'}
 
 To Whom It May Concern:
 
 I am writing to formally dispute the following account appearing on my credit report:
 
-CREDITOR: ${data.creditorName}
-ACCOUNT NUMBER: ${data.accountNumber || 'See attached'}
-${data.dateOpened ? `DATE OPENED: ${data.dateOpened}` : ''}
+CREDITOR: ${data.creditorName || '[CREDITOR NAME]'}
+ACCOUNT NUMBER: ${data.accountNumber || 'See attached documentation'}
+${data.dateOpened ? `DATE OPENED: ${data.dateOpened}` : 'DATE OPENED: [DATE]'}
 ${data.dateDelinquent ? `DATE OF FIRST DELINQUENCY: ${data.dateDelinquent}` : ''}
 
 DISPUTE REASON:
-${disputeReason}
+${disputeReason || 'I dispute the accuracy of this account. The information reported contains factual errors and cannot be verified as accurate.'}
 
-${legalCitations}
+${data.additionalNotes ? '\nSPECIFIC ISSUES IDENTIFIED:\n' + data.additionalNotes + '\n' : ''}
 
-${data.additionalNotes ? 'ADDITIONAL INFORMATION:\n' + data.additionalNotes + '\n\n' : ''}
+${legalCitations ? legalCitations : 'This dispute is made pursuant to the Fair Credit Reporting Act (FCRA), 15 U.S.C. § 1681 et seq.'}
+
 UNDER THE FAIR CREDIT REPORTING ACT, YOU ARE REQUIRED TO:
 
-1. Conduct a reasonable investigation within 30 days
-2. Verify ALL information with the original creditor
-3. Delete any information that cannot be verified
-4. Provide written results of your investigation
-5. Send an updated copy of my credit report
+1. Conduct a reasonable investigation within 30 days of receiving this dispute
+2. Verify ALL information directly with the original creditor/furnisher
+3. Delete any information that cannot be verified as accurate
+4. Provide written results of your investigation within 5 business days of completion
+5. Send an updated copy of my credit report reflecting any changes
+6. Cease reporting information found to be inaccurate or unverifiable
 
-If you cannot verify this account as accurate, you MUST delete it per FCRA requirements.
+If you cannot verify this account as 100% accurate and complete, you MUST delete it per FCRA § 1681e(b) and § 1681i(a)(5)(A).
 
-I have enclosed:
-- Copy of government-issued ID
-- Proof of address
-${specialPrograms.includes('section605b') ? '- FTC Identity Theft Report\n- Police Report' : ''}
+I have enclosed the following documents:
+- Copy of government-issued photo ID
+- Proof of current address (utility bill or bank statement)
+- ${specialPrograms.includes('section605b') ? 'FTC Identity Theft Report and Police Report (for Section 605B identity theft claim)\n- ' : ''}Supporting documentation regarding the disputed inaccuracies
+
+This is a formal dispute. Please investigate thoroughly and respond in writing within the statutory time period.
 
 Sincerely,
 
-${data.clientName}
+${data.clientName || '[YOUR SIGNATURE]'}
 
-CC: Consumer Financial Protection Bureau (CFPB)`;
+CC: Consumer Financial Protection Bureau (CFPB)
+    Federal Trade Commission (FTC)
+    ${data.clientState && stateLaws[data.clientState] ? `[${stateLaws[data.clientState].name}]` : '[State Attorney General]'}`, 
 
             const bureauAddresses = {
                 experian: 'Experian\nP.O. Box 4500\nAllen, TX 75013',
